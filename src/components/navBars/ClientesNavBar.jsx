@@ -17,12 +17,12 @@ export const ClientesNavBar = () => {
       dir: ' ',
       icon: 'bi-arrow-return-left'
     },
-    {
+    /*{
       name: 'Beneficiarios',
       url: '/clientes/beneficiarios',
       dir: 'beneficiarios',
       icon: 'bi-people-fill'
-    },
+    },*/
     {
       name: 'Organizaciones',
       url: '/clientes/organizaciones',
