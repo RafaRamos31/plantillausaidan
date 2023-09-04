@@ -2,7 +2,7 @@ import { Navbar, Container, Nav, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-export const ConfigNavBar = () => {
+export const PlanNavBar = () => {
   const [actual, setActual] = useState('');
 
   useEffect(() => {
@@ -14,62 +14,44 @@ export const ConfigNavBar = () => {
     {
       name: 'Volver',
       url: '/',
-      dir: ' ',
+      dir: '',
       icon: 'bi-arrow-return-left'
     },
-    /*{
-      name: 'Usuarios',
-      url: '/configuracion/usuarios',
-      dir: 'usuarios',
-      icon: 'bi-people-fill'
-    },*/
     {
-      name: 'Roles',
-      url: '/configuracion/roles',
-      dir: 'roles',
-      icon: 'bi-wrench'
+      name: 'Resultados',
+      url: '/planificacion/resultados',
+      dir: 'resultados',
+      icon: 'bi-bar-chart-fill'
     },
     {
-      name: 'Componentes',
-      url: '/configuracion/componentes',
-      dir: 'componentes',
-      icon: 'bi-person-fill-up'
+      name: 'Indicadores',
+      url: '/planificacion/indicadores',
+      dir: 'indicadores',
+      icon: 'bi-graph-up-arrow'
     },
     {
-      name: 'Departamentos',
-      url: '/configuracion/departamentos',
-      dir: 'departamentos',
-      icon: 'bi-geo-alt-fill'
+      name: 'Estrategias',
+      url: '/planificacion/estrategias',
+      dir: 'estrategias',
+      icon: 'bi-file-earmark-text'
     },
     {
-      name: 'Municipios',
-      url: '/configuracion/municipios',
-      dir: 'municipios',
-      icon: 'bi-geo-alt-fill'
+      name: 'Actividades',
+      url: '/planificacion/actividades',
+      dir: 'actividades',
+      icon: 'bi-file-earmark-plus'
     },
     {
-      name: 'Aldeas',
-      url: '/configuracion/aldeas',
-      dir: 'aldeas',
-      icon: 'bi-geo-alt-fill'
+      name: 'Tareas',
+      url: '/planificacion/tareas',
+      dir: 'tareas',
+      icon: 'bi-bell-fill'
     },
     {
-      name: 'Caserios',
-      url: '/configuracion/caserios',
-      dir: 'caserios',
-      icon: 'bi-geo-alt-fill'
-    },
-    {
-      name: 'Áreas Temáticas',
-      url: '/configuracion/areas',
-      dir: 'areas',
-      icon: 'bi-collection-fill'
-    },
-    {
-      name: 'Sub Áreas Temáticas',
-      url: '/configuracion/subareas',
-      dir: 'subareas',
-      icon: 'bi-collection'
+      name: 'Monitoreo',
+      url: '/planificacion/monitoreo',
+      dir: 'monitoreo',
+      icon: 'bi-clipboard2-data-fill'
     }
   ]
 

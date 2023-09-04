@@ -1,12 +1,12 @@
 import { ClientesNavBar } from "../components/navBars/ClientesNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 
-export const Clientes = () => {
+export const ClientBeneficiarios = () => {
 
   return(
     <>
-    <Layout pagina={'Clientes'} SiteNavBar={ClientesNavBar}>
-      <h2>Clientes</h2>
+    <Layout pagina={'Clientes - Beneficiarios'} SiteNavBar={ClientesNavBar}>
+      <h2>Beneficiarios</h2>
     </Layout>
     </>
   );

@@ -5,7 +5,7 @@ export const Home = () => {
 
   return(
     <>
-    <Layout pagina={'Inicio'} SiteNavBar={SiteNavBar}>
+    <Layout pagina={'Sistema de Gestión USAID-AN'} SiteNavBar={SiteNavBar}>
       <h2>Home</h2>
     </Layout>
     </>

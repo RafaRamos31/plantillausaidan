@@ -6,7 +6,7 @@ export const ConfigUsuarios = () => {
   return(
     <>
     <Layout pagina={'Configuracion - Usuarios'} SiteNavBar={ConfigNavBar}>
-      <h2>Usuarios</h2>
+      <h2 className="view-title"><i className="bi bi-people-fill"></i> Usuarios</h2>
     </Layout>
     </>
   );

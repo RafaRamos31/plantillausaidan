@@ -51,27 +51,27 @@ export const SiteNavBar = () => {
 
   return (
     <>
-    <Navbar expand="lg"  className="py-0 bg-body-light">
+    <Navbar expand="sm"  className="py-0 bg-body-light">
       <Container fluid className='px-0'>
-        <Nav className="py-0 d-flex flex-column">
-          {
-            values.map((link, index) => (
-              <Link key={index} to={link.url} className={`mt-1 text-start nav-link ${actual === link.dir ? 'active' : ''}`}>
-                <Row className="d-flex align-items-center">
-                  <Col xs={2}>
-                    <i className={`my-0 bi ${link.icon}`} style={{fontSize: '1.5rem', color: 'var(--main-green)'}}></i>{' '}
-                  </Col>
-                  <Col xs={1}>
-                    <p className="my-0 mb-1 separator" style={{fontSize: '2rem'}}>|</p>
-                  </Col>
-                  <Col>
-                    <p className="my-0" style={{fontSize: '1.2rem'}}>{link.name}</p>
-                  </Col>
-                </Row>
-              </Link>
-            ))
-          }
-        </Nav>
+          <Nav className="py-0 d-flex flex-column">
+            {
+              values.map((link, index) => (
+                <Link key={index} to={link.url} className={`mt-1 text-start nav-link ${actual === link.dir ? 'active' : ''}`}>
+                  <Row className="d-flex align-items-center">
+                    <Col xs={2}>
+                      <i className={`my-0 bi ${link.icon}`} style={{fontSize: '1.5rem', color: 'var(--main-green)'}}></i>{' '}
+                    </Col>
+                    <Col xs={1}>
+                      <p className="my-0 mb-1 separator" style={{fontSize: '2rem'}}>|</p>
+                    </Col>
+                    <Col>
+                      <p className="my-0" style={{fontSize: '1.2rem'}}>{link.name}</p>
+                    </Col>
+                  </Row>
+                </Link>
+              ))
+            }
+          </Nav>
       </Container>
     </Navbar>
     </>
