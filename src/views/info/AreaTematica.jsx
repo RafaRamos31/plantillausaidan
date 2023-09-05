@@ -60,10 +60,7 @@ export const AreaTematica = () => {
         <div className='d-flex w-100 flex-wrap'>
           {
             dataSubareas.map(subarea => (
-              <>
-                <SubareaPill data={subarea}/>
-                <SubareaPill data={subarea}/>
-              </>
+              <SubareaPill key={subarea._id} data={subarea}/>
             ))
           }
         </div>

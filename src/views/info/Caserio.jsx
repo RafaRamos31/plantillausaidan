@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { ConfigNavBar } from '../../components/navBars/ConfigNavBar'
-import { useFetchGetById } from '../../hooks/useFetch'
+import { useFetchGetById, useFetchGetBody } from '../../hooks/useFetch'
 import { useEffect, useState } from 'react'
 import { Card } from 'react-bootstrap'
 import { OrganizacionPill } from '../../components/menuPills/OrganizacionPill'
@@ -21,6 +21,17 @@ export const Caserio = () => {
     }
 
   }, [data, isLoading, error])
+
+  //Organizaciones
+  const { data: organizacionesData } = useFetchGetBody('getorganizaciones', {
+    tipoOrganizacion: '',
+    nivelOrganizacion: '',
+    idDepartamento: '',
+    idMunicipio: '',
+    idAldea: '',
+    idCaserio
+  });
+
 
   if(code === 404){
     return(
@@ -56,14 +67,28 @@ export const Caserio = () => {
           <li>Geocode: {values.geocode}</li>
           <li>Departamento: {<InfoLink type={'departamento'} id={values.aldea?.municipio?.departamento?._id} nombre={values.aldea?.municipio?.departamento?.nombre}></InfoLink>}</li>
           <li>Municipio: {<InfoLink type={'municipio'} id={values.aldea?.municipio?._id} nombre={values.aldea?.municipio?.nombre}></InfoLink>}</li>
-          <li>Aldea: {<InfoLink type={'municipio'} id={values.aldea?._id} nombre={values.aldea?.nombre}></InfoLink>}</li>
+          <li>Aldea: {<InfoLink type={'aldea'} id={values.aldea?._id} nombre={values.aldea?.nombre}></InfoLink>}</li>
         </ul>
       </Card>
             
       <h3 className='mt-5'><i className="bi bi-bank2"></i> Organizaciones</h3>
-      <div className='d-flex w-100 flex-wrap'>
-          <OrganizacionPill />
-      </div>
+      {
+        organizacionesData &&
+        organizacionesData.length > 0 
+        ?
+        <div className='d-flex w-100 flex-wrap'>
+          {
+            organizacionesData.map(organizacion => (
+              <OrganizacionPill key={organizacion._id} data={organizacion}/>
+            ))
+          }
+        </div>
+        :
+        <Card className='mb-4 py-4 justify-content-center align-items-center' style={{backgroundColor: 'pink'}}>
+          <i className="bi bi-x-circle" style={{fontSize: '4rem', fontWeight: 'bold'}}></i>
+          <p className='mb-0' style={{fontSize: '1.5rem', fontWeight: 'bold'}}>No se han registrado Organizaciones para este Caserio.</p>
+        </Card>
+      }
 
       <h3 className='mt-5'><i className="bi bi-bell-fill"></i> Eventos</h3>
       <div className='d-flex w-100 flex-wrap'>

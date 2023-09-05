@@ -4,13 +4,13 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFetchGet } from "../hooks/useFetch.js";
 import { useEffect, useState } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { EditOrgtype } from "./modals/EditOrgtype.jsx";
-import { CrearOrgtype } from "./modals/CrearOrgtype.jsx";
+import { CrearCargo } from "./modals/CrearCargo.jsx";
+import { EditCargo } from "./modals/EditCargo.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
 
-export const ClientOrgtypes = () => {
+export const ClientCargos = () => {
   //Peticio de datos a la API
-  const { data, isLoading, setRefetch } = useFetchGet('orgtypes');
+  const { data, isLoading, setRefetch } = useFetchGet('cargos');
   const handleRefetch = () => {
     setRefetch(true)
   }
@@ -34,7 +34,7 @@ export const ClientOrgtypes = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentOrgtype, setCurrentOrgtype] = useState({});
+  const [currentCargo, setCurrentCargo] = useState({});
 
   //Filas y columnas para tabla
   const [rows, setRows] = useState([])
@@ -42,16 +42,27 @@ export const ClientOrgtypes = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'name', headerName: 'Tipo de Organización', width: 450,
+    { field: 'name', headerName: 'Cargo', width: 250,
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'orgtype'} 
+            type={'cargo'} 
             id={params.row.uuid}
             nombre={params.formattedValue}
           />
         );
       }
+    },
+    { field: 'organizacion', headerName: 'Organización', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'organizacion'} 
+            id={data.find(cargo => cargo.organizacion?.nombre === params.row.organizacion).organizacion._id || ''}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
     },
     {
       field: " ",
@@ -61,9 +72,10 @@ export const ClientOrgtypes = () => {
       renderCell: (params) => {
         return (
           <Button style={buttonStyle} onClick={() => {
-            setCurrentOrgtype({
+            setCurrentCargo({
               id: params.row.uuid,
-              nombre: params.row.name
+              nombre: params.row.name,
+              idOrganizacion: params.row.organizacion ? data.find(cargo => cargo.organizacion?.nombre === params.row.organizacion).organizacion._id : ''
             })
             handleShowEdit()
           }}>
@@ -77,12 +89,14 @@ export const ClientOrgtypes = () => {
   //Enviar datos a las filas
   useEffect(() => {
     if(data){
+      console.log(data)
       setRows(
-        data.map((orgtype, index) => (
+        data.map((cargo, index) => (
           { 
             id: index + 1, 
-            uuid: orgtype._id, 
-            name: orgtype.nombre
+            uuid: cargo._id, 
+            name: cargo.nombre,
+            organizacion: cargo.organizacion?.nombre || ''
           }
         ))
       );
@@ -99,12 +113,12 @@ export const ClientOrgtypes = () => {
 
   return(
     <>
-    <Layout pagina={'Clientes - Tipos de Organizaciones'} SiteNavBar={ClientesNavBar}>
-    <h2 className="view-title"><i className="bi bi-bank"></i> Tipos de Organizaciones</h2>
+    <Layout pagina={'Clientes - Cargos'} SiteNavBar={ClientesNavBar}>
+    <h2 className="view-title"><i className="bi bi-person-badge"></i> Cargos</h2>
       {/*Boton Agregar*/}
       <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
         <i className="bi bi-file-earmark-plus"></i>{' '}
-        Agregar Tipo de Organización
+        Agregar Cargo
       </Button>
       {/*Boton Actualizar*/}
       {
@@ -140,10 +154,10 @@ export const ClientOrgtypes = () => {
 
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit}>
-      <EditOrgtype handleClose={handleCloseEdit} setRefetch={handleRefetch} orgtype={currentOrgtype}/>
+      <EditCargo handleClose={handleCloseEdit} setRefetch={handleRefetch} cargo={currentCargo}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate}>
-      <CrearOrgtype handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
+      <CrearCargo handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>
   );

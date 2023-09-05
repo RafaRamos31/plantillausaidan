@@ -106,6 +106,16 @@ p{
   }
 }
 
+.pill-body{
+  transition: 0.2s ease-in;
+}
+
+.pill:hover{
+  .pill-body{
+    background-color: lightgray;
+  }
+}
+
 @media (max-width: 575px) {
   .grid-container{
     flex-direction: column;

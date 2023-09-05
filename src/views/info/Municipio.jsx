@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { ConfigNavBar } from '../../components/navBars/ConfigNavBar'
-import { useFetchGet, useFetchGetById } from '../../hooks/useFetch'
+import { useFetchGet, useFetchGetBody, useFetchGetById } from '../../hooks/useFetch'
 import { useEffect, useState } from 'react'
 import { Card } from 'react-bootstrap'
 import { OrganizacionPill } from '../../components/menuPills/OrganizacionPill'
@@ -25,6 +25,16 @@ export const Municipio = () => {
 
   //Aldeas
   const { data: dataAldeas} = useFetchGet('aldeas/'+idMunicipio); 
+
+  //Organizaciones
+  const { data: organizacionesData } = useFetchGetBody('getorganizaciones', {
+    tipoOrganizacion: '',
+    nivelOrganizacion: '',
+    idDepartamento: '',
+    idMunicipio,
+    idAldea: '',
+    idCaserio: ''
+  });
 
   if(code === 404){
     return(
@@ -70,10 +80,7 @@ export const Municipio = () => {
         <div className='d-flex w-100 flex-wrap'>
           {
             dataAldeas.map(aldea => (
-              <>
-                <AldeaPill data={aldea}/>
-                <AldeaPill data={aldea}/>
-              </>
+              <AldeaPill key={aldea._id} data={aldea}/>
             ))
           }
         </div>
@@ -85,11 +92,23 @@ export const Municipio = () => {
       }
       
       <h3 className='mt-5'><i className="bi bi-bank2"></i> Organizaciones</h3>
-      <div className='d-flex w-100 flex-wrap'>
-          <OrganizacionPill />
-          <OrganizacionPill />
-          <OrganizacionPill />
-      </div>
+      {
+        organizacionesData &&
+        organizacionesData.length > 0 
+        ?
+        <div className='d-flex w-100 flex-wrap'>
+          {
+            organizacionesData.map(organizacion => (
+              <OrganizacionPill key={organizacion._id} data={organizacion}/>
+            ))
+          }
+        </div>
+        :
+        <Card className='mb-4 py-4 justify-content-center align-items-center' style={{backgroundColor: 'pink'}}>
+          <i className="bi bi-x-circle" style={{fontSize: '4rem', fontWeight: 'bold'}}></i>
+          <p className='mb-0' style={{fontSize: '1.5rem', fontWeight: 'bold'}}>No se han registrado Organizaciones para este Municipio.</p>
+        </Card>
+      }
 
       <h3 className='mt-5'><i className="bi bi-bell-fill"></i> Eventos</h3>
       <div className='d-flex w-100 flex-wrap'>

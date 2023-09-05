@@ -17,12 +17,12 @@ export const ConfigNavBar = () => {
       dir: ' ',
       icon: 'bi-arrow-return-left'
     },
-    /*{
+    {
       name: 'Usuarios',
       url: '/configuracion/usuarios',
       dir: 'usuarios',
       icon: 'bi-people-fill'
-    },*/
+    },
     {
       name: 'Roles',
       url: '/configuracion/roles',

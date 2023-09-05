@@ -123,20 +123,21 @@ export const ConfigAreas = () => {
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
-        <div>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 5 },
-              },
-            }}
-            rowSelection={false}
-            pageSizeOptions={[5, 10]}
-            style={{ minHeight: "160px"}}
-          />
-        </div>
+
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 5 },
+            },
+          }}
+          rowSelection={false}
+          pageSizeOptions={[5, 10]}
+          style={{ minHeight: "160px"}}
+        />
+
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit}>
       <EditArea handleClose={handleCloseEdit} setRefetch={handleRefetch} area={currentArea}/>

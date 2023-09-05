@@ -4,10 +4,11 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useFetchGetBody } from "../hooks/useFetch.js";
 import { useEffect, useState } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { EditOrgtype } from "./modals/EditOrgtype.jsx";
 import useForm from "../hooks/useForm.js";
-import { getNivelOrganizacion } from "../services/staticCollections.js";
+import { getElementNivelesOrganizacion } from "../services/staticCollections.js";
 import { CrearOrganizacion } from "./modals/CrearOrganizacion.jsx";
+import { EditOrganizacion } from "./modals/EditOrganizacion.jsx";
+import { InfoLink } from "../components/InfoLink.jsx";
 
 export const ClientOrganizaciones = () => {
 
@@ -46,7 +47,7 @@ export const ClientOrganizaciones = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentOrgtype, setCurrentOrgtype] = useState({});
+  const [currentOrganizacion, setCurrentOrganizacion] = useState({});
 
   //Filas y columnas para tabla
   const [rows, setRows] = useState([])
@@ -54,14 +55,74 @@ export const ClientOrganizaciones = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 60 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'name', headerName: 'Nombre de la Organización', width: 250 },
+    { field: 'name', headerName: 'Nombre de la Organización', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'organizacion'} 
+            id={params.row.uuid}
+            nombre={params.formattedValue}
+          />
+        );
+      }
+    },
     { field: 'codigoOrganizacion', headerName: 'Código de la Organización', width: 250 },
-    { field: 'tipoOrganizacion', headerName: 'Tipo de Organización', width: 250 },
+    { field: 'tipoOrganizacion', headerName: 'Tipo de Organización', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'orgtype'} 
+            id={data.find(organizacion => organizacion.tipoOrganizacion?.nombre === params.row.tipoOrganizacion).tipoOrganizacion._id || ''}
+            nombre={params.formattedValue}
+          />
+        );
+      }
+    },
     { field: 'nivelOrganizacion', headerName: 'Nivel de Organización', width: 250 },
-    { field: 'departamento', headerName: 'Departamento', width: 250 },
-    { field: 'municipio', headerName: 'Municipio', width: 250 },
-    { field: 'aldea', headerName: 'Aldea', width: 250 },
-    { field: 'caserio', headerName: 'Caserio', width: 250 },
+    { field: 'departamento', headerName: 'Departamento', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'departamento'} 
+            id={data.find(organizacion => organizacion.departamento?.nombre === params.row.departamento).departamento._id || ''}
+            nombre={params.formattedValue}
+          />
+        );
+      }
+    },
+    { field: 'municipio', headerName: 'Municipio', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'municipio'} 
+            id={data.find(organizacion => organizacion.municipio?.nombre === params.row.municipio).municipio._id || ''}
+            nombre={params.formattedValue}
+          />
+        );
+      }
+    },
+    { field: 'aldea', headerName: 'Aldea', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'aldea'} 
+            id={data.find(organizacion => organizacion.aldea?.nombre === params.row.aldea).aldea._id || ''}
+            nombre={params.formattedValue}
+          />
+        );
+      }
+    },
+    { field: 'caserio', headerName: 'Caserio', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'caserio'} 
+            id={data.find(organizacion => organizacion.caserio?.nombre === params.row.caserio).caserio._id || ''}
+            nombre={params.formattedValue}
+          />
+        );
+      }
+    },
     { field: 'telefonoOrganizacion', headerName: 'Teléfono de Organización', width: 250 },
     { field: 'nombreContacto', headerName: 'Nombre de Contacto', width: 250 },
     { field: 'telefonoContacto', headerName: 'Telefono de Contacto', width: 250 },
@@ -74,9 +135,20 @@ export const ClientOrganizaciones = () => {
       renderCell: (params) => {
         return (
           <Button style={buttonStyle} onClick={() => {
-            setCurrentOrgtype({
+            setCurrentOrganizacion({
               id: params.row.uuid,
-              nombre: params.row.name
+              nombre: params.row.name,
+              codigoOrganizacion: params.row.codigoOrganizacion,
+              tipoOrganizacion: params.row.tipoOrganizacion ? data.find(organizacion => organizacion.tipoOrganizacion?.nombre === params.row.tipoOrganizacion).tipoOrganizacion._id : '',
+              nivelOrganizacion: params.row.nivelOrganizacion,
+              departamento: params.row.departamento ? data.find(organizacion => organizacion.departamento?.nombre === params.row.departamento).departamento._id : '',
+              municipio: params.row.municipio ? data.find(organizacion => organizacion.municipio?.nombre === params.row.municipio).municipio._id : '',
+              aldea: params.row.aldea ? data.find(organizacion => organizacion.aldea?.nombre === params.row.aldea).aldea._id : '',
+              caserio: params.row.caserio ? data.find(organizacion => organizacion.caserio?.nombre === params.row.caserio).caserio._id : '',
+              telefonoOrganizacion: params.row.telefonoOrganizacion,
+              nombreContacto: params.row.nombreContacto,
+              telefonoContacto: params.row.telefonoContacto,
+              correoContacto: params.row.correoContacto,
             })
             handleShowEdit()
           }}>
@@ -98,7 +170,7 @@ export const ClientOrganizaciones = () => {
             name: organizacion.nombre,
             codigoOrganizacion: organizacion.codigoOrganizacion,
             tipoOrganizacion: organizacion.tipoOrganizacion?.nombre || '',
-            nivelOrganizacion: getNivelOrganizacion(organizacion.nivelOrganizacion),
+            nivelOrganizacion: getElementNivelesOrganizacion(organizacion.nivelOrganizacion),
             departamento: organizacion.departamento?.nombre || '',
             municipio: organizacion.municipio?.nombre || '',
             aldea: organizacion.aldea?.nombre || '',
@@ -147,25 +219,26 @@ export const ClientOrganizaciones = () => {
           <span className="visually-hidden">Cargando...</span>
         </Button>
       }
-      <div>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          rowSelection={false}
-          pageSizeOptions={[5, 10]}
-          style={{ minHeight: "160px"}}
-        />
-      </div>
+
+      <DataGrid
+        autoHeight
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { page: 0, pageSize: 5 },
+          },
+        }}
+        rowSelection={false}
+        pageSizeOptions={[5, 10]}
+        style={{ minHeight: "160px"}}
+      />
+ 
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit}>
-      <EditOrgtype handleClose={handleCloseEdit} setRefetch={handleRefetch} orgtype={currentOrgtype}/>
+      <EditOrganizacion handleClose={handleCloseEdit} setRefetch={handleRefetch} organizacion={currentOrganizacion}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal size="md" show={showCreate} onHide={handleCloseCreate}>
       <CrearOrganizacion handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

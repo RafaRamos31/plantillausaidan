@@ -136,20 +136,21 @@ return(
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
-        <div>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 10 },
-              },
-            }}
-            rowSelection={false}
-            pageSizeOptions={[10, 20]}
-            style={{ minHeight: "160px"}}
-          />
-        </div>
+
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 10 },
+            },
+          }}
+          rowSelection={false}
+          pageSizeOptions={[10, 20]}
+          style={{ minHeight: "160px"}}
+        />
+
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit}>
       <EditSubarea handleClose={handleCloseEdit} setRefetch={handleRefetch} subarea={currentSubarea}/>

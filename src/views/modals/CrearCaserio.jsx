@@ -49,9 +49,7 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
     geocode: ''
   });
   
-
   //Editar Municipio en Formulario
-
   useEffect(() => {
     if(values.idDepartamento && values.idDepartamento.length > 0){
       setQueryMunicipios('municipios/'+values.idDepartamento)
@@ -88,7 +86,6 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
     
   }, [values, aldeas])
   
-
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('caserios', {...values, geocode: `${aldeaGeo}${values.geocode}`}) 
 

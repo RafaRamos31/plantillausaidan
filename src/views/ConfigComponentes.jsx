@@ -114,20 +114,21 @@ export const ConfigComponentes = () => {
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
-        <div>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 5 },
-              },
-            }}
-            rowSelection={false}
-            pageSizeOptions={[5, 10]}
-            style={{ minHeight: "160px"}}
-          />
-        </div>
+
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 5 },
+            },
+          }}
+          rowSelection={false}
+          pageSizeOptions={[5, 10]}
+          style={{ minHeight: "160px"}}
+        />
+
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit}>
       <EditComponentes handleClose={handleCloseEdit} setRefetch={handleRefetch} componente={currentComponent}/>

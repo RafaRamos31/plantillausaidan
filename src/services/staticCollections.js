@@ -1,10 +1,15 @@
-export function getNivelOrganizacion(i) {
-  const arrayNivelesOrganizacion = ['Nacional', 'Departamental', 'Municipal', 'Comunitario']
+const arrayNivelesOrganizacion = ['Nacional', 'Departamental', 'Municipal', 'Comunitario']
+
+export function getArrayNivelesOrganizacion() {
+  return arrayNivelesOrganizacion
+}
+
+export function getElementNivelesOrganizacion(i) {
   return arrayNivelesOrganizacion[i];
 }
 
-export function getArrayNivelesOrganizacion(i) {
-  return ['Nacional', 'Departamental', 'Municipal', 'Comunitario']
+export function getIndexNivelesOrganizacion(string) {
+  return arrayNivelesOrganizacion.indexOf(string)
 }
 
 

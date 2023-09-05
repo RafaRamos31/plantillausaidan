@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { ConfigNavBar } from '../../components/navBars/ConfigNavBar'
-import { useFetchGet, useFetchGetById } from '../../hooks/useFetch'
+import { useFetchGet, useFetchGetBody, useFetchGetById } from '../../hooks/useFetch'
 import { useEffect, useState } from 'react'
 import { Card } from 'react-bootstrap'
 import { MunicipioPill } from '../../components/menuPills/MunicipioPill'
@@ -24,6 +24,16 @@ export const Departamento = () => {
   //Municipios
   const { data: dataMunicipios} = useFetchGet('municipios/'+idDepartamento);
   
+  //Organizaciones
+  const { data: organizacionesData } = useFetchGetBody('getorganizaciones', {
+    tipoOrganizacion: '',
+    nivelOrganizacion: '',
+    idDepartamento,
+    idMunicipio: '',
+    idAldea: '',
+    idCaserio: ''
+  });
+
   if(code === 404){
     return(
     <Layout pagina={'Departamento - No Encontrado'} SiteNavBar={ConfigNavBar}>
@@ -67,11 +77,7 @@ export const Departamento = () => {
         <div className='d-flex w-100 flex-wrap'>
           {
             dataMunicipios.map(municipio => (
-              <>
-              
-              <MunicipioPill data={municipio}/>
-              <MunicipioPill data={municipio}/>
-              </>
+              <MunicipioPill key={municipio._id} data={municipio}/>
             ))
           }
         </div>
@@ -83,11 +89,23 @@ export const Departamento = () => {
       }
 
       <h3 className='mt-5'><i className="bi bi-bank2"></i> Organizaciones</h3>
-      <div className='d-flex w-100 flex-wrap'>
-          <OrganizacionPill />
-          <OrganizacionPill />
-          <OrganizacionPill />
-      </div>
+      {
+        organizacionesData &&
+        organizacionesData.length > 0 
+        ?
+        <div className='d-flex w-100 flex-wrap'>
+          {
+            organizacionesData.map(organizacion => (
+              <OrganizacionPill key={organizacion._id} data={organizacion}/>
+            ))
+          }
+        </div>
+        :
+        <Card className='mb-4 py-4 justify-content-center align-items-center' style={{backgroundColor: 'pink'}}>
+          <i className="bi bi-x-circle" style={{fontSize: '4rem', fontWeight: 'bold'}}></i>
+          <p className='mb-0' style={{fontSize: '1.5rem', fontWeight: 'bold'}}>No se han registrado Organizaciones para este Departamento.</p>
+        </Card>
+      }
 
       <h3 className='mt-5'><i className="bi bi-bell-fill"></i> Eventos</h3>
       <Card className='mb-4 py-4 justify-content-center align-items-center' style={{backgroundColor: 'pink'}}>

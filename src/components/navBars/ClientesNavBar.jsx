@@ -17,12 +17,12 @@ export const ClientesNavBar = () => {
       dir: ' ',
       icon: 'bi-arrow-return-left'
     },
-    /*{
+    {
       name: 'Beneficiarios',
       url: '/clientes/beneficiarios',
       dir: 'beneficiarios',
       icon: 'bi-people-fill'
-    },*/
+    },
     {
       name: 'Organizaciones',
       url: '/clientes/organizaciones',
@@ -34,6 +34,12 @@ export const ClientesNavBar = () => {
       url: '/clientes/orgtypes',
       dir: 'orgtypes',
       icon: 'bi-bank'
+    },
+    {
+      name: 'Cargos',
+      url: '/clientes/cargos',
+      dir: 'cargos',
+      icon: 'bi-person-badge'
     }
   ]
 

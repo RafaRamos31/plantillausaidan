@@ -53,7 +53,7 @@ export const ConfigMunicipios = () => {
         );
       } 
     },
-    { field: 'departamento', headerName: 'Departamento', width: 250, description: 'Departamento al que pertenece el Municipio.',
+    { field: 'departamento', headerName: 'Departamento', width: 200, description: 'Departamento al que pertenece el Municipio.',
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -139,20 +139,21 @@ export const ConfigMunicipios = () => {
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
-        <div>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 10 },
-              },
-            }}
-            rowSelection={false}
-            pageSizeOptions={[10, 20]}
-            style={{ minHeight: "160px"}}
-          />
-        </div>
+
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 10 },
+            },
+          }}
+          rowSelection={false}
+          pageSizeOptions={[10, 20]}
+          style={{ minHeight: "160px"}}
+        />
+
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit}>
       <EditMunicipio handleClose={handleCloseEdit} setRefetch={handleRefetch} municipio={currentMunicipio}/>
