@@ -42,6 +42,8 @@ export const ClientCargos = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Cargo', width: 250,
       renderCell: (params) => {
         return (
@@ -95,6 +97,8 @@ export const ClientCargos = () => {
           { 
             id: index + 1, 
             uuid: cargo._id, 
+            ultimaEdicion: new Date(cargo.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: cargo.nombre,
             organizacion: cargo.organizacion?.nombre || ''
           }
@@ -146,6 +150,13 @@ export const ClientCargos = () => {
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
           },
+          columns: {
+            columnVisibilityModel: {
+              uuid: false,
+              ultimaEdicion: false,
+              editor: false
+            },
+          },
         }}
         rowSelection={false}
         pageSizeOptions={[5, 10]}
@@ -153,10 +164,10 @@ export const ClientCargos = () => {
       />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditCargo handleClose={handleCloseEdit} setRefetch={handleRefetch} cargo={currentCargo}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearCargo handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

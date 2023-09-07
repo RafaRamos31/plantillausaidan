@@ -42,6 +42,8 @@ export const ConfigAldeas = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 80 },
     { field: 'uuid', headerName: 'uuid', width: 220, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Nombre de la Aldea', width: 200, description: 'Nombre de la Aldea.',
       renderCell: (params) => {
         return (
@@ -108,6 +110,8 @@ export const ConfigAldeas = () => {
           { 
             id: index + 1, 
             uuid: aldea._id, 
+            ultimaEdicion: new Date(aldea.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: aldea.nombre,
             municipio: aldea.municipio?.nombre || '',
             departamento: aldea.municipio?.departamento?.nombre || '',
@@ -161,6 +165,13 @@ export const ConfigAldeas = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 10 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[10, 20]}
@@ -168,10 +179,10 @@ export const ConfigAldeas = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditAldea handleClose={handleCloseEdit} setRefetch={handleRefetch} aldea={currentAldea}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearAldea handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

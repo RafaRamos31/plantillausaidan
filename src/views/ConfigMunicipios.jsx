@@ -42,6 +42,8 @@ export const ConfigMunicipios = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Nombre del Municipio', width: 250, description: 'Nombre del Municipio.',
       renderCell: (params) => {
         return (
@@ -96,6 +98,8 @@ export const ConfigMunicipios = () => {
           { 
             id: index + 1, 
             uuid: municipio._id, 
+            ultimaEdicion: new Date(municipio.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: municipio.nombre,
             departamento: municipio.departamento?.nombre || '',
             geocode: municipio.geocode
@@ -148,6 +152,13 @@ export const ConfigMunicipios = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 10 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[10, 20]}
@@ -155,10 +166,10 @@ export const ConfigMunicipios = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditMunicipio handleClose={handleCloseEdit} setRefetch={handleRefetch} municipio={currentMunicipio}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearMunicipio handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

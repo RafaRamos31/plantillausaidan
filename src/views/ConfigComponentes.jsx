@@ -43,6 +43,8 @@ export const ConfigComponentes = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Nombre del Componente', width: 450, description: 'Nombre para identificar el Componente.'},
     {
       field: " ",
@@ -73,6 +75,8 @@ export const ConfigComponentes = () => {
           { 
             id: index + 1, 
             uuid: componente._id, 
+            ultimaEdicion: new Date(componente.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: componente.nombre
           }
         ))
@@ -123,6 +127,13 @@ export const ConfigComponentes = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 5 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[5, 10]}
@@ -130,10 +141,10 @@ export const ConfigComponentes = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditComponentes handleClose={handleCloseEdit} setRefetch={handleRefetch} componente={currentComponent}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearComponentes handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

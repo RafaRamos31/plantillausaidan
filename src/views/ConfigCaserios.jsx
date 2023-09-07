@@ -42,6 +42,8 @@ export const ConfigCaserios = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 60 },
     { field: 'uuid', headerName: 'uuid', width: 220, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Nombre del Caserio', width: 200, description: 'Nombre del Caserio.',
       renderCell: (params) => {
         return (
@@ -120,6 +122,8 @@ export const ConfigCaserios = () => {
           { 
             id: index + 1, 
             uuid: caserio._id, 
+            ultimaEdicion: new Date(caserio.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: caserio.nombre,
             aldea: caserio.aldea?.nombre || '',
             municipio: caserio.aldea?.municipio?.nombre || '',
@@ -174,6 +178,13 @@ export const ConfigCaserios = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 10 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[10, 20]}
@@ -181,10 +192,10 @@ export const ConfigCaserios = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditCaserio handleClose={handleCloseEdit} setRefetch={handleRefetch} caserio={currentCaserio}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearCaserio handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

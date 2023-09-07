@@ -42,6 +42,8 @@ export const ConfigAreas = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Área Temática', width: 300, description: 'Nombre para identificar el Área Temática.',
       renderCell: (params) => {
         return (
@@ -82,6 +84,8 @@ export const ConfigAreas = () => {
           { 
             id: index + 1, 
             uuid: area._id, 
+            ultimaEdicion: new Date(area.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: area.nombre
           }
         ))
@@ -132,6 +136,13 @@ export const ConfigAreas = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 5 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[5, 10]}
@@ -139,10 +150,10 @@ export const ConfigAreas = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditArea handleClose={handleCloseEdit} setRefetch={handleRefetch} area={currentArea}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearArea handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

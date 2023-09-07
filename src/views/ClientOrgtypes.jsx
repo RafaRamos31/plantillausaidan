@@ -42,6 +42,8 @@ export const ClientOrgtypes = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Tipo de Organización', width: 450,
       renderCell: (params) => {
         return (
@@ -81,7 +83,9 @@ export const ClientOrgtypes = () => {
         data.map((orgtype, index) => (
           { 
             id: index + 1, 
-            uuid: orgtype._id, 
+            uuid: orgtype._id,
+            ultimaEdicion: new Date(orgtype.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos', 
             name: orgtype.nombre
           }
         ))
@@ -132,6 +136,13 @@ export const ClientOrgtypes = () => {
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
           },
+          columns: {
+            columnVisibilityModel: {
+              uuid: false,
+              ultimaEdicion: false,
+              editor: false
+            },
+          },
         }}
         rowSelection={false}
         pageSizeOptions={[5, 10]}
@@ -139,10 +150,10 @@ export const ClientOrgtypes = () => {
       />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditOrgtype handleClose={handleCloseEdit} setRefetch={handleRefetch} orgtype={currentOrgtype}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearOrgtype handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

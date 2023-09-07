@@ -42,6 +42,8 @@ export const ConfigRoles = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Nombre del Rol', width: 450, description: 'Nombre para identificar el Rol.' },
     {
       field: " ",
@@ -72,6 +74,8 @@ export const ConfigRoles = () => {
           { 
             id: index + 1, 
             uuid: rol._id, 
+            ultimaEdicion: new Date(rol.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: rol.nombre
           }
         ))
@@ -122,6 +126,13 @@ export const ConfigRoles = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 5 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[5, 10]}
@@ -129,10 +140,10 @@ export const ConfigRoles = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditRoles handleClose={handleCloseEdit} setRefetch={handleRefetch} rol={currentRol}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearRoles handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

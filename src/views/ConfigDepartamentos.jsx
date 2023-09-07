@@ -42,6 +42,8 @@ export const ConfigDepartamentos = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 100 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 200 },
     { field: 'name', headerName: 'Nombre del Departamento', width: 300,
       renderCell: (params) => {
         return (
@@ -84,6 +86,8 @@ export const ConfigDepartamentos = () => {
           { 
             id: index + 1, 
             uuid: departamento._id, 
+            ultimaEdicion: new Date(departamento.ultimaEdicion).toLocaleString(),
+            editor: 'Rafael Ramos',
             name: departamento.nombre,
             geocode: departamento.geocode
           }
@@ -135,6 +139,13 @@ export const ConfigDepartamentos = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 5 },
             },
+            columns: {
+              columnVisibilityModel: {
+                uuid: false,
+                ultimaEdicion: false,
+                editor: false
+              },
+            },
           }}
           rowSelection={false}
           pageSizeOptions={[5, 10]}
@@ -142,10 +153,10 @@ export const ConfigDepartamentos = () => {
         />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit}>
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditDepartamento handleClose={handleCloseEdit} setRefetch={handleRefetch} departamento={currentDepartamento}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate}>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearDepartamento handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>

@@ -393,7 +393,7 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
             Correo de Contacto:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='correoContacto' name='correoContacto' value={values.correoContacto} onChange={handleChange}/>
+            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
