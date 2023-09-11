@@ -4,10 +4,11 @@ import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootst
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGet, useFetchPostBody } from "../../hooks/useFetch.js";
 import { getArrayNivelesOrganizacion } from "../../services/staticCollections.js";
+import { MapInput } from "../../components/MapInput.jsx";
 
 export const CrearOrganizacion = ({handleClose, setRefetch}) => {
   //Formulario
-  const { values, handleChange } = useForm({
+  const { values, setValues, handleChange } = useForm({
     nombre: '',
     codigoOrganizacion: '',
     idOrgtype: '',
@@ -16,11 +17,16 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
     idMunicipio: '',
     idAldea: '',
     idCaserio: '',
+    geolocacion: '',
     telefonoOrganizacion: '',
     nombreContacto: '',
     telefonoContacto: '',
     correoContacto: '',
   });
+
+  const changeLocation = (location) => {
+    setValues({ ...values, 'geolocacion': location });
+  }
 
   //Tipo Organizacion
   const [orgtypes, setOrgtypes] = useState([])
@@ -218,7 +224,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
           </Col>
         </Form.Group>
         
-        <Card className='mb-4'>
+        <Card>
           <Card.Header>
             <h5>Ubicación</h5>
           </Card.Header>
@@ -293,7 +299,9 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
           </Card.Body>
         </Card>
 
-        <Card className='mb-4'>
+        <MapInput changeLocation={changeLocation}/>
+
+        <Card className='my-4'>
         <Card.Header>
           <h5>Contacto</h5>
         </Card.Header>

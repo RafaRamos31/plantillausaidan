@@ -8,6 +8,7 @@ import { InfoLink } from '../../components/InfoLink'
 import { EventoPill } from '../../components/menuPills/EventoPill'
 import { getElementNivelesOrganizacion } from '../../services/staticCollections'
 import { CargoPill } from '../../components/menuPills/CargoPill'
+import { MapDisplay } from '../../components/MapDisplay'
 
 export const Organizacion = () => {
 
@@ -72,6 +73,7 @@ export const Organizacion = () => {
           <li>Correo de Contacto: {values.correoContacto}</li>
         </ul>
       </Card>
+      <MapDisplay initialLocation={values.geolocacion} />
             
       <h3 className='mt-5'><i className="bi bi-person-badge"></i> Cargos</h3>
       {

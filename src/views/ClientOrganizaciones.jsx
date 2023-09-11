@@ -125,6 +125,7 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
+    { field: 'geolocacion', headerName: 'Geo Coordenadas', width: 320 },
     { field: 'telefonoOrganizacion', headerName: 'Teléfono de Organización', width: 250 },
     { field: 'nombreContacto', headerName: 'Nombre de Contacto', width: 250 },
     { field: 'telefonoContacto', headerName: 'Telefono de Contacto', width: 250 },
@@ -148,6 +149,7 @@ export const ClientOrganizaciones = () => {
               aldea: params.row.aldea ? data.find(organizacion => organizacion.aldea?.nombre === params.row.aldea).aldea._id : '',
               caserio: params.row.caserio ? data.find(organizacion => organizacion.caserio?.nombre === params.row.caserio).caserio._id : '',
               telefonoOrganizacion: params.row.telefonoOrganizacion,
+              geolocacion: params.row.geolocacion,
               nombreContacto: params.row.nombreContacto,
               telefonoContacto: params.row.telefonoContacto,
               correoContacto: params.row.correoContacto,
@@ -180,6 +182,7 @@ export const ClientOrganizaciones = () => {
             aldea: organizacion.aldea?.nombre || '',
             caserio: organizacion.caserio?.nombre || '',
             telefonoOrganizacion: organizacion.telefonoOrganizacion,
+            geolocacion: organizacion.geolocacion,
             nombreContacto: organizacion.nombreContacto,
             telefonoContacto: organizacion.telefonoContacto,
             correoContacto: organizacion.correoContacto,
@@ -236,7 +239,8 @@ export const ClientOrganizaciones = () => {
             columnVisibilityModel: {
               uuid: false,
               ultimaEdicion: false,
-              editor: false
+              editor: false,
+              geolocacion: false
             },
           },
         }}

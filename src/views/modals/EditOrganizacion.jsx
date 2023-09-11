@@ -4,6 +4,7 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { getArrayNivelesOrganizacion, getIndexNivelesOrganizacion } from "../../services/staticCollections.js";
+import { MapInput } from "../../components/MapInput.jsx";
 
 export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
 
@@ -11,7 +12,7 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange } = useForm({
+  const { values, setValues, handleChange } = useForm({
     idOrganizacion: organizacion.id,
     nombre: organizacion.nombre,
     codigoOrganizacion: organizacion.codigoOrganizacion,
@@ -21,11 +22,18 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
     idMunicipio: organizacion.municipio,
     idAldea: organizacion.aldea,
     idCaserio: organizacion.caserio,
+    geolocacion: organizacion.geolocacion,
     telefonoOrganizacion: organizacion.telefonoOrganizacion,
     nombreContacto: organizacion.nombreContacto,
     telefonoContacto: organizacion.telefonoContacto,
     correoContacto: organizacion.correoContacto,
   });
+
+  const changeLocation = (location) => {
+    setValues((previos) => {
+      return { ...previos, 'geolocacion': location }
+    });
+  }
 
   //Tipo Organizacion
   const [orgtypes, setOrgtypes] = useState([])
@@ -132,13 +140,8 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
   //Accion por defecto envio de formulario
   const handleSubmit = (e) => {
     e.preventDefault()
-    if(values.geocode.length > 0){
-      handleUpdate()
-    }
-    else{
-      setErrorMessage('Geocode required')
-    }
-    
+    handleUpdate()
+    console.log(values.geoLocacion)
   }
 
   //Boton de carga Modificar
@@ -363,6 +366,8 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
           </Form.Group>
           </Card.Body>
         </Card>
+
+        <MapInput changeLocation={changeLocation} initialLocation={organizacion.geolocacion}/>
 
         <Card className='mb-4'>
         <Card.Header>
