@@ -38,6 +38,8 @@ import { ClientCargos } from '../views/ClientCargos'
 import { Organizacion } from '../views/info/Organizacion'
 import { TipoOrganizacion } from '../views/info/TipoOrganizacion'
 import { Cargo } from '../views/info/Cargo'
+import { Beneficiario } from '../views/info/Beneficiario'
+import { Reportes } from '../views/Reportes'
 
 
 export const MainRouter = () => {
@@ -77,6 +79,7 @@ export const MainRouter = () => {
         <Route path="/configuracion/caserios" element={<ConfigCaserios />}></Route>
         <Route path="/configuracion/areas" element={<ConfigAreas />}></Route>
         <Route path="/configuracion/subareas" element={<ConfigSubAreas />}></Route>
+        <Route path="/reportes" element={<Reportes />}></Route>
 
         <Route path="/info/departamento/:idDepartamento" element={<Departamento />}></Route>
         <Route path="/info/municipio/:idMunicipio" element={<Municipio />}></Route>
@@ -87,6 +90,7 @@ export const MainRouter = () => {
         <Route path="/info/organizacion/:idOrganizacion" element={<Organizacion />}></Route>
         <Route path="/info/orgtype/:idOrgtype" element={<TipoOrganizacion />}></Route>
         <Route path="/info/cargo/:idCargo" element={<Cargo />}></Route>
+        <Route path="/info/beneficiario/:idBeneficiario" element={<Beneficiario />}></Route>
 
         <Route path="*" element={<Navigate to="/" replace />}/>
       </Routes>

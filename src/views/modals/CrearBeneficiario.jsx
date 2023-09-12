@@ -1,50 +1,34 @@
 import { useContext, useEffect, useState } from "react";
-import { useFetchDeleteBody, useFetchGet, useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
-import { getArrayNivelesOrganizacion, getIndexNivelesOrganizacion } from "../../services/staticCollections.js";
+import { useFetchGet, useFetchPostBody } from "../../hooks/useFetch.js";
 import { MapInput } from "../../components/MapInput.jsx";
 
-export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
-
-  //Toast
-  const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
-
+export const CrearBeneficiario = ({handleClose, setRefetch}) => {
   //Formulario
   const { values, setValues, handleChange } = useForm({
-    idOrganizacion: organizacion.id,
-    nombre: organizacion.nombre,
-    codigoOrganizacion: organizacion.codigoOrganizacion,
-    idOrgtype: organizacion.tipoOrganizacion,
-    nivelOrganizacion: getIndexNivelesOrganizacion(organizacion.nivelOrganizacion),
-    idDepartamento: organizacion.departamento,
-    idMunicipio: organizacion.municipio,
-    idAldea: organizacion.aldea,
-    idCaserio: organizacion.caserio,
-    geolocacion: organizacion.geolocacion,
-    telefonoOrganizacion: organizacion.telefonoOrganizacion,
-    nombreContacto: organizacion.nombreContacto,
-    telefonoContacto: organizacion.telefonoContacto,
-    correoContacto: organizacion.correoContacto,
+    nombre: '',
+    dni: '',
+    sexo: '',
+    fechaNacimiento: '',
+    telefono: '',
+    idDepartamento: '',
+    idMunicipio: '',
+    idAldea: '',
+    idCaserio: '',
+    idOrganizacion: '',
+    idCargo: '',
+    geolocacion: '',
   });
 
   const changeLocation = (location) => {
-    setValues((previos) => {
-      return { ...previos, 'geolocacion': location }
-    });
+    setValues({ ...values, 'geolocacion': location });
   }
 
-  //Tipo Organizacion
-  const [orgtypes, setOrgtypes] = useState([])
-  const { data: orgtypesData, isLoading: isLoadingOrgtypes, error: errorOrgtypes } = useFetchGet('orgtypes');
-  
-  useEffect(() => {
-    if(orgtypesData && !isLoadingOrgtypes){
-      setOrgtypes(orgtypesData)
-    } 
-  }, [orgtypesData, isLoadingOrgtypes, errorOrgtypes])
-
+  const changeSexo = (value) => {
+    setValues({ ...values, 'sexo': value });
+  }
 
   //Departamento
   const [deptos, setDeptos] = useState([])
@@ -125,115 +109,90 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
     
   }, [values, deptos, setRefetchCaserios])
 
+
+  //Organizacion
+  const [organizaciones, setOrganizaciones] = useState([])
+  const { data: organizacionesData, isLoading: isLoadingOrganizaciones, error: errorOrganizaciones } = useFetchGet('organizacioneslist');
+  
+  useEffect(() => {
+    if(organizacionesData && !isLoadingOrganizaciones){
+      setOrganizaciones(organizacionesData)
+    } 
+  }, [organizacionesData, isLoadingOrganizaciones, errorOrganizaciones])
+
+  //Cargos
+  const [cargos, setCargos] = useState([])
+  const [queryCargos, setQueryCargos] = useState('')
+  const { data: cargosData, isLoading: isLoadingCargos, error: errorCargos, setRefetch: setRefetchCargos } = useFetchGet(queryCargos);
+  
+  useEffect(() => {
+    if(cargosData && !isLoadingCargos){
+      setCargos(cargosData)
+    } 
+  }, [cargosData, isLoadingCargos, errorCargos])
+
+  //Editar Cargo en Formulario
+  useEffect(() => {
+    if(values.idOrganizacion && values.idOrganizacion.length > 0){
+      setQueryCargos('cargos/'+values.idOrganizacion)
+      setRefetchCargos(true)
+    }
+    else{
+      setCargos([])
+    }
+    
+  }, [values, organizaciones, setRefetchCargos])
+
+  //Toast
+  const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
+
+  //Envio asincrono de formulario
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('beneficiarios', values) 
+
+  const handleCreate = (e) => {
+    e.preventDefault();
+    setSend(true);
+    setCharging(true)
+  }
+
+  //Boton de carga
+  const [charging, setCharging] = useState(false);
+
+  //Accion al completar correctamente
+  const handleSuccess = () => {
+    handleClose()
+    setRefetch()
+    setShowToast(true)
+    actualizarTitulo('Beneficiario Creado')
+    setContent('Beneficiario guardado correctamente.')
+    setVariant('success')
+  }
+
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
 
-  //Accion No Encontrado
-  const handleNotFound = () => {
-    handleClose()
-    setShowToast(true)
-    actualizarTitulo('Organización No Encontrada')
-    setContent('La Organización que deseas modificar ya no existe.')
-    setVariant('warning')
-  }
-
-  //Accion por defecto envio de formulario
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    handleUpdate()
-  }
-
-  //Boton de carga Modificar
-  const [chargingEdit, setChargingEdit] = useState(false);
-  
-  //Envio asincrono de formulario de Modificar
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('organizaciones', values) 
-
-  const handleUpdate = () => {
-    setChargingEdit(true)
-    setSendEdit(true)
-  }
-
-  //Accion al completar correctamente Modificacion
-  const handleSuccessEdit = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Organización Modificada')
-    setContent('Organización guardada correctamente.')
-    setVariant('success')
-  }
-
   useEffect(() => {
-
-    if(errorEdit){
-      setChargingEdit(false)
-      if(codeEdit === 404){
-        handleNotFound()
-      }
-      else{
-        setErrorMessage(errorEdit)
-      }
+    if(error){
+      setErrorMessage(error)
+      setCharging(false)
     }
-    if(dataEdit){
-      handleSuccessEdit();
+    if(data){
+      handleSuccess();
     }
   // eslint-disable-next-line
-  }, [sendEdit, dataEdit, isLoadingEdit, errorEdit, codeEdit])
+  }, [send, data, isLoading, error])
 
-  //Boton de confirmar Eliminacion
-  const [showDelete, setShowDelete] = useState(false);
-  const [chargingDelete, setChargingDelete] = useState(false);
-
-  const handleDelete = () => {
-    setShowDelete(true)
-    setErrorMessage('Presione de nuevo para confirmar la eliminación')
-  }
-
-  //Envio asincrono de formulario de Eliminar
-  const { setSend: setSendDelete, send: sendDelete, data: dataDelete, isLoading: isLoadingDelete, error: errorDelete, code: codeDelete } = useFetchDeleteBody('organizaciones', {idOrganizacion: values.idOrganizacion}) 
-
-  const handleSendDelete = () => {
-    setChargingDelete(true)
-    setSendDelete(true)
-  }
-
-  //Accion al completar correctamente Eliminacion
-  const handleSuccessDelete = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Organización Eliminada')
-    setContent('Organización eliminada correctamente.')
-    setVariant('success')
-  }
-
-  useEffect(() => {
-    setChargingDelete(false)
-    if(codeDelete === 404){
-      handleNotFound()
-    }
-    else{
-      setErrorMessage(errorDelete)
-    }
-
-    if(dataDelete){
-      handleSuccessDelete();
-    }
-  // eslint-disable-next-line
-  }, [sendDelete, dataDelete, isLoadingDelete, errorDelete])
-  
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Perfil Organizaciones</h4>
+      <h4 className="my-1">Perfil Beneficiarios</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleCreate}>
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Nombre de la Organización:
+            Nombre del Beneficiario:
           </Form.Label>
           <Col sm="8">
             <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
@@ -242,56 +201,62 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Código de la Organización:
+            DNI:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='codigoOrganizacion' name='codigoOrganizacion' value={values.codigoOrganizacion} onChange={handleChange}/>
+            <Form.Control id='dni' name='dni' value={values.dni} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Tipo de Organización:
+            Sexo:
           </Form.Label>
           <Col sm="8">
-          <Form.Select id='idOrgtype' name='idOrgtype' value={values.idOrgtype} onChange={handleChange}>
-            <option value="">Seleccionar Tipo</option>
-            {
-              orgtypes &&
-              orgtypes.map((orgtype) => (
-                <option key={orgtype._id} value={orgtype._id}>{orgtype.nombre}</option>
-              ))
-            }
-          </Form.Select>
+            <div className="d-flex">
+              <div>
+                <Form.Check
+                  type="radio"
+                  label="M"
+                  name="sexo"
+                  value={1}
+                  checked={values.sexo === 1}
+                  onChange={() => changeSexo(1)}
+                  />
+              </div>
+              <div className="mx-3">
+                <Form.Check
+                  type="radio"
+                  label="F"
+                  name="sexo"
+                  value={2}
+                  checked={values.sexo === 2}
+                  onChange={() => changeSexo(2)}
+                />
+              </div>
+            </div>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Nivel de Organización:
+            Fecha de Nacimiento:
           </Form.Label>
           <Col sm="8">
-          <Form.Select id='nivelOrganizacion' name='nivelOrganizacion' value={values.nivelOrganizacion} onChange={handleChange}>
-            <option value="">Seleccionar Nivel</option>
-            {
-              getArrayNivelesOrganizacion().map((nivel, index) => (
-                <option key={index} value={index}>{nivel}</option>
-              ))
-            }
-          </Form.Select>
+            <Form.Control type='date' id='fechaNacimiento' name='fechaNacimiento' value={values.fechaNacimiento} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Teléfono de la Organización:
+            Teléfono:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='telefonoOrganizacion' name='telefonoOrganizacion' value={values.telefonoOrganizacion} onChange={handleChange}/>
+            <Form.Control id='telefono' name='telefono' value={values.telefono} onChange={handleChange}/>
           </Col>
         </Form.Group>
-        
-        <Card className='mb-4'>
+
+        <Card>
           <Card.Header>
             <h5>Ubicación</h5>
           </Card.Header>
@@ -366,78 +331,61 @@ export const EditOrganizacion = ({handleClose, setRefetch, organizacion}) => {
           </Card.Body>
         </Card>
 
-        <MapInput changeLocation={changeLocation} initialLocation={organizacion.geolocacion}/>
+        <MapInput changeLocation={changeLocation}/>
 
-        <Card className='mb-4'>
+        <Card className='my-4'>
         <Card.Header>
-          <h5>Contacto</h5>
+          <h5>Organizacion</h5>
         </Card.Header>
         <Card.Body className='p-4'>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Nombre de Contacto:
+            Organización:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombreContacto' name='nombreContacto' value={values.nombreContacto} onChange={handleChange}/>
+          <Form.Select id='idOrganizacion' name='idOrganizacion' value={values.idOrganizacion} onChange={handleChange}>
+            <option value="">Seleccionar Organización</option>
+            {
+              organizaciones &&
+              organizaciones.map((organizacion) => (
+                <option key={organizacion._id} value={organizacion._id}>{organizacion.nombre}</option>
+              ))
+            }
+          </Form.Select>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Teléfono de Contacto:
+            Cargo:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} onChange={handleChange}/>
+          <Form.Select id='idCargo' name='idCargo' value={values.idCargo} onChange={handleChange}>
+            <option value="">Seleccionar Cargo</option>
+            {
+              cargos &&
+              cargos.map((cargo) => (
+                <option key={cargo._id} value={cargo._id}>{cargo.nombre}</option>
+              ))
+            }
+          </Form.Select>
           </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
-            Correo de Contacto:
-          </Form.Label>
-          <Col sm="8">
-            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} onChange={handleChange}/>
-          </Col>
-        </Form.Group>
-
-          </Card.Body>
+        </Card.Body>
         </Card>
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-end">
-      {/*Boton Eliminar*/}
       {
-        !showDelete ? 
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary" onClick={handleDelete}>
-          Eliminar
-        </Button>
-        :
-        !chargingDelete ?
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger" onClick={handleSendDelete}>
-          Eliminar
-        </Button>
-        :
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger">
-          <Spinner
-            as="span"
-            animation="border"
-            size="sm"
-            role="status"
-            aria-hidden="true"
-          />
-          <span className="visually-hidden">Cargando...</span>
-        </Button>
-      }
-      
-      {/*Boton Guardar*/}
-      {
-        !chargingEdit ? 
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary" onClick={handleUpdate}>
+        !charging ?
+        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary" onClick={handleCreate}>
           Guardar
         </Button>
-        : <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary">
+        :
+        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary">
           <Spinner
             as="span"
             animation="border"
