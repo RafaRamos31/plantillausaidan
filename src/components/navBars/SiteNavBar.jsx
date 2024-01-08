@@ -24,6 +24,12 @@ export const SiteNavBar = () => {
       icon: 'bi-person-circle'
     },
     {
+      name: 'Inversiones',
+      url: '/inversiones',
+      dir: 'inversiones',
+      icon: 'bi-cash-stack'
+    },
+    {
       name: 'Planificación',
       url: '/planificacion',
       dir: 'planificacion',

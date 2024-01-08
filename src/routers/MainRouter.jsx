@@ -40,6 +40,10 @@ import { TipoOrganizacion } from '../views/info/TipoOrganizacion'
 import { Cargo } from '../views/info/Cargo'
 import { Beneficiario } from '../views/info/Beneficiario'
 import { Reportes } from '../views/Reportes'
+import { Inversiones } from '../views/Inversiones'
+import { InversionesAreas } from '../views/InversionesAreas'
+import { InversionesList } from '../views/InversionesList'
+import { Login } from '../views/Login'
 
 
 export const MainRouter = () => {
@@ -49,11 +53,19 @@ export const MainRouter = () => {
       <ToastContextProvider>  
       <Routes>
         <Route index element={<Home />}></Route>
+
+        <Route path="/login" element={<Login />}></Route>
+
         <Route path="/clientes" element={<Clientes />}></Route>
         <Route path="/clientes/beneficiarios" element={<ClientBeneficiarios />}></Route>
         <Route path="/clientes/organizaciones" element={<ClientOrganizaciones />}></Route>
         <Route path="/clientes/orgtypes" element={<ClientOrgtypes />}></Route>
         <Route path="/clientes/cargos" element={<ClientCargos />}></Route>
+
+        <Route path="/inversiones" element={<Inversiones />}></Route>
+        <Route path="/inversiones/list" element={<InversionesList />}></Route>
+        <Route path="/inversiones/areas" element={<InversionesAreas />}></Route>
+
         <Route path="/planificacion" element={<Planificacion />}></Route>
         <Route path="/planificacion/resultados" element={<PlanResultados />}></Route>
         <Route path="/planificacion/indicadores" element={<PlanIndicadores />}></Route>
@@ -61,14 +73,15 @@ export const MainRouter = () => {
         <Route path="/planificacion/tareas" element={<PlanTareas />}></Route>
         <Route path="/planificacion/actividades" element={<PlanActividades />}></Route>
         <Route path="/planificacion/monitoreo" element={<PlanMonitoreo />}></Route>
+
         <Route path="/indicadores" element={<Indicadores />}></Route>
         <Route path="/indicadores/indicadores" element={<IndIndicadores />}></Route>
         <Route path="/indicadores/registro" element={<IndRegistro />}></Route>
         <Route path="/indicadores/monitoreo" element={<IndMonitoreo />}></Route>
         <Route path="/indicadores/reportes" element={<IndReportes />}></Route>
-        <Route path="/indicadores" element={<Indicadores />}></Route>
-        <Route path="/indicadores" element={<Indicadores />}></Route>
-        <Route path="/indicadores" element={<Indicadores />}></Route>
+
+        <Route path="/reportes" element={<Reportes />}></Route>
+
         <Route path="/configuracion" element={<Configuracion />}></Route>
         <Route path="/configuracion/usuarios" element={<ConfigUsuarios />}></Route>
         <Route path="/configuracion/roles" element={<ConfigRoles />}></Route>
@@ -79,7 +92,6 @@ export const MainRouter = () => {
         <Route path="/configuracion/caserios" element={<ConfigCaserios />}></Route>
         <Route path="/configuracion/areas" element={<ConfigAreas />}></Route>
         <Route path="/configuracion/subareas" element={<ConfigSubAreas />}></Route>
-        <Route path="/reportes" element={<Reportes />}></Route>
 
         <Route path="/info/departamento/:idDepartamento" element={<Departamento />}></Route>
         <Route path="/info/municipio/:idMunicipio" element={<Municipio />}></Route>

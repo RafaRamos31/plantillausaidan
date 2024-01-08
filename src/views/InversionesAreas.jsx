@@ -1,16 +1,16 @@
-import { DataGrid } from "@mui/x-data-grid";
-import { ConfigNavBar } from "../components/navBars/ConfigNavBar.jsx";
-import { useFetchGet } from "../hooks/useFetch.js";
 import { Layout } from "./Layout.jsx";
+import { DataGrid } from "@mui/x-data-grid";
+import { useFetchGet } from "../hooks/useFetch.js";
 import { useEffect, useState } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { EditRoles } from "./modals/EditRoles.jsx";
-import { CrearRoles } from "./modals/CrearRoles.jsx";
+import { InfoLink } from "../components/InfoLink.jsx";
+import { InversionesNavBar } from "../components/navBars/InversionesNavBar.jsx";
+import { CrearAreaInv } from "./modals/CrearAreaInv.jsx";
+import { EditAreaInv } from "./modals/EditAreaInv.jsx";
 
-export const ConfigRoles = () => {
-
+export const InversionesAreas = () => {
   //Peticio de datos a la API
-  const { data, isLoading, setRefetch } = useFetchGet('roles');
+  const { data, isLoading, setRefetch } = useFetchGet('areasinv');
   const handleRefetch = () => {
     setRefetch(true)
   }
@@ -34,7 +34,7 @@ export const ConfigRoles = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentRol, setCurrentRol] = useState({});
+  const [currentArea, setCurrentArea] = useState({});
 
   //Filas y columnas para tabla
   const [rows, setRows] = useState([])
@@ -44,7 +44,17 @@ export const ConfigRoles = () => {
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
     { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
     { field: 'editor', headerName: 'Editado por', width: 200 },
-    { field: 'name', headerName: 'Nombre del Rol', width: 450, description: 'Nombre para identificar el Rol.' },
+    { field: 'name', headerName: 'Área Temática', width: 300, description: 'Nombre para identificar el Área Temática.',
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'area'} 
+            id={params.row.uuid}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
+    },
     {
       field: " ",
       headerName: " ",
@@ -53,7 +63,7 @@ export const ConfigRoles = () => {
       renderCell: (params) => {
         return (
           <Button style={buttonStyle} onClick={() => {
-            setCurrentRol({
+            setCurrentArea({
               id: params.row.uuid,
               nombre: params.row.name
             })
@@ -65,25 +75,25 @@ export const ConfigRoles = () => {
       },
     }
   ];
-  
+
   //Enviar datos a las filas
   useEffect(() => {
     if(data){
       setRows(
-        data.map((rol, index) => (
+        data.map((area, index) => (
           { 
             id: index + 1, 
-            uuid: rol._id, 
-            ultimaEdicion: new Date(rol.ultimaEdicion).toLocaleString(),
+            uuid: area._id, 
+            ultimaEdicion: new Date(area.ultimaEdicion).toLocaleString(),
             editor: 'Rafael Ramos',
-            name: rol.nombre
+            name: area.nombre
           }
         ))
       );
     }
     setUpdate(false);
   }, [data, isLoading])
-  
+
   //Estilo de boton
   const buttonStyle = {
     backgroundColor: "var(--main-green)", 
@@ -93,12 +103,12 @@ export const ConfigRoles = () => {
 
   return(
     <>
-    <Layout pagina={'Configuracion - Roles'} SiteNavBar={ConfigNavBar}>
-      <h2 className="view-title"><i className="bi bi-wrench"></i> Roles</h2>
-        {/*Boton Agregar*/}
-        <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
+    <Layout pagina={'Inversiones - Áreas Temáticas'} SiteNavBar={InversionesNavBar}>
+      <h2 className="view-title"><i className="bi bi-collection-fill"></i> Áreas Temáticas</h2>
+      {/*Boton Agregar*/}
+      <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          Agregar Rol
+          Agregar Área Temática
         </Button>
         {/*Boton Actualizar*/}
         {
@@ -138,13 +148,13 @@ export const ConfigRoles = () => {
           pageSizeOptions={[5, 10]}
           style={{ minHeight: "160px"}}
         />
-
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit} size='lg' backdrop="static">
-      <EditRoles handleClose={handleCloseEdit} setRefetch={handleRefetch} rol={currentRol}/>
+
+    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
+      <EditAreaInv handleClose={handleCloseEdit} setRefetch={handleRefetch} area={currentArea}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} size='lg' backdrop="static">
-      <CrearRoles handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
+    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
+      <CrearAreaInv handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
     </Modal>
     </>
   );

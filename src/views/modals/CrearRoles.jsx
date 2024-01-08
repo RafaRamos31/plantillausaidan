@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
-import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { Accordion, Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchPostBody } from "../../hooks/useFetch.js";
 
@@ -66,6 +66,88 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
             <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
           </Col>
         </Form.Group>
+        <h5>Permisos</h5>
+        <Accordion>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>Vistas</Accordion.Header>
+            <Accordion.Body>
+              <div>
+                <Form.Switch className="w-33" inline label="Clientes" />
+                <Form.Switch className="w-33" inline label="Inversiones" />
+                <Form.Switch className="w-33" inline label="Planificación" />
+                <Form.Switch className="w-33" inline label="Indicadores" />
+                <Form.Switch className="w-33" inline label="Reportes" />
+                <Form.Switch className="w-33" inline label="Configuración" />
+              </div>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="1">
+            <Accordion.Header>Acciones</Accordion.Header>
+            <Accordion.Body>
+
+              <Accordion>
+                <Accordion.Item eventKey="a1">
+                  <Accordion.Header>Usuarios</Accordion.Header>
+                  <Accordion.Body>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Ver</Form.Label>
+                    <Form.Select id="verUsuarios">
+                      <option value={0}>Ninguno</option>
+                      <option value={1}>Personal</option>
+                      <option value={2}>Agregados</option>
+                      <option value={3}>Del mismo componente</option>
+                      <option value={4}>Todos</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Crear</Form.Label>
+                    <Form.Select id="crearUsuarios">
+                      <option value={0}>Sin Permisos</option>
+                      <option value={1}>Crear</option>
+                      <option value={2}>Aprobar creación</option>
+                      <option value={3}>Crear y Aprobar</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Actualizar</Form.Label>
+                    <Form.Select id="actualizarUsuarios">
+                      <option value={0}>Sin Permisos</option>
+                      <option value={1}>Actualizar</option>
+                      <option value={2}>Aprobar actualización</option>
+                      <option value={3}>Actualizar y aprobar</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Eliminar</Form.Label>
+                    <Form.Select id="verUsuarios">
+                      <option value={0}>Sin Permisos</option>
+                      <option value={1}>Eliminar</option>
+                      <option value={2}>Aprobar eliminación</option>
+                      <option value={3}>Eliminar y aprobar</option>
+                    </Form.Select>
+                  </Form.Group>
+                  </Accordion.Body>
+                </Accordion.Item>
+                <Accordion.Item eventKey="a2">
+                  <Accordion.Header>Organizaciones</Accordion.Header>
+                  <Accordion.Body>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                    aliquip ex ea commodo consequat. Duis aute irure dolor in
+                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                    culpa qui officia deserunt mollit anim id est laborum.
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
+
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>

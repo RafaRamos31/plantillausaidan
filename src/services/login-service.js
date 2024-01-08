@@ -1,9 +1,9 @@
 
-export async function sendLogin(nombre, password) {
+export async function sendLogin(email, password) {
   
   const formValues = new FormData();
 
-  formValues.append("username", nombre);
+  formValues.append("email", email);
   formValues.append("password", password);
 
   try {

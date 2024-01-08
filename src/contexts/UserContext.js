@@ -1,16 +1,23 @@
-import React, { createContext } from 'react';
-//import useValidate from '../hooks/useValidate.js';
+import React, { createContext, useEffect } from 'react';
+import { useVerify } from '../hooks/useAuth.js';
 
 // Crea el contexto
 const UserContext = createContext();
 
 // Crea un proveedor para el contexto
 const UserContextProvider = ({ children }) => {
-  //const user = useValidate(localStorage.getItem("user-id"))
-  const user = {};
+  const { data, isLoading, error } = useVerify();
+
+  useEffect(() => {
+    if(!isLoading){
+      console.log(data)
+      console.log(error)
+    }
+  }, [data, isLoading, error])
+  
 
   return (
-    <UserContext.Provider value={user}>
+    <UserContext.Provider value={data}>
       {children}
     </UserContext.Provider>
   );
