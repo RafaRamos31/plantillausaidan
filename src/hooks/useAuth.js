@@ -61,13 +61,13 @@ export const useVerify = () => {
       const token = localStorage.getItem('user-token');
 
       const headers = {
-        "Authorization": `Bearer `+ token,
+        "Authorization": 'Bearer '+ token,
         "Content-Type": "application/json" // Puedes ajustar esto según tus necesidades
       };
 
       try {
         const response = await fetch(process.env.REACT_APP_API_URL + 'verify', {
-          method: 'POST',
+          method: 'GET',
           headers: headers
         });
         let jsonData = '';
@@ -79,7 +79,8 @@ export const useVerify = () => {
           if (response.status === 404) {
             errorMessage = 'La página solicitada no se encontró (Error 404)';
           } else if (response.status === 500) {
-            errorMessage = 'Error interno del servidor (Error 500)';
+            const errorJson = await response.json();
+            errorMessage = errorJson.error;
           }
           throw new Error(errorMessage);
         }

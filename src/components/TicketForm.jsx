@@ -1,15 +1,14 @@
-import { Button, Card, Form, FloatingLabel, Spinner } from "react-bootstrap";
+import { Button, Form, FloatingLabel, Spinner } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import useForm from "../../hooks/useForm";
-import { useLogin } from "../../hooks/useAuth";
+import useForm from "../hooks/useForm";
+import { useLogin } from "../hooks/useAuth";
 
-export const LoginForm = () => {
-
+export const TicketForm = () => {
   const [charging, setCharging] = useState(false);
   const [error, setError] = useState(false);
 
   const { values, handleChange } = useForm({
-    email: '',
+    ticket: '',
     password: ''
   });
 
@@ -19,13 +18,16 @@ export const LoginForm = () => {
 
 
   //Envio asincrono de formulario
-  const { setSend: setSendLogin, send: sendLogin, data: dataLogin, isLoading: isLoadingLogin, error: errorLogin } = useLogin(values.email, values.password) 
+  const { setSend: setSendLogin, 
+          send: sendLogin, 
+          data: dataLogin, 
+          isLoading: isLoadingLogin, 
+          error: errorLogin } = useLogin(values.email, values.password) 
   
   //Accion al completar correctamente
   const handleSuccess = () => {
-    localStorage.setItem('user-token', dataLogin.token)
-    console.log(dataLogin.token)
-    //window.location.reload()
+    localStorage.setItem('user-token', dataLogin.token);
+    window.location.reload();
   }
 
   const handleLogin = (e) => {
@@ -46,27 +48,18 @@ export const LoginForm = () => {
   }, [sendLogin, dataLogin, isLoadingLogin, errorLogin])
 
   return (
-    <Card>
-      <Card.Header className='d-flex justify-content-center'>
-        <h3>Iniciar Sesión</h3>
-      </Card.Header>
-      <Card.Body>
-        <Form onSubmit={handleLogin}>
-          <Form.Group className="mb-4">
-            <FloatingLabel label="Correo Electrónico">
-              <Form.Control aria-label="Usuario" type="email" id="email" name="email" onChange={handleChange} required/>
+      <Form onSubmit={handleLogin}>
+          <Form.Group className="my-4">
+            <FloatingLabel label="Ticket de Registro">
+              <Form.Control aria-label="ticket" id="ticket" name="ticket" onChange={handleChange} required/>
             </FloatingLabel>
           </Form.Group>
-          <Form.Group className="mb-4">
-            <FloatingLabel label="Contraseña">
-              <Form.Control type="password" id="password" name="password" onChange={handleChange} required/>
-            </FloatingLabel>
-          </Form.Group>
+          <p>{'*Puede ponerse en contacto con un administrador para obtener un ticket.'}</p>
           <div className="d-grid gap-2">
             {
               !error ? 
                 !charging ? 
-                <Button as="input" style={{backgroundColor: 'var(--main-green)'}} type="submit" value="Iniciar Sesión" />
+                <Button as="input" style={{backgroundColor: 'var(--main-green)'}} type="submit" value="Registrarse" />
                 : <Button style={{backgroundColor: 'var(--main-green)'}}> 
                   <Spinner
                     as="span"
@@ -81,12 +74,10 @@ export const LoginForm = () => {
               <Button as="input" variant="danger" type="submit" value="Error" />
               }
           </div>
-        </Form>
-        {
+          {
           error &&
-          <p style={{color: 'red'}}>{'Los datos ingresados no son válidos'}</p>
+          <p style={{color: 'red'}}>{'El ticket ingresado no es válido o ya fue utilizado.'}</p>
         }
-      </Card.Body>
-    </Card>
+        </Form>
   )
 }

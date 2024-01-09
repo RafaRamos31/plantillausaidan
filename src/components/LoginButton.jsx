@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Modal } from "react-bootstrap"
-import { LoginForm } from "../views/modals/LoginForm";
+import { AccessModal } from "../views/modals/AccessModal";
 
 export const LoginButton = () => {
   const [show, setShow] = useState(false);
@@ -15,7 +15,7 @@ export const LoginButton = () => {
       onClick={handleShow}>Acceder</Button>
 
       <Modal show={show} onHide={handleClose}>
-        <LoginForm />
+        <AccessModal />
       </Modal>
     </>
     
