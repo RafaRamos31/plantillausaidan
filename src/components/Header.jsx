@@ -6,7 +6,7 @@ import { UserContext } from "../contexts/UserContext";
 
 export const Header = () => {
 
-  const user = useContext(UserContext);
+  const {user} = useContext(UserContext);
 
   return (
     <header className="w-100 d-flex justify-content-end header-profile">

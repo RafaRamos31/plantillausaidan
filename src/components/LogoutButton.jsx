@@ -8,12 +8,12 @@ export const LogoutButton = () => {
   }
 
   return (
-    <>
+    <div className='d-grid'>
       <Button className="py-1 m-2" 
       variant='danger'
       style={{height: '2.5rem', borderColor: 'black', size: '2rem'}}
       onClick={handleLogout}>Cerrar Sesión</Button>
-    </>
+    </div>
     
   )
 }

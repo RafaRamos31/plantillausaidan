@@ -44,9 +44,15 @@ import { Inversiones } from '../views/Inversiones'
 import { InversionesAreas } from '../views/InversionesAreas'
 import { InversionesList } from '../views/InversionesList'
 import { Login } from '../views/Login'
+import { Register } from '../views/Register'
+import { useContext } from 'react'
+import { UserContext } from '../contexts/UserContext'
 
 
 export const MainRouter = () => {
+
+  const {user} = useContext(UserContext);
+
   return (
     <>
       <RefetchContextProvider>
@@ -55,56 +61,64 @@ export const MainRouter = () => {
         <Route index element={<Home />}></Route>
 
         <Route path="/login" element={<Login />}></Route>
+        <Route path="/register/:idTicket" element={<Register />}></Route>
 
-        <Route path="/clientes" element={<Clientes />}></Route>
-        <Route path="/clientes/beneficiarios" element={<ClientBeneficiarios />}></Route>
-        <Route path="/clientes/organizaciones" element={<ClientOrganizaciones />}></Route>
-        <Route path="/clientes/orgtypes" element={<ClientOrgtypes />}></Route>
-        <Route path="/clientes/cargos" element={<ClientCargos />}></Route>
+        {
+          user && 
+          <>
+            <Route path="/clientes" element={<Clientes />}></Route>
+            <Route path="/clientes/beneficiarios" element={<ClientBeneficiarios />}></Route>
+            <Route path="/clientes/organizaciones" element={<ClientOrganizaciones />}></Route>
+            <Route path="/clientes/orgtypes" element={<ClientOrgtypes />}></Route>
+            <Route path="/clientes/cargos" element={<ClientCargos />}></Route>
 
-        <Route path="/inversiones" element={<Inversiones />}></Route>
-        <Route path="/inversiones/list" element={<InversionesList />}></Route>
-        <Route path="/inversiones/areas" element={<InversionesAreas />}></Route>
+            <Route path="/inversiones" element={<Inversiones />}></Route>
+            <Route path="/inversiones/list" element={<InversionesList />}></Route>
+            <Route path="/inversiones/areas" element={<InversionesAreas />}></Route>
 
-        <Route path="/planificacion" element={<Planificacion />}></Route>
-        <Route path="/planificacion/resultados" element={<PlanResultados />}></Route>
-        <Route path="/planificacion/indicadores" element={<PlanIndicadores />}></Route>
-        <Route path="/planificacion/estrategias" element={<PlanEstrategias />}></Route>
-        <Route path="/planificacion/tareas" element={<PlanTareas />}></Route>
-        <Route path="/planificacion/actividades" element={<PlanActividades />}></Route>
-        <Route path="/planificacion/monitoreo" element={<PlanMonitoreo />}></Route>
+            <Route path="/planificacion" element={<Planificacion />}></Route>
+            <Route path="/planificacion/resultados" element={<PlanResultados />}></Route>
+            <Route path="/planificacion/indicadores" element={<PlanIndicadores />}></Route>
+            <Route path="/planificacion/estrategias" element={<PlanEstrategias />}></Route>
+            <Route path="/planificacion/tareas" element={<PlanTareas />}></Route>
+            <Route path="/planificacion/actividades" element={<PlanActividades />}></Route>
+            <Route path="/planificacion/monitoreo" element={<PlanMonitoreo />}></Route>
 
-        <Route path="/indicadores" element={<Indicadores />}></Route>
-        <Route path="/indicadores/indicadores" element={<IndIndicadores />}></Route>
-        <Route path="/indicadores/registro" element={<IndRegistro />}></Route>
-        <Route path="/indicadores/monitoreo" element={<IndMonitoreo />}></Route>
-        <Route path="/indicadores/reportes" element={<IndReportes />}></Route>
+            <Route path="/indicadores" element={<Indicadores />}></Route>
+            <Route path="/indicadores/indicadores" element={<IndIndicadores />}></Route>
+            <Route path="/indicadores/registro" element={<IndRegistro />}></Route>
+            <Route path="/indicadores/monitoreo" element={<IndMonitoreo />}></Route>
+            <Route path="/indicadores/reportes" element={<IndReportes />}></Route>
 
-        <Route path="/reportes" element={<Reportes />}></Route>
+            <Route path="/reportes" element={<Reportes />}></Route>
 
-        <Route path="/configuracion" element={<Configuracion />}></Route>
-        <Route path="/configuracion/usuarios" element={<ConfigUsuarios />}></Route>
-        <Route path="/configuracion/roles" element={<ConfigRoles />}></Route>
-        <Route path="/configuracion/componentes" element={<ConfigComponentes />}></Route>
-        <Route path="/configuracion/departamentos" element={<ConfigDepartamentos />}></Route>
-        <Route path="/configuracion/municipios" element={<ConfigMunicipios />}></Route>
-        <Route path="/configuracion/aldeas" element={<ConfigAldeas />}></Route>
-        <Route path="/configuracion/caserios" element={<ConfigCaserios />}></Route>
-        <Route path="/configuracion/areas" element={<ConfigAreas />}></Route>
-        <Route path="/configuracion/subareas" element={<ConfigSubAreas />}></Route>
+            <Route path="/configuracion" element={<Configuracion />}></Route>
+            <Route path="/configuracion/usuarios" element={<ConfigUsuarios />}></Route>
+            <Route path="/configuracion/roles" element={<ConfigRoles />}></Route>
+            <Route path="/configuracion/componentes" element={<ConfigComponentes />}></Route>
+            <Route path="/configuracion/departamentos" element={<ConfigDepartamentos />}></Route>
+            <Route path="/configuracion/municipios" element={<ConfigMunicipios />}></Route>
+            <Route path="/configuracion/aldeas" element={<ConfigAldeas />}></Route>
+            <Route path="/configuracion/caserios" element={<ConfigCaserios />}></Route>
+            <Route path="/configuracion/areas" element={<ConfigAreas />}></Route>
+            <Route path="/configuracion/subareas" element={<ConfigSubAreas />}></Route>
 
-        <Route path="/info/departamento/:idDepartamento" element={<Departamento />}></Route>
-        <Route path="/info/municipio/:idMunicipio" element={<Municipio />}></Route>
-        <Route path="/info/aldea/:idAldea" element={<Aldea />}></Route>
-        <Route path="/info/caserio/:idCaserio" element={<Caserio />}></Route>
-        <Route path="/info/area/:idArea" element={<AreaTematica />}></Route>
-        <Route path="/info/subarea/:idSubarea" element={<SubAreaTematica />}></Route>
-        <Route path="/info/organizacion/:idOrganizacion" element={<Organizacion />}></Route>
-        <Route path="/info/orgtype/:idOrgtype" element={<TipoOrganizacion />}></Route>
-        <Route path="/info/cargo/:idCargo" element={<Cargo />}></Route>
-        <Route path="/info/beneficiario/:idBeneficiario" element={<Beneficiario />}></Route>
+            <Route path="/info/departamento/:idDepartamento" element={<Departamento />}></Route>
+            <Route path="/info/municipio/:idMunicipio" element={<Municipio />}></Route>
+            <Route path="/info/aldea/:idAldea" element={<Aldea />}></Route>
+            <Route path="/info/caserio/:idCaserio" element={<Caserio />}></Route>
+            <Route path="/info/area/:idArea" element={<AreaTematica />}></Route>
+            <Route path="/info/subarea/:idSubarea" element={<SubAreaTematica />}></Route>
+            <Route path="/info/organizacion/:idOrganizacion" element={<Organizacion />}></Route>
+            <Route path="/info/orgtype/:idOrgtype" element={<TipoOrganizacion />}></Route>
+            <Route path="/info/cargo/:idCargo" element={<Cargo />}></Route>
+            <Route path="/info/beneficiario/:idBeneficiario" element={<Beneficiario />}></Route>
 
-        <Route path="*" element={<Navigate to="/" replace />}/>
+            <Route path="*" element={<Navigate to="/" />} />
+          </>
+        }
+
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
       </ToastContextProvider>
       </RefetchContextProvider>

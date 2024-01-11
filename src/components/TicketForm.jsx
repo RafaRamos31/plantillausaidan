@@ -1,54 +1,50 @@
 import { Button, Form, FloatingLabel, Spinner } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import useForm from "../hooks/useForm";
-import { useLogin } from "../hooks/useAuth";
+import { useFindTicket } from "../hooks/useTickets";
+import { useNavigate } from "react-router-dom";
 
 export const TicketForm = () => {
   const [charging, setCharging] = useState(false);
   const [error, setError] = useState(false);
 
+  const navigate = useNavigate()
+
   const { values, handleChange } = useForm({
     ticket: '',
-    password: ''
   });
 
   useEffect(() => {
     setError(false);
   }, [values])
 
-
   //Envio asincrono de formulario
-  const { setSend: setSendLogin, 
-          send: sendLogin, 
-          data: dataLogin, 
-          isLoading: isLoadingLogin, 
-          error: errorLogin } = useLogin(values.email, values.password) 
-  
+  const { setSend, send, data, isLoading, error: errorTicket } = useFindTicket(values.ticket);
+
   //Accion al completar correctamente
   const handleSuccess = () => {
-    localStorage.setItem('user-token', dataLogin.token);
-    window.location.reload();
+    navigate( '/register/' + values.ticket )
   }
 
-  const handleLogin = (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
-    setSendLogin(true);
+    setSend(true);
     setCharging(true)
   }
 
   useEffect(() => {
-    if(errorLogin){
+    if(errorTicket){
       setError(true)
       setCharging(false)
     }
-    if(dataLogin){
+    if(data){
       handleSuccess();
     }
   // eslint-disable-next-line
-  }, [sendLogin, dataLogin, isLoadingLogin, errorLogin])
+  }, [ send, data, isLoading, errorTicket]) 
 
   return (
-      <Form onSubmit={handleLogin}>
+      <Form onSubmit={handleSend}>
           <Form.Group className="my-4">
             <FloatingLabel label="Ticket de Registro">
               <Form.Control aria-label="ticket" id="ticket" name="ticket" onChange={handleChange} required/>

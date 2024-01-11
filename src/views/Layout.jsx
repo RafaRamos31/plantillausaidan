@@ -7,7 +7,7 @@ import { UserContext } from "../contexts/UserContext";
 export const Layout = ({pagina, SiteNavBar, children}) => {
   useTitle(pagina);
 
-  const user = useContext(UserContext);
+  const {user} = useContext(UserContext);
 
   return (
     <>

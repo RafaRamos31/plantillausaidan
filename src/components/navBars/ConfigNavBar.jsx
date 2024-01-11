@@ -80,7 +80,7 @@ export const ConfigNavBar = () => {
         <Nav className="py-0 d-flex flex-column">
           {
             values.map((link, index) => (
-              <Link key={index} to={link.url} className={`text-start nav-link ${actual === link.dir ? 'active' : ''}`}>
+              <Link key={index} to={link.url}  style={{paddingTop: '0.2rem'}} className={`text-start nav-link ${actual === link.dir ? 'active' : ''}`}>
                 <Row className="d-flex align-items-center">
                   <Col xs={2}>
                     <i className={`my-0 bi ${link.icon}`} style={{fontSize: '1.5rem', color: 'var(--main-green)'}}></i>{' '}

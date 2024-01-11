@@ -52,6 +52,7 @@ export const useLogin = (email, password) => {
 };
 
 export const useVerify = () => {
+  const [refetch, setRefetch] = useState(true);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,7 +63,7 @@ export const useVerify = () => {
 
       const headers = {
         "Authorization": 'Bearer '+ token,
-        "Content-Type": "application/json" // Puedes ajustar esto según tus necesidades
+        "Content-Type": "application/json"
       };
 
       try {
@@ -70,20 +71,12 @@ export const useVerify = () => {
           method: 'GET',
           headers: headers
         });
+        setRefetch(false)
         let jsonData = '';
         if(response.ok){
           jsonData = await response.json();
-        }
-        else{
-          let errorMessage = 'Error desconocido';
-          if (response.status === 404) {
-            errorMessage = 'La página solicitada no se encontró (Error 404)';
-          } else if (response.status === 500) {
-            const errorJson = await response.json();
-            errorMessage = errorJson.error;
-          }
-          throw new Error(errorMessage);
-        }
+        };
+
         setData(jsonData);
         setIsLoading(false);
       } catch (error) {
@@ -92,9 +85,45 @@ export const useVerify = () => {
       }
     };
 
+    if(refetch){
+      setIsLoading(true)
+      setError(null)
+      fetchData();
+    }
+    
+  }, [refetch]);
+
+  return { data, isLoading, error, setRefetch };
+};
+
+
+export const useRefreshAuth = () => {
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('user-token');
+
+      const headers = {
+        "Authorization": 'Bearer '+ token,
+        "Content-Type": "application/json"
+      };
+
+      try {
+        const response = await fetch(process.env.REACT_APP_API_URL + 'refresh', {
+          method: 'GET',
+          headers: headers
+        });
+        let jsonData = '';
+        if(response.ok){
+          jsonData = await response.json();
+          localStorage.setItem('user-token', jsonData.token);
+        }
+      }catch (error) {
+        
+      }
+    };
+
     fetchData();
     
   }, []);
-
-  return { data, isLoading, error };
 };

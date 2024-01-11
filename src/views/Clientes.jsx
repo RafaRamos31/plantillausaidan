@@ -1,8 +1,11 @@
 import { ClientesNavBar } from "../components/navBars/ClientesNavBar.jsx";
+import { useRefreshAuth } from "../hooks/useAuth.js";
 import { Layout } from "./Layout.jsx";
 
 export const Clientes = () => {
 
+  useRefreshAuth()
+  
   return(
     <>
     <Layout pagina={'Clientes'} SiteNavBar={ClientesNavBar}>

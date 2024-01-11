@@ -1,9 +1,14 @@
 import { Button, Form, FloatingLabel, Spinner } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import useForm from "../hooks/useForm";
 import { useLogin } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 
 export const LoginForm = () => {
+  const navigate = useNavigate();
+  const {user, setRefetch} = useContext(UserContext)
+
   const [charging, setCharging] = useState(false);
   const [error, setError] = useState(false);
 
@@ -27,8 +32,16 @@ export const LoginForm = () => {
   //Accion al completar correctamente
   const handleSuccess = () => {
     localStorage.setItem('user-token', dataLogin.token);
-    window.location.reload();
+    setRefetch(true);
   }
+
+  useEffect(() => {
+    if(user){
+      navigate(-1, {replace: true});
+    }
+  
+  }, [user, navigate])
+  
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -43,6 +56,7 @@ export const LoginForm = () => {
     }
     if(dataLogin){
       handleSuccess();
+      setCharging(false)
     }
   // eslint-disable-next-line
   }, [sendLogin, dataLogin, isLoadingLogin, errorLogin])

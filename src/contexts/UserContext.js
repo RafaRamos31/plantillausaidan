@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { useVerify } from '../hooks/useAuth.js';
-import { useNavigate } from 'react-router-dom';
 
 // Crea el contexto
 const UserContext = createContext();
@@ -8,8 +7,7 @@ const UserContext = createContext();
 // Crea un proveedor para el contexto
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const { data, isLoading, error } = useVerify();
-  const navigate = useNavigate();
+  const { data, isLoading, error, setRefetch } = useVerify();
 
   useEffect(() => {
     if(!isLoading){
@@ -17,11 +15,12 @@ const UserContextProvider = ({ children }) => {
         setUser(data.user);
       }
     }
-  }, [data, isLoading, error, navigate])
+  }, [data, isLoading, error])
   
 
+
   return (
-    <UserContext.Provider value={user}>
+    <UserContext.Provider value={{user, setRefetch}}>
       {children}
     </UserContext.Provider>
   );
