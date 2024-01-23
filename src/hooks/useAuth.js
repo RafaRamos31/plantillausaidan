@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 
 export const useLogin = (email, password) => {
   const [send, setSend] = useState(false);
-  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [code, setCode] = useState(null);
   const [error, setError] = useState(null);
 
   //Crear formulario
@@ -19,42 +20,47 @@ export const useLogin = (email, password) => {
           body: form,
           method: 'POST'
         });
-        let jsonData = '';
-        if(response.ok){
-          jsonData = await response.json();
+
+        let jsonData = await response.json();
+
+        setCode(response.status)
+        if (response.status !== 200){
+          setError(jsonData.error)
         }
         else{
-          let errorMessage = 'Error desconocido';
-          if (response.status === 404 || response.status === 500) {
-            errorMessage = await response.json();
-          }
-          throw new Error(errorMessage.error);
+          setData(jsonData)
         }
-        setData(jsonData);
         setIsLoading(false);
+
       } catch (error) {
-        setError(error.message);
+        setError('Se produjo un error: ' + error.message);
         setIsLoading(false);
       }
+
       finally{
         setSend(false)
       }
     };
 
     if(send===true){
-      setError(null)
+      setIsLoading(true);
+      setData(null);
+      setCode(null);
+      setError(null);
+
       fetchData();
     }
   // eslint-disable-next-line  
   }, [send]);
 
-  return { setSend, send, data, isLoading, error };
+  return { setSend, send, isLoading, data, code, error };
 };
 
 export const useVerify = () => {
   const [refetch, setRefetch] = useState(true);
-  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [code, setCode] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -71,33 +77,51 @@ export const useVerify = () => {
           method: 'GET',
           headers: headers
         });
-        setRefetch(false)
-        let jsonData = '';
-        if(response.ok){
-          jsonData = await response.json();
-        };
+
+        let jsonData = await response.json();
+
+        setCode(response.status)
+        if (response.status !== 200){
+          setError(jsonData.error)
+        }
+        else{
+          setData(jsonData)
+        }
+        setIsLoading(false);
 
         setData(jsonData);
         setIsLoading(false);
+
       } catch (error) {
-        setError(error.message);
+        setError('Se produjo un error: ' + error.message);
         setIsLoading(false);
+      }
+
+      finally{
+        setRefetch(false)
       }
     };
 
     if(refetch){
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setData(null);
+      setCode(null);
+      setError(null);
+
       fetchData();
     }
     
   }, [refetch]);
 
-  return { data, isLoading, error, setRefetch };
+  return { setRefetch, isLoading, data, code, error };
 };
 
 
 export const useRefreshAuth = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [code, setCode] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,17 +137,29 @@ export const useRefreshAuth = () => {
           method: 'GET',
           headers: headers
         });
-        let jsonData = '';
-        if(response.ok){
-          jsonData = await response.json();
-          localStorage.setItem('user-token', jsonData.token);
+
+        let jsonData = await response.json();
+        setCode(response.status)
+        if (response.status !== 200){
+          setError(jsonData.error)
         }
+        else{
+          setData(jsonData)
+        }
+        setIsLoading(false);
+
+        setData(jsonData);
+        setIsLoading(false);
+
       }catch (error) {
-        
+        setError('Se produjo un error: ' + error.message);
+        setIsLoading(false);
       }
     };
 
     fetchData();
     
   }, []);
+
+  return { isLoading, data, code, error };
 };

@@ -7,6 +7,8 @@ import { Button, Modal, Spinner } from "react-bootstrap";
 import { CrearDepartamento } from "./modals/CrearDepartamento.jsx";
 import { EditDepartamento } from "./modals/EditDepartamento.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
+import { useNavigate } from "react-router-dom";
+import { AvatarChip } from "../components/AvatarChip.jsx";
 
 export const ConfigDepartamentos = () => {
   //Peticio de datos a la API
@@ -21,6 +23,12 @@ export const ConfigDepartamentos = () => {
   const handleUpdate = () => {
     setUpdate(true)
     setRefetch(true)
+  }
+
+  //Boton Cambios
+  const navigate = useNavigate();
+  const handleReview = () => {
+    navigate('/reviews/departamentos')
   }
 
   //Modal crear
@@ -40,11 +48,33 @@ export const ConfigDepartamentos = () => {
   const [rows, setRows] = useState([])
 
   const columns = [
-    { field: 'id', headerName: '#', width: 100 },
+    { field: 'id', headerName: '#', width: 50 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
-    { field: 'editor', headerName: 'Editado por', width: 200 },
-    { field: 'name', headerName: 'Nombre del Departamento', width: 300,
+    { field: 'version', headerName: 'Versión', width: 100 },
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 200 },
+    { field: 'editor', headerName: 'Editado por', width: 250,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[0]}
+            name={params.formattedValue.split('-')[1]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 200 },
+    { field: 'revisor', headerName: 'Revisado por', width: 250,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[0]}
+            name={params.formattedValue.split('-')[1]} 
+          />
+        );
+      } 
+    },
+    { field: 'editing', headerName: 'Editando', width: 100 },
+    { field: 'name', headerName: 'Nombre del Departamento', width: 250,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -62,18 +92,34 @@ export const ConfigDepartamentos = () => {
       width: 150,
       sortable: false,
       renderCell: (params) => {
-        return (
-          <Button style={buttonStyle} onClick={() => {
-            setCurrentDepartamento({
-              id: params.row.uuid,
-              nombre: params.row.name,
-              geocode: params.row.geocode
-            })
-            handleShowEdit()
-          }}>
-            Editar
-          </Button>
-        );
+        if(params.row.editing){
+          return (
+            <Button style={{...buttonStyle, backgroundColor: 'gray'}} onClick={() => {
+              setCurrentDepartamento({ 
+                id: params.row.uuid,
+                nombre: params.row.name,
+                geocode: params.row.geocode
+              })
+              handleShowEdit()
+            }}>
+              En Revisión
+            </Button>
+          );
+        }
+        else{
+          return (
+            <Button style={buttonStyle} onClick={() => {
+              setCurrentDepartamento({
+                id: params.row.uuid,
+                nombre: params.row.name,
+                geocode: params.row.geocode
+              })
+              handleShowEdit()
+            }}>
+              Editar
+            </Button>
+          );
+        }
       },
     }
   ];
@@ -86,8 +132,12 @@ export const ConfigDepartamentos = () => {
           { 
             id: index + 1, 
             uuid: departamento._id, 
-            ultimaEdicion: new Date(departamento.ultimaEdicion).toLocaleString(),
-            editor: 'Rafael Ramos',
+            version: departamento.version,
+            fechaEdicion: new Date(departamento.fechaEdicion).toLocaleString(),
+            editor: `${departamento.editor._id}-${departamento.editor.nombre}`,
+            fechaRevision: new Date(departamento.fechaRevision).toLocaleString(),
+            revisor: `${departamento.revisor._id}-${departamento.revisor.nombre}`,
+            editing: departamento.pendientes.includes(departamento.editor._id),
             name: departamento.nombre,
             geocode: departamento.geocode
           }
@@ -109,17 +159,22 @@ export const ConfigDepartamentos = () => {
     <Layout pagina={'Configuracion - Departamentos'} SiteNavBar={ConfigNavBar}>
       <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i> Departamentos</h2>
       {/*Boton Agregar*/}
-      <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
+      <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
           Agregar Departamento
+        </Button>
+        {/*Boton Cambios*/}
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
+          <i className="bi bi-pencil-square"></i>{' '}
+          Gestión de Cambios
         </Button>
         {/*Boton Actualizar*/}
         {
           !update ? 
-          <Button className='my-2 mx-2' variant="light" onClick={handleUpdate}>
+          <Button className='my-2' variant="light" onClick={handleUpdate}>
             <i className="bi bi-arrow-clockwise"></i>
           </Button>
-          : <Button className='my-2 mx-2' variant="light">
+          : <Button className='my-2' variant="light">
             <Spinner
               as="span"
               animation="border"
@@ -142,8 +197,12 @@ export const ConfigDepartamentos = () => {
             columns: {
               columnVisibilityModel: {
                 uuid: false,
-                ultimaEdicion: false,
-                editor: false
+                version: false,
+                fechaEdicion: false,
+                editor: false,
+                fechaRevision: false,
+                revisor: false,
+                editing: false
               },
             },
           }}

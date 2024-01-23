@@ -10,7 +10,7 @@ export const LoginForm = () => {
   const {user, setRefetch} = useContext(UserContext)
 
   const [charging, setCharging] = useState(false);
-  const [error, setError] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const { values, handleChange } = useForm({
     email: '',
@@ -18,20 +18,16 @@ export const LoginForm = () => {
   });
 
   useEffect(() => {
-    setError(false);
+    setIsError(false);
   }, [values])
 
 
   //Envio asincrono de formulario
-  const { setSend: setSendLogin, 
-          send: sendLogin, 
-          data: dataLogin, 
-          isLoading: isLoadingLogin, 
-          error: errorLogin } = useLogin(values.email, values.password) 
+  const { setSend, send, isLoading, data, code, error } = useLogin(values.email, values.password) 
   
   //Accion al completar correctamente
   const handleSuccess = () => {
-    localStorage.setItem('user-token', dataLogin.token);
+    localStorage.setItem('user-token', data.token);
     setRefetch(true);
   }
 
@@ -45,21 +41,26 @@ export const LoginForm = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setSendLogin(true);
-    setCharging(true)
+
+    setIsError(false);
+    setCharging(true);
+    
+    setSend(true);
   }
 
   useEffect(() => {
-    if(errorLogin){
-      setError(true)
-      setCharging(false)
-    }
-    if(dataLogin){
-      handleSuccess();
-      setCharging(false)
+    if(!isLoading){
+      if(error){
+        setIsError(true);
+        setCharging(false);
+      }
+      else{
+        handleSuccess();
+        setCharging(false);
+      }
     }
   // eslint-disable-next-line
-  }, [sendLogin, dataLogin, isLoadingLogin, errorLogin])
+  }, [send, isLoading, data, code, error])
 
   return (
       <Form onSubmit={handleLogin}>
@@ -75,7 +76,7 @@ export const LoginForm = () => {
           </Form.Group>
           <div className="d-grid gap-2">
             {
-              !error ? 
+              !isError ? 
                 !charging ? 
                 <Button as="input" style={{backgroundColor: 'var(--main-green)'}} type="submit" value="Iniciar Sesión" />
                 : <Button style={{backgroundColor: 'var(--main-green)'}}> 
@@ -93,8 +94,8 @@ export const LoginForm = () => {
               }
           </div>
           {
-          error &&
-          <p style={{color: 'red'}}>{'Los datos ingresados no son válidos'}</p>
+          isError &&
+          <p className='mt-1' style={{color: 'red'}}>{error}</p>
         }
         </Form>
   )

@@ -2,32 +2,42 @@ import { useState, useEffect } from 'react';
 
 //Peticion Get con Refetch asincrono
 export const useFetchGet = (endpoint) => {
-  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [code, setCode] = useState(null);
   const [error, setError] = useState(null);
   const [refetch, setRefetch] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_API_URL + endpoint);
-        let jsonData = '';
-        if(response.ok){
-          jsonData = await response.json();
+        const token = localStorage.getItem('user-token');
+        const headers = {
+          "Authorization": 'Bearer '+ token,
+          "Content-Type": "application/json"
+        };
+
+        const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
+          method: 'GET',
+          headers: headers
+        });
+
+        let jsonData = await response.json();
+
+        setCode(response.status)
+        if (response.status !== 200){
+          setError(jsonData.error)
         }
         else{
-          let errorMessage = 'Error desconocido';
-          if (response.status === 404) {
-            errorMessage = 'La página solicitada no se encontró (Error 404)';
-          } else if (response.status === 500) {
-            errorMessage = 'Error interno del servidor (Error 500)';
-          }
-          throw new Error(errorMessage);
+          setData(jsonData)
         }
+        setIsLoading(false);
+
         setData(jsonData);
         setIsLoading(false);
+
       } catch (error) {
-        setError(error.message);
+        setError(error);
         setIsLoading(false);
       }
     };
@@ -39,7 +49,7 @@ export const useFetchGet = (endpoint) => {
     
   }, [endpoint, refetch]);
 
-  return { data, isLoading, error, setRefetch };
+  return { isLoading, data, code, error, setRefetch };
 };
 
 //Peticion Get By Id
@@ -138,8 +148,8 @@ export const useFetchGetBody = (endpoint, args) => {
 
 export const useFetchPostBody = (endpoint, args) => {
   const [send, setSend] = useState(false);
-  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
   //Extraer variables para formulario
@@ -154,26 +164,27 @@ export const useFetchPostBody = (endpoint, args) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem('user-token');
+        const headers = {
+          "Authorization": 'Bearer '+ token
+        };
+
         const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
           body: form,
+          headers: headers,
           method: 'POST'
         });
-        let jsonData = '';
-        if(response.ok){
-          jsonData = await response.json();
+
+        let jsonData = await response.json();
+
+        if (response.status !== 200){
+          setError(response.status + ': ' + jsonData.error)
         }
         else{
-          let errorMessage = 'Error desconocido';
-          if (response.status === 404) {
-            errorMessage = 'La página solicitada no se encontró (Error 404)';
-          } else if (response.status === 500) {
-            const errorJson = await response.json();
-            errorMessage = errorJson.error;
-          }
-          throw new Error(errorMessage);
+          setData(jsonData)
         }
-        setData(jsonData);
         setIsLoading(false);
+
       } catch (error) {
         setError(error.message);
         setIsLoading(false);
@@ -195,10 +206,9 @@ export const useFetchPostBody = (endpoint, args) => {
 //Peticion Put Asincrona
 export const useFetchPutBody = (endpoint, args) => {
   const [send, setSend] = useState(false);
-  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [code, setCode] = useState(null);
 
   //Extraer variables para formulario
   const form = new FormData();
@@ -212,29 +222,27 @@ export const useFetchPutBody = (endpoint, args) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem('user-token');
+        const headers = {
+          "Authorization": 'Bearer '+ token
+        };
+
         const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
           body: form,
+          headers: headers,
           method: 'PUT'
         });
-        let jsonData = '';
-        if(response.ok){
-          jsonData = await response.json();
-          setCode(200);
+
+        let jsonData = await response.json();
+
+        if (response.status !== 200){
+          setError(response.status + ': ' + jsonData.error)
         }
         else{
-          let errorMessage = 'Error desconocido';
-          if (response.status === 404) {
-            errorMessage = 'La página solicitada no se encontró (Error 404)';
-            setCode(404);
-          } else if (response.status === 500) {
-            const errorJson = await response.json();
-            errorMessage = errorJson.error;
-            setCode(500);
-          }
-          throw new Error(errorMessage);
+          setData(jsonData)
         }
-        setData(jsonData);
         setIsLoading(false);
+
       } catch (error) {
         setError(error.message);
         setIsLoading(false);
@@ -250,7 +258,7 @@ export const useFetchPutBody = (endpoint, args) => {
   // eslint-disable-next-line  
   }, [endpoint, args, send]);
 
-  return { setSend, send, data, isLoading, error, code };
+  return { setSend, send, data, isLoading, error };
 };
 
 

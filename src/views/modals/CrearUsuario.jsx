@@ -36,7 +36,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
 
   //Departamento
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos } = useFetchGet('departamentos');
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos } = useFetchGet('public/departamentos');
   
   useEffect(() => {
     if(deptoData && !isLoadingDeptos){

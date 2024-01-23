@@ -47,6 +47,8 @@ import { Login } from '../views/Login'
 import { Register } from '../views/Register'
 import { useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
+import { ReviewsDepartamentos } from '../views/reviews/ReviewsDepartamentos'
+import { ReviewDepartamento } from '../views/reviews/unitarios/ReviewDepartamento'
 
 
 export const MainRouter = () => {
@@ -113,6 +115,11 @@ export const MainRouter = () => {
             <Route path="/info/orgtype/:idOrgtype" element={<TipoOrganizacion />}></Route>
             <Route path="/info/cargo/:idCargo" element={<Cargo />}></Route>
             <Route path="/info/beneficiario/:idBeneficiario" element={<Beneficiario />}></Route>
+
+            <Route path="/reviews" element={<ReviewsDepartamentos />}></Route>
+            <Route path="/reviews/departamentos" element={<ReviewsDepartamentos />}></Route>
+            <Route path="/reviews/departamentos/:idDepartamento" element={<ReviewDepartamento />}></Route>
+            
 
             <Route path="*" element={<Navigate to="/" />} />
           </>

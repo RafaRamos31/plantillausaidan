@@ -7,15 +7,15 @@ const UserContext = createContext();
 // Crea un proveedor para el contexto
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const { data, isLoading, error, setRefetch } = useVerify();
+  const { setRefetch, isLoading, data, code } = useVerify();
 
   useEffect(() => {
     if(!isLoading){
-      if(!error && !error){
+      if(code === 200){
         setUser(data.user);
       }
     }
-  }, [data, isLoading, error])
+  }, [isLoading, data, code])
   
 
 
