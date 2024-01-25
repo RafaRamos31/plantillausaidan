@@ -3,8 +3,9 @@ import { useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
+import { useNavigate } from "react-router-dom";
 
-export const EditDepartamento = ({handleClose, setRefetch, departamento}) => {
+export const EditDepartamento = ({handleClose, setRefetchData, departamento, fixing=false}) => {
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -51,13 +52,22 @@ export const EditDepartamento = ({handleClose, setRefetch, departamento}) => {
   }
 
   //Accion al completar correctamente Modificacion
+
+  const navigate = useNavigate();
+
   const handleSuccessEdit = () => {
     handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Departamento Modificado')
-    setContent('Departamento guardado correctamente.')
-    setVariant('success')
+    if(fixing){
+      navigate('/reviews/departamentos/'+dataEdit._id)
+      navigate(0)
+    }
+    else{
+      setRefetchData(true)
+      setShowToast(true)
+      actualizarTitulo('Departamento Modificado')
+      setContent('Departamento guardado correctamente.')
+      setVariant('success')
+    }
   }
 
   useEffect(() => {

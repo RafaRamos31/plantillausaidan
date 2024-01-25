@@ -91,7 +91,6 @@ export const ClientCargos = () => {
   //Enviar datos a las filas
   useEffect(() => {
     if(data){
-      console.log(data)
       setRows(
         data.map((cargo, index) => (
           { 

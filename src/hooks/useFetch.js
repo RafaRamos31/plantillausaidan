@@ -40,14 +40,80 @@ export const useFetchGet = (endpoint) => {
         setError(error);
         setIsLoading(false);
       }
+      finally{
+        setRefetch(false)
+      }
     };
 
     if(refetch && endpoint.length > 0){
       fetchData();
-      setRefetch(false)
     }
     
   }, [endpoint, refetch]);
+
+  return { isLoading, data, code, error, setRefetch };
+};
+
+
+//Peticion Get con Refetch asincrono
+export const useFetchGetPaged = (endpoint, pageModel) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [code, setCode] = useState(null);
+  const [error, setError] = useState(null);
+  const [refetch, setRefetch] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('user-token');
+        const headers = {
+          "Authorization": 'Bearer '+ token,
+        };
+
+        //Crear formulario
+        const form = new FormData();
+        form.append("page", pageModel.page);
+        form.append("pageSize", pageModel.pageSize);
+
+        const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
+          method: 'POST',
+          headers: headers,
+          body: form
+        });
+
+        let jsonData = await response.json();
+
+        setCode(response.status)
+        if (response.status !== 200){
+          setError(jsonData.error)
+        }
+        else{
+          setData(jsonData)
+        }
+        setIsLoading(false);
+
+        setData(jsonData);
+        setIsLoading(false);
+
+      } catch (error) {
+        setError(error);
+        setIsLoading(false);
+      }
+      finally{
+        setRefetch(false);
+      }
+    };
+
+    if(refetch && endpoint.length > 0){
+      setIsLoading(true);
+      setData(null);
+      setCode(null);
+      setError(null);
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [endpoint, pageModel, refetch]);
 
   return { isLoading, data, code, error, setRefetch };
 };
@@ -282,9 +348,15 @@ export const useFetchDeleteBody = (endpoint, args) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
+        const token = localStorage.getItem('user-token');
+        const headers = {
+          "Authorization": 'Bearer '+ token
+        };
+
+        const response = await fetch(process.env.REACT_APP_API_URL + endpoint + '/', {
           body: form,
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: headers
         });
         let jsonData = '';
         if(response.ok){

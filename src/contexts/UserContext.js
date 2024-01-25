@@ -20,7 +20,7 @@ const UserContextProvider = ({ children }) => {
 
 
   return (
-    <UserContext.Provider value={{user, setRefetch}}>
+    <UserContext.Provider value={{user,  isLoading, code, setRefetch}}>
       {children}
     </UserContext.Provider>
   );

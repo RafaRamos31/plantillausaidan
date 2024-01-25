@@ -20,5 +20,17 @@ export const StatusBadge = ({status}) => {
     )
   }
 
+  if(status === 'Publicado') {
+    return (
+      <Chip label={status} color="success" />
+    )
+  }
+
+  if(status === 'Eliminado') {
+    return (
+      <Chip label={status} color="warning" />
+    )
+  }
+
   return null
 }
