@@ -44,7 +44,7 @@ export const FormattedGrid = ({
   }, [dataCount, isLoadingCount])
 
   //Rows Data
-  const { data, isLoading, setRefetch } = useFetchGetPaged(`paged/${revision ? 'revisiones/' : ''}${model}/${!revision ? !deleteds ? '/1' : '/2' : ''}`, paginationModel);
+  const { data, isLoading, setRefetch } = useFetchGetPaged(`paged/${revision ? 'revisiones/' : ''}${model}${!revision ? !deleteds ? '/1' : '/2' : ''}`, paginationModel);
 
   useEffect(() => {
     setRefetch(true);
