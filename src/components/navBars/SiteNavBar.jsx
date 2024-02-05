@@ -1,59 +1,92 @@
 import { Navbar, Container, Nav, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../contexts/UserContext";
 
 export const SiteNavBar = () => {
   const [actual, setActual] = useState('');
+
+  const { user } = useContext(UserContext)
 
   useEffect(() => {
     const dirs = window.location.href.split('/')[3]
     setActual(dirs)
   }, [])
 
-  const values = [
+  const [values, setValues] = useState([
     {
       name: 'Inicio',
       url: '/',
       dir: '',
       icon: 'bi-house-fill'
-    },
-    {
-      name: 'Clientes',
-      url: '/clientes',
-      dir: 'clientes',
-      icon: 'bi-person-circle'
-    },
-    {
-      name: 'Inversiones',
-      url: '/inversiones',
-      dir: 'inversiones',
-      icon: 'bi-cash-stack'
-    },
-    {
-      name: 'Planificación',
-      url: '/planificacion',
-      dir: 'planificacion',
-      icon: 'bi-list-task'
-    },
-    {
-      name: 'Indicadores',
-      url: '/indicadores',
-      dir: 'indicadores',
-      icon: 'bi-bell-fill'
-    },
-    {
-      name: 'Reportes',
-      url: '/reportes',
-      dir: 'reportes',
-      icon: 'bi-search'
-    },
-    {
-      name: 'Configuración',
-      url: '/configuracion',
-      dir: 'configuracion',
-      icon: 'bi-gear-fill'
-    },
-  ]
+    }
+  ])
+
+  useEffect(() => {
+    let newValues = [{
+      name: 'Inicio',
+      url: '/',
+      dir: '',
+      icon: 'bi-house-fill'
+    }]
+
+    if(user.userPermisos?.vistas['Clientes'] && Object.values(user.userPermisos?.vistas['Clientes']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Clientes',
+        url: '/clientes',
+        dir: 'clientes',
+        icon: 'bi-person-circle'
+      })
+    }
+  
+    if(user.userPermisos?.vistas['Inversiones'] && Object.values(user.userPermisos?.vistas['Inversiones']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Inversiones',
+        url: '/inversiones',
+        dir: 'inversiones',
+        icon: 'bi-cash-stack'
+      })
+    }
+  
+    if(user.userPermisos?.vistas['Planificación'] && Object.values(user.userPermisos?.vistas['Planificación']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Planificación',
+        url: '/planificacion',
+        dir: 'planificacion',
+        icon: 'bi-list-task'
+      })
+    }
+  
+    if(user.userPermisos?.vistas['Indicadores'] && Object.values(user.userPermisos?.vistas['Indicadores']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Indicadores',
+        url: '/indicadores',
+        dir: 'indicadores',
+        icon: 'bi-bell-fill'
+      })
+    }
+  
+    if(user.userPermisos?.vistas['Reportes'] && Object.values(user.userPermisos?.vistas['Reportes']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Reportes',
+        url: '/reportes',
+        dir: 'reportes',
+        icon: 'bi-search'
+      })
+    }
+  
+    if(user.userPermisos?.vistas['Configuración'] && Object.values(user.userPermisos.vistas['Configuración']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Configuración',
+        url: '/configuracion',
+        dir: 'configuracion',
+        icon: 'bi-gear-fill'
+      })
+    }
+
+    setValues(newValues)
+  }, [user])
+  
 
   return (
     <>

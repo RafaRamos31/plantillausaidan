@@ -1,26 +1,58 @@
-import { DataGrid } from "@mui/x-data-grid";
 import { ConfigNavBar } from "../components/navBars/ConfigNavBar.jsx";
-import { useFetchGet } from "../hooks/useFetch.js";
 import { Layout } from "./Layout.jsx";
-import { useEffect, useState } from "react";
-import { Button, Modal, Spinner } from "react-bootstrap";
-import { EditRoles } from "./modals/EditRoles.jsx";
+import { useContext, useEffect, useState } from "react";
+import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { InfoLink } from "../components/InfoLink.jsx";
+import { useNavigate } from "react-router-dom";
+import { AvatarChip } from "../components/AvatarChip.jsx";
+import { FormattedGrid } from "../components/FormattedGrid.jsx";
+import { UserContext } from "../contexts/UserContext.js";
+import { StatusBadge } from "../components/StatusBadge.jsx";
 import { CrearRoles } from "./modals/CrearRoles.jsx";
+import { EditRoles } from "./modals/EditRoles.jsx";
 
 export const ConfigRoles = () => {
+  const endpoint = 'rol'
+  const {user} = useContext(UserContext)
 
-  //Peticio de datos a la API
-  const { data, isLoading, setRefetch } = useFetchGet('roles');
-  const handleRefetch = () => {
-    setRefetch(true)
+  //Estilo de boton
+  const buttonStyle = {
+    backgroundColor: "var(--main-green)", 
+    border: '1px solid black',
+    borderRadius: '3px',
+  };
+
+  //Indicador solicitud de recarga de datos en la vista
+  const [refetchData, setRefetchData] = useState(false);
+
+  //Indicador actualizando con boton
+  const [updating, setUpdating] = useState(false);
+
+  //Indicador mostrar eliminados
+  const [deleteds, setDeleteds] = useState(false);
+
+  const handleToggleDeleteds = () => {
+    setDeleteds(!deleteds);
   }
 
-  //Update manual
-  const [update, setUpdate] = useState(false);
-
+  //Accion Update manual
   const handleUpdate = () => {
-    setUpdate(true)
-    setRefetch(true)
+    setUpdating(true)
+    setRefetchData(true)
+  }
+
+  //Efecto cuando termina el refetch
+  useEffect(() => {
+    if(!refetchData){
+      setUpdating(false)
+    }
+  }, [refetchData, setUpdating])
+  
+
+  //Boton Cambios
+  const navigate = useNavigate();
+  const handleReview = () => {
+    navigate(`/reviews/${endpoint}es`)
   }
 
   //Modal crear
@@ -34,79 +66,198 @@ export const ConfigRoles = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentRol, setCurrentRol] = useState({});
-
-  //Filas y columnas para tabla
-  const [rows, setRows] = useState([])
+  const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 100 },
+    { field: 'id', headerName: '#', width: 50 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
-    { field: 'editor', headerName: 'Editado por', width: 200 },
-    { field: 'name', headerName: 'Nombre del Rol', width: 450, description: 'Nombre para identificar el Rol.' },
+    { field: 'nombre', headerName: 'Nombre', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'rol'} 
+            id={params.row.uuid}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
+    },
+    { field: 'permisos', headerName: 'Permisos', width: 120, },
+    { field: 'version', headerName: 'Versión', width: 100 },
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170,
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'editor', headerName: 'Editado por', width: 170,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'revisor', headerName: 'Revisado por', width: 170,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, 
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'eliminador', headerName: 'Eliminado por', width: 170,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'editing', headerName: 'Editando', width: 100,
+      renderCell: (params) => {
+        return (
+          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
+        );
+      } 
+    },
+    { field: 'estado', headerName: 'Estado', width: 140,
+      renderCell: (params) => {
+        return (
+          <StatusBadge status={params.formattedValue} />
+        );
+      }
+    },
     {
       field: " ",
       headerName: " ",
-      width: 150,
+      width: 200,
       sortable: false,
       renderCell: (params) => {
         return (
-          <Button style={buttonStyle} onClick={() => {
-            setCurrentRol({
-              id: params.row.uuid,
-              nombre: params.row.name
-            })
-            handleShowEdit()
-          }}>
-            Editar
-          </Button>
+          <>
+            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
+              <a href={`/reviews/${endpoint}es/${params.row.uuid}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-eye-fill"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+            {
+              params.row.editing ?
+              <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                <div>
+                  <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                    <i className="bi bi-pencil-fill"></i>
+                  </Button>
+                </div>
+              </OverlayTrigger>
+              :
+              <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                  setCurrentData({
+                    id: params.row.uuid,
+                    nombre: params.row.nombre,
+                    permisos: JSON.parse(params.row.permisos)
+                  })
+                  handleShowEdit()
+                }}>
+                  <i className="bi bi-pencil-fill"></i>
+                </Button>
+              </OverlayTrigger>
+            }
+            <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+              <a href={`/historial/${endpoint}es/${params.row.uuid}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-clock-history"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+          </>
         );
       },
     }
   ];
   
-  //Enviar datos a las filas
-  useEffect(() => {
-    if(data){
-      setRows(
-        data.map((rol, index) => (
-          { 
-            id: index + 1, 
-            uuid: rol._id, 
-            ultimaEdicion: new Date(rol.ultimaEdicion).toLocaleString(),
-            editor: 'Rafael Ramos',
-            name: rol.nombre
-          }
-        ))
-      );
-    }
-    setUpdate(false);
-  }, [data, isLoading])
-  
-  //Estilo de boton
-  const buttonStyle = {
-    backgroundColor: "var(--main-green)", 
-    border: '1px solid black',
-    borderRadius: '3px'
-  };
+
+  const populateRows = (data, page, pageSize) => (
+    data.map((item, index) => (
+      { 
+        id: (page * pageSize) + index + 1, 
+        uuid: item._id, 
+        version: item.version,
+        fechaEdicion: item.fechaEdicion,
+        editor: `${item.editor.nombre}-${item.editor._id}`,
+        fechaRevision: item.fechaRevision,
+        revisor: `${item.revisor.nombre}-${item.revisor._id}`,
+        fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
+        eliminador: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
+        editing: item.pendientes.includes(user.userId),
+        estado: item.estado,
+        nombre: item.nombre,
+        permisos: JSON.stringify(item.permisos)
+      }
+    ))
+  )
+
+  const hiddenColumns = {
+    uuid: false,
+    version: false,
+    fechaEdicion: false,
+    editor: false,
+    fechaRevision: false,
+    revisor: false,
+    fechaEliminacion: false,
+    eliminador: false,
+    editing: false,
+    estado: false,
+    permisos: false
+  }
 
   return(
     <>
-    <Layout pagina={'Configuracion - Roles'} SiteNavBar={ConfigNavBar}>
-      <h2 className="view-title"><i className="bi bi-wrench"></i> Roles</h2>
-        {/*Boton Agregar*/}
-        <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
+    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`} SiteNavBar={ConfigNavBar}>
+      <h2 className="view-title"><i className="bi bi-wrench"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`}</h2>
+      {/*Boton Agregar*/}
+      <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          Agregar Rol
+          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
         </Button>
+        {/*Boton Cambios*/}
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
+          <i className="bi bi-pencil-square"></i>{' '}
+          Gestión de Cambios
+        </Button>
+        {/*Boton Deleteds*/}
+        {
+          !deleteds ?
+          <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleToggleDeleteds}>
+            <i className="bi bi-eye"></i>{' '}
+            Mostrar Eliminados
+          </Button>
+          :
+          <Button style={{...buttonStyle, marginRight:'0.4rem', backgroundColor: 'var(--hover-main-green)'}} className='my-2' onClick={handleToggleDeleteds}>
+            <i className="bi bi-eye-slash"></i>{' '}
+            Ocultar Eliminados
+          </Button>
+        }
+        
         {/*Boton Actualizar*/}
         {
-          !update ? 
-          <Button className='my-2 mx-2' variant="light" onClick={handleUpdate}>
+          !updating ? 
+          <Button className='my-2' variant="light" onClick={handleUpdate}>
             <i className="bi bi-arrow-clockwise"></i>
           </Button>
-          : <Button className='my-2 mx-2' variant="light">
+          : <Button className='my-2' variant="light">
             <Spinner
               as="span"
               animation="border"
@@ -117,34 +268,25 @@ export const ConfigRoles = () => {
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
-
-        <DataGrid
-          autoHeight
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-            columns: {
-              columnVisibilityModel: {
-                uuid: false,
-                ultimaEdicion: false,
-                editor: false
-              },
-            },
-          }}
-          rowSelection={false}
-          pageSizeOptions={[5, 10]}
-          style={{ minHeight: "160px"}}
-        />
+        {/*Table Container*/}
+      <FormattedGrid 
+        model={`${endpoint}es`} 
+        pageSize={10} 
+        pageSizeOptions={[10,20]}
+        columns={columns} 
+        hiddenColumns={hiddenColumns}
+        populateRows={populateRows} 
+        refetchData={refetchData}
+        setRefetchData={setRefetchData} 
+        deleteds={deleteds}
+      />
 
     </Layout>
-    <Modal show={showEdit} onHide={handleCloseEdit} size='lg' backdrop="static">
-      <EditRoles handleClose={handleCloseEdit} setRefetch={handleRefetch} rol={currentRol}/>
+    <Modal show={showEdit} onHide={handleCloseEdit} size="xl" backdrop="static">
+      <EditRoles handleClose={handleCloseEdit} setRefetchData={setRefetchData} rol={currentData}/>
     </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} size='lg' backdrop="static">
-      <CrearRoles handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
+    <Modal show={showCreate} onHide={handleCloseCreate} size="xl" backdrop="static">
+      <CrearRoles handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

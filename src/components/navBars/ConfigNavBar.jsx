@@ -1,8 +1,11 @@
 import { Navbar, Container, Nav, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../contexts/UserContext";
 
 export const ConfigNavBar = () => {
+  const { user } = useContext(UserContext);
+  
   const [actual, setActual] = useState('');
   const navigate = useNavigate();
 
@@ -20,7 +23,8 @@ export const ConfigNavBar = () => {
     }
   }
 
-  const values = [
+  const page = 'Configuración';
+  const [views] = useState([
     {
       name: 'Usuarios',
       url: '/configuracion/usuarios',
@@ -75,7 +79,15 @@ export const ConfigNavBar = () => {
       dir: 'subareas',
       icon: 'bi-collection'
     }
-  ]
+  ])
+
+  const [values, setValues] = useState([])
+
+  useEffect(() => {
+    const newValues = views.filter(view => user.userPermisos?.vistas[page][view.name])
+    setValues(newValues)
+  // eslint-disable-next-line
+  }, [user, views])
 
   return (
     <>

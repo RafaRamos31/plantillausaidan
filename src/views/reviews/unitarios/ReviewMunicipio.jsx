@@ -12,11 +12,11 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
-import { EditDepartamento } from '../../modals/EditDepartamento';
+import { EditMunicipio } from '../../modals/EditMunicipio';
 
-export const ReviewDepartamento = () => {
+export const ReviewMunicipio = () => {
   const { idRevision } = useParams();
-  const endpoint = 'departamento'
+  const endpoint = 'municipio'
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
@@ -66,7 +66,7 @@ export const ReviewDepartamento = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/departamentos', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody(`revisiones/${endpoint}s`, values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -126,7 +126,7 @@ export const ReviewDepartamento = () => {
     <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
-        <h2><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
+          <h2><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
           <div className='d-flex align-items-end' style={{marginBottom: '1rem'}}>
             <h4 className='my-0' style={{fontStyle: 'italic', marginRight: '1rem'}}>{'Versión ' + dataRevision.version}</h4>
             <StatusBadge status={dataRevision.estado}/>
@@ -220,8 +220,9 @@ export const ReviewDepartamento = () => {
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + dataRevision.version}</h5>
                   </div>
                 }
-                <CompareValue  title={'Nombre del Departamento:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
+                <CompareValue  title={'Nombre del Municipio:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
                 <CompareValue  title={'Geocode:'} value={dataRevision.geocode} original={original?.geocode} compare={compare}/>
+                <CompareValue  title={'Departamento:'} value={dataRevision.departamento.nombre} original={original?.departamento.nombre} compare={compare}/>
               </Col>
               {
                 compare &&
@@ -229,8 +230,9 @@ export const ReviewDepartamento = () => {
                   <div className="mb-3">
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + original.version}</h5>
                   </div>
-                  <CompareValue  title={'Nombre del Departamento:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
+                  <CompareValue  title={'Nombre del Municipio:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
                   <CompareValue  title={'Geocode:'} value={dataRevision.geocode} original={original?.geocode} compare={compare} hidden/>
+                  <CompareValue  title={'Departamento:'} value={dataRevision.departamento.nombre} original={original?.departamento.nombre} compare={compare} hidden/>
                 </Col>
               }
             </Row>
@@ -270,7 +272,7 @@ export const ReviewDepartamento = () => {
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={()=>{}} departamento={{...dataRevision, id: original?._id}} fixing/>
+      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={()=>{}} municipio={{...dataRevision, id: original?._id}} fixing/>
     </Modal>
     </>
   )

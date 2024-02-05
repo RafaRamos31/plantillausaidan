@@ -1,15 +1,8 @@
 import { Badge, Popper } from "@mui/material"
 import { useState } from "react";
+import { NotificationContainer } from "./NotificationContainer";
 
 export const NotificationIcon = () => {
-
-  const notificationStyle = {
-    border: '1px solid black',
-    borderRadius: '5px',
-    padding: '0.5rem',
-    boxShadow: '4px 4px 4px rgba(0, 0, 0, 0.2)',
-    transition: 'opacity 0.3s ease-in-out'
-  }
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -33,7 +26,7 @@ export const NotificationIcon = () => {
           <i className={`bi bi-bell-fill`} style={{fontSize: '1.5rem', color: 'var(--main-green)'}}></i>
         </Badge>
         <Popper id={id} open={open} anchorEl={anchorEl} placement="bottom-end">
-          <div style={notificationStyle}>No tienes nuevas notificaciones</div>
+          <NotificationContainer />
         </Popper>
       </div>
     </>

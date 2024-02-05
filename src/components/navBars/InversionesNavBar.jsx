@@ -1,8 +1,11 @@
 import { Navbar, Container, Nav, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../contexts/UserContext";
 
 export const InversionesNavBar = () => {
+  const { user } = useContext(UserContext);
+
   const [actual, setActual] = useState('');
   const navigate = useNavigate();
 
@@ -20,7 +23,8 @@ export const InversionesNavBar = () => {
     }
   }
 
-  const values = [
+  const page = 'Inversiones';
+  const [views] = useState([
     {
       name: 'Inversiones',
       url: '/inversiones/list',
@@ -33,7 +37,15 @@ export const InversionesNavBar = () => {
       dir: 'areas',
       icon: 'bi-collection-fill'
     }
-  ]
+  ])
+
+  const [values, setValues] = useState([])
+
+  useEffect(() => {
+    const newValues = views.filter(view => user.userPermisos?.vistas[page][view.name])
+    setValues(newValues)
+  // eslint-disable-next-line
+  }, [user, views])
 
   return (
     <>

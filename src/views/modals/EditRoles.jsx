@@ -1,19 +1,40 @@
 import { useContext, useEffect, useState } from "react";
-import { useFetchDeleteBody, useFetchPutBody } from "../../hooks/useFetch.js";
+import { useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
+import { useNavigate } from "react-router-dom";
+import { TreeBranch } from "../../components/TreeBranch.jsx";
+import { Accordion, AccordionDetails, AccordionSummary, FormLabel } from "@mui/material";
+import { GridExpandMoreIcon } from "@mui/x-data-grid";
 
-export const EditRoles = ({handleClose, setRefetch, rol}) => {
+export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
+  const [ vistasValues, setVistasValues ] = useState(rol.permisos?.vistas)
+  const [ accionesValues, setAccionesValues ] = useState(rol.permisos?.acciones)
+
   //Formulario
-  const { values, handleChange } = useForm({
+  const { values, handleChange, setValues } = useForm({
     idRol: rol.id,
-    nombre: rol.nombre
+    nombre: rol.nombre,
+    aprobar: false,
+    permisos: {
+      vistas: vistasValues,
+      acciones: accionesValues 
+    }
   });
+
+  useEffect(() => {
+    setValues((prevValues) => ({...prevValues, permisos: {vistas: vistasValues, acciones: accionesValues}}))
+  }, [vistasValues, accionesValues, setValues])
+
+
+  const handleToggleAprobar = () => {
+    setValues({ ...values, aprobar: !values.aprobar });
+  }
 
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
@@ -37,7 +58,7 @@ export const EditRoles = ({handleClose, setRefetch, rol}) => {
   const [chargingEdit, setChargingEdit] = useState(false);
   
   //Envio asincrono de formulario de Modificar
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('roles', values) 
+  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('roles', {...values, permisos: JSON.stringify(values.permisos)}) 
 
   const handleUpdate = () => {
     setChargingEdit(true)
@@ -45,13 +66,22 @@ export const EditRoles = ({handleClose, setRefetch, rol}) => {
   }
 
   //Accion al completar correctamente Modificacion
+
+  const navigate = useNavigate();
+
   const handleSuccessEdit = () => {
     handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Rol Modificado')
-    setContent('Rol guardado correctamente.')
-    setVariant('success')
+    if(fixing){
+      navigate('/reviews/roles/'+dataEdit._id)
+      navigate(0)
+    }
+    else{
+      setRefetchData(true)
+      setShowToast(true)
+      actualizarTitulo('Rol Modificado')
+      setContent('Rol guardado correctamente.')
+      setVariant('success')
+    }
   }
 
   useEffect(() => {
@@ -70,107 +100,62 @@ export const EditRoles = ({handleClose, setRefetch, rol}) => {
     }
   // eslint-disable-next-line
   }, [sendEdit, dataEdit, isLoadingEdit, errorEdit, codeEdit])
-
-  //Boton de confirmar Eliminacion
-  const [showDelete, setShowDelete] = useState(false);
-  const [chargingDelete, setChargingDelete] = useState(false);
-
-  const handleDelete = () => {
-    setShowDelete(true)
-    setErrorMessage('Presione de nuevo para confirmar la eliminación')
-  }
-
-  //Envio asincrono de formulario de Eliminar
-  const { setSend: setSendDelete, send: sendDelete, data: dataDelete, isLoading: isLoadingDelete, error: errorDelete, code: codeDelete } = useFetchDeleteBody('roles', {idRol: values.idRol}) 
-
-  const handleSendDelete = () => {
-    setChargingDelete(true)
-    setSendDelete(true)
-  }
-
-  //Accion al completar correctamente Eliminacion
-  const handleSuccessDelete = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Rol Eliminado')
-    setContent('Rol eliminado correctamente.')
-    setVariant('success')
-  }
-
-  useEffect(() => {
-    setChargingDelete(false)
-    if(codeDelete === 404){
-      handleNotFound()
-    }
-    else{
-      setErrorMessage(errorDelete)
-    }
-
-    if(dataDelete){
-      handleSuccessDelete();
-    }
-  // eslint-disable-next-line
-  }, [sendDelete, dataDelete, isLoadingDelete, errorDelete])
   
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Perfil Roles</h4>
+      <h4 className="my-1">Modificar Rol</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
       <Form onSubmit={handleSubmit}>
-        <Form.Group as={Row} className="mb-3" controlId="rolId">
-          <Form.Label column sm="4">
-            uuid:
-          </Form.Label>
-          <Col sm="8">
-            <Form.Control readOnly disabled value={values.idRol}/>
-          </Col>
-        </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
-            Nombre del rol:
+          <Form.Label column sm="2">
+            <FormLabel style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'black'}}>Nombre del rol:</FormLabel>
           </Form.Label>
-          <Col sm="8">
+          <Col sm="4">
             <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
           </Col>
         </Form.Group>
+
+        <Accordion defaultExpanded>
+          <AccordionSummary
+            expandIcon={<GridExpandMoreIcon />}
+            id="panel1-header"
+          >
+            <h5 style={{fontWeight: 'bold'}}>Permisos Vistas</h5>
+          </AccordionSummary>
+          <AccordionDetails>
+            <TreeBranch values={vistasValues} setValues={setVistasValues} edit/>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion defaultExpanded>
+          <AccordionSummary
+            expandIcon={<GridExpandMoreIcon />}
+            id="panel1-header"
+          >
+            <h5 style={{fontWeight: 'bold'}}>Permisos Acciones</h5>
+          </AccordionSummary>
+          <AccordionDetails>
+            <TreeBranch values={accionesValues} setValues={setAccionesValues} edit/>
+          </AccordionDetails>
+        </Accordion>
+
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
-    <Card.Footer className="d-flex justify-content-end">
-      {/*Boton Eliminar*/}
-      {
-        !showDelete ? 
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary" onClick={handleDelete}>
-          Eliminar
-        </Button>
-        :
-        !chargingDelete ?
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger" onClick={handleSendDelete}>
-          Eliminar
-        </Button>
-        :
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger">
-          <Spinner
-            as="span"
-            animation="border"
-            size="sm"
-            role="status"
-            aria-hidden="true"
-          />
-          <span className="visually-hidden">Cargando...</span>
-        </Button>
-      }
+    <Card.Footer className="d-flex justify-content-between align-items-center">
+      <Form.Group>
+        <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+      </Form.Group>
       
       {/*Boton Guardar*/}
       {
         !chargingEdit ? 
         <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary" onClick={handleUpdate}>
-          Guardar
+          Enviar
         </Button>
         : <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary">
           <Spinner

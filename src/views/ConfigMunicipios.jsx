@@ -1,26 +1,73 @@
 import { ConfigNavBar } from "../components/navBars/ConfigNavBar.jsx";
 import { Layout } from "./Layout.jsx";
-import { DataGrid } from "@mui/x-data-grid";
-import { useFetchGet } from "../hooks/useFetch.js";
-import { useEffect, useState } from "react";
-import { Button, Modal, Spinner } from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
+import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { CrearMunicipio } from "./modals/CrearMunicipio.jsx";
 import { EditMunicipio } from "./modals/EditMunicipio.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
+import { UserContext } from "../contexts/UserContext.js";
+import { useNavigate } from "react-router-dom";
+import { AvatarChip } from "../components/AvatarChip.jsx";
+import { FormattedGrid } from "../components/FormattedGrid.jsx";
+import { useFetchGetBody } from "../hooks/useFetch.js";
+import { LoadingScreen } from "./LoadingScreen.jsx";
 
 export const ConfigMunicipios = () => {
-  //Peticio de datos a la API
-  const { data, isLoading, setRefetch } = useFetchGet('municipios');
-  const handleRefetch = () => {
-    setRefetch(true)
+  const endpoint = 'municipio'
+  const {user} = useContext(UserContext)
+
+  //Departamento
+  const findParams = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [deptos, setDeptos] = useState([])
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos } = useFetchGetBody('list/departamentos', findParams);
+  
+  useEffect(() => {
+    if(deptoData && !isLoadingDeptos){
+      setDeptos(deptoData)
+    } 
+  }, [deptoData, isLoadingDeptos, errorDeptos])
+
+  //Estilo de boton
+  const buttonStyle = {
+    backgroundColor: "var(--main-green)", 
+    border: '1px solid black',
+    borderRadius: '3px',
+  };
+
+  //Indicador solicitud de recarga de datos en la vista
+  const [refetchData, setRefetchData] = useState(false);
+
+  //Indicador actualizando con boton
+  const [updating, setUpdating] = useState(false);
+
+  //Indicador mostrar eliminados
+  const [deleteds, setDeleteds] = useState(false);
+
+  const handleToggleDeleteds = () => {
+    setDeleteds(!deleteds);
   }
 
-  //Update manual
-  const [update, setUpdate] = useState(false);
-
+  //Accion Update manual
   const handleUpdate = () => {
-    setUpdate(true)
-    setRefetch(true)
+    setUpdating(true)
+    setRefetchData(true)
+  }
+
+  //Efecto cuando termina el refetch
+  useEffect(() => {
+    if(!refetchData){
+      setUpdating(false)
+    }
+  }, [refetchData, setUpdating])
+  
+
+  //Boton Cambios
+  const navigate = useNavigate();
+  const handleReview = () => {
+    navigate(`/reviews/${endpoint}s`)
   }
 
   //Modal crear
@@ -34,17 +81,12 @@ export const ConfigMunicipios = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentMunicipio, setCurrentMunicipio] = useState({});
-
-  //Filas y columnas para tabla
-  const [rows, setRows] = useState([])
+  const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 100 },
+    { field: 'id', headerName: '#', width: 50 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
-    { field: 'editor', headerName: 'Editado por', width: 200 },
-    { field: 'name', headerName: 'Nombre del Municipio', width: 250, description: 'Nombre del Municipio.',
+    { field: 'nombre', headerName: 'Nombre del Municipio', width: 250,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -55,84 +97,198 @@ export const ConfigMunicipios = () => {
         );
       } 
     },
+    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' },
     { field: 'departamento', headerName: 'Departamento', width: 200, description: 'Departamento al que pertenece el Municipio.',
+      type: 'singleSelect',
+      valueOptions: deptos && deptos.map((depto) => ({
+        label: depto.nombre,
+        value: depto._id
+      })),
       renderCell: (params) => {
         return (
           <InfoLink 
             type={'departamento'} 
-            id={data.find(municipio => municipio.departamento?.nombre === params.row.departamento).departamento._id || ''}
-            nombre={params.formattedValue}
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'version', headerName: 'Versión', width: 100 },
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, 
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'editor', headerName: 'Editado por', width: 170,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
           />
         );
       } 
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' },
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170, 
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'revisor', headerName: 'Revisado por', width: 170,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170,
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'eliminador', headerName: 'Eliminado por', width: 170,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'editing', headerName: 'Editando', width: 100,
+      renderCell: (params) => {
+        return (
+          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
+        );
+      } 
+    },
+    { field: 'estado', headerName: 'Estado', width: 100 },
     {
       field: " ",
       headerName: " ",
-      width: 120,
+      width: 200,
       sortable: false,
       renderCell: (params) => {
         return (
-          <Button style={buttonStyle} onClick={() => {
-            setCurrentMunicipio({
-              id: params.row.uuid,
-              nombre: params.row.name,
-              idDepartamento: params.row.departamento ? data.find(municipio => municipio.departamento?.nombre === params.row.departamento).departamento._id : '',
-              geocode: params.row.geocode
-            })
-            handleShowEdit()
-          }}>
-            Editar
-          </Button>
+          <>
+            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
+              <a href={`/reviews/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-eye-fill"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+            {
+              params.row.editing ?
+              <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                <div>
+                  <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                    <i className="bi bi-pencil-fill"></i>
+                  </Button>
+                </div>
+              </OverlayTrigger>
+              :
+              <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                  setCurrentData({
+                    id: params.row.uuid,
+                    nombre: params.row.nombre,
+                    idDepartamento: params.row.departamento.split('-')[1],
+                    geocode: params.row.geocode,
+
+                  })
+                  handleShowEdit()
+                }}>
+                  <i className="bi bi-pencil-fill"></i>
+                </Button>
+              </OverlayTrigger>
+            }
+            <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+              <a href={`/historial/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-clock-history"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+          </>
         );
       },
     }
   ];
-
-  //Enviar datos a las filas
-  useEffect(() => {
-    if(data){
-      setRows(
-        data.map((municipio, index) => (
-          { 
-            id: index + 1, 
-            uuid: municipio._id, 
-            ultimaEdicion: new Date(municipio.ultimaEdicion).toLocaleString(),
-            editor: 'Rafael Ramos',
-            name: municipio.nombre,
-            departamento: municipio.departamento?.nombre || '',
-            geocode: municipio.geocode
-          }
-        ))
-      );
-    }
-    setUpdate(false);
-  }, [data, isLoading])
   
-  //Estilo de boton
-  const buttonStyle = {
-    backgroundColor: "var(--main-green)", 
-    border: '1px solid black',
-    borderRadius: '3px'
-  };
+
+  const populateRows = (data, page, pageSize) => (
+    data.map((item, index) => (
+      { 
+        id: (page * pageSize) + index + 1, 
+        uuid: item._id, 
+        version: item.version,
+        fechaEdicion: item.fechaEdicion,
+        editor: `${item.editor.nombre}-${item.editor._id}`,
+        fechaRevision: item.fechaRevision,
+        revisor: `${item.revisor.nombre}-${item.revisor._id}`,
+        fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
+        eliminador: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
+        editing: item.pendientes.includes(user.userId),
+        estado: item.estado,
+        nombre: item.nombre,
+        geocode: item.geocode,
+        departamento: `${item.departamento.nombre}-${item.departamento._id}`,
+      }
+    ))
+  )
+
+  const hiddenColumns = {
+    uuid: false,
+    version: false,
+    fechaEdicion: false,
+    editor: false,
+    fechaRevision: false,
+    revisor: false,
+    fechaEliminacion: false,
+    eliminador: false,
+    editing: false,
+    estado: false
+  }
+
+  if(isLoadingDeptos){
+    return <LoadingScreen />
+  }
 
   return(
     <>
-    <Layout pagina={'Configuracion - Municipios'} SiteNavBar={ConfigNavBar}>
-      <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i> Municipios</h2>
+    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+      <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
       {/*Boton Agregar*/}
-      <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
+      <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          Agregar Municipio
+          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
         </Button>
+        {/*Boton Cambios*/}
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
+          <i className="bi bi-pencil-square"></i>{' '}
+          Gestión de Cambios
+        </Button>
+        {/*Boton Deleteds*/}
+        {
+          !deleteds ?
+          <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleToggleDeleteds}>
+            <i className="bi bi-eye"></i>{' '}
+            Mostrar Eliminados
+          </Button>
+          :
+          <Button style={{...buttonStyle, marginRight:'0.4rem', backgroundColor: 'var(--hover-main-green)'}} className='my-2' onClick={handleToggleDeleteds}>
+            <i className="bi bi-eye-slash"></i>{' '}
+            Ocultar Eliminados
+          </Button>
+        }
+        
         {/*Boton Actualizar*/}
         {
-          !update ? 
-          <Button className='my-2 mx-2' variant="light" onClick={handleUpdate}>
+          !updating ? 
+          <Button className='my-2' variant="light" onClick={handleUpdate}>
             <i className="bi bi-arrow-clockwise"></i>
           </Button>
-          : <Button className='my-2 mx-2' variant="light">
+          : <Button className='my-2' variant="light">
             <Spinner
               as="span"
               animation="border"
@@ -144,33 +300,26 @@ export const ConfigMunicipios = () => {
           </Button>
         }
 
-        <DataGrid
-          autoHeight
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
-            },
-            columns: {
-              columnVisibilityModel: {
-                uuid: false,
-                ultimaEdicion: false,
-                editor: false
-              },
-            },
-          }}
-          rowSelection={false}
-          pageSizeOptions={[10, 20]}
-          style={{ minHeight: "160px"}}
-        />
+        {/*Table Container*/}
+      <FormattedGrid 
+        model={`${endpoint}s`} 
+        pageSize={10} 
+        pageSizeOptions={[10,20]}
+        columns={columns} 
+        hiddenColumns={hiddenColumns}
+        populateRows={populateRows} 
+        refetchData={refetchData}
+        setRefetchData={setRefetchData} 
+        deleteds={deleteds}
+      />
 
     </Layout>
+
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditMunicipio handleClose={handleCloseEdit} setRefetch={handleRefetch} municipio={currentMunicipio}/>
+      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={setRefetchData} municipio={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearMunicipio handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
+      <CrearMunicipio handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

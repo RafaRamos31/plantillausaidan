@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TableToolbar } from './TableToolbar'
 import { DataGrid } from '@mui/x-data-grid'
-import { useFetchGet, useFetchGetPaged } from '../hooks/useFetch';
+import { useFetchGetBody, useFetchGetPaged } from '../hooks/useFetch';
 import { darken, lighten, styled } from '@mui/material';
 
 export const FormattedGrid = ({
@@ -11,40 +11,100 @@ export const FormattedGrid = ({
   populateRows, 
   pageSize=10, 
   pageSizeOptions=[],
-  revision=false,
+  reviews=false,
   deleteds=false,
   refetchData,
   setRefetchData,
 }) => {
 
+  //Estilos para filas
   const getBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.7) : lighten(color, 0.7);
 
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.6) : lighten(color, 0.6);
 
-  //Filas y columnas para tabla
-  const [rows, setRows] = useState([])
+  //Formulario de modificacion de tabla
+  const [tableState, setTableState] = useState({
+    page: 0,
+    pageSize: pageSize,
+    filter: '{}',
+    sort: '{}',
+    reviews: reviews,
+    deleteds: deleteds,
+  })
 
+
+  //Cambio en deleteds
+  useEffect(() => {
+    setTableState((state) => ({
+      ...state, 
+      deleteds: deleteds,
+    }))
+  }, [deleteds, setTableState])
+
+  //Modelo de paginacion
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: pageSize
   })
 
+  useEffect(() => {
+    setTableState((state) => ({
+      ...state, 
+      page: paginationModel.page,
+      pageSize: paginationModel.pageSize < pageSizeOptions[0] ? pageSizeOptions[0] : paginationModel.pageSize
+    }))
+  }, [paginationModel, pageSizeOptions, setTableState])
+
+
+  //Definir filtro para tabla
+  const [filterModel, setFilterModel] = useState({
+    items: [],
+    logicOperator: 'and',
+    quickFilterLogicOperator : 'and',
+    quickFilterValues: []
+  })
+
+  useEffect(() => {
+    setPaginationModel((model) => ({...model, page: 0}))
+      setTableState((state) => ({...state, filter: JSON.stringify({
+        field: filterModel.items[0]?.field,
+        operator: filterModel.items[0]?.operator,
+        value: filterModel.items[0]?.value
+      })}))
+  }, [filterModel])
+
+
+  //Definir ordenamiento para tabla
+  const [sortingModel, setSortingModel] = useState([])
+
+  useEffect(() => {
+    setPaginationModel((model) => ({...model, page: 0}))
+    setTableState((state) => ({...state, sort: JSON.stringify({
+      field: sortingModel[0]?.field,
+      sort: sortingModel[0]?.sort
+    })}))
+  }, [sortingModel])
+  
+
+  //Filas y columnas para tabla
+  const [rows, setRows] = useState([])
+
   //Peticion de datos a la API
   //Total Rows
   const [rowCount, setRowCount] = useState(0)
-  const { data: dataCount, isLoading: isLoadingCount, setRefetch: setRefetchCount } = useFetchGet(`count/${model}/${!revision ? !deleteds ? '1' : '2' : '3'}`);
+  const { data: dataCount, isLoading: isLoadingCount, setRefetch: setRefetchCount } = useFetchGetBody(`count/${model}`, tableState);
 
   useEffect(() => {
     if(!isLoadingCount && dataCount){
+      
       setRowCount(dataCount.count)
     }
-
   }, [dataCount, isLoadingCount])
 
   //Rows Data
-  const { data, isLoading, setRefetch } = useFetchGetPaged(`paged/${revision ? 'revisiones/' : ''}${model}${!revision ? !deleteds ? '/1' : '/2' : ''}`, paginationModel);
+  const { data, isLoading, setRefetch } = useFetchGetPaged(`paged/${model}`, tableState);
 
   useEffect(() => {
     setRefetch(true);
@@ -73,7 +133,8 @@ export const FormattedGrid = ({
       setRefetch(true);
     }
   }, [refetchData, setRefetch, setRefetchCount])
-
+  
+  //Dibujar tabla estilizada
   const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
     '& .super-app-theme--Eliminado': {
       backgroundColor: getBackgroundColor(
@@ -96,12 +157,14 @@ export const FormattedGrid = ({
           toolbar: TableToolbar,
         }}
 
+        disableColumnMenu
         disableRowSelectionOnClick
         hideFooterSelectedRowCount
         density='compact'
         autoHeight
         
         localeText={{
+          toolbarFilters: 'Filtrar',
           toolbarColumns: 'Columnas',
           toolbarDensity: 'Vista',
           toolbarExport: 'Imprimir'
@@ -116,10 +179,19 @@ export const FormattedGrid = ({
           },
         }}
 
+        onFilterModelChange={setFilterModel}
+        filterModel={filterModel}
+        filterMode='server'
+        filterDebounceMs={1000}
+
+        onSortModelChange={setSortingModel}
+        sortingMode='server'
+        sortModel={sortingModel}
+
         rowCount={rowCount}
 
         loading={isLoading}
-
+      
         pageSizeOptions={pageSizeOptions}
         paginationModel={paginationModel}
         paginationMode='server'

@@ -56,7 +56,7 @@ export const useFetchGet = (endpoint) => {
 
 
 //Peticion Get con Refetch asincrono
-export const useFetchGetPaged = (endpoint, pageModel) => {
+export const useFetchGetPaged = (endpoint, args) => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState(null);
   const [code, setCode] = useState(null);
@@ -72,9 +72,14 @@ export const useFetchGetPaged = (endpoint, pageModel) => {
         };
 
         //Crear formulario
+        //Extraer variables para formulario
         const form = new FormData();
-        form.append("page", pageModel.page);
-        form.append("pageSize", pageModel.pageSize);
+        for (const key in args) {
+          if (args.hasOwnProperty(key)) {
+            const value = args[key];
+            form.append(key, value);
+          }
+        }
 
         const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
           method: 'POST',
@@ -113,7 +118,7 @@ export const useFetchGetPaged = (endpoint, pageModel) => {
       fetchData();
     }
     // eslint-disable-next-line
-  }, [endpoint, pageModel, refetch]);
+  }, [endpoint, refetch]);
 
   return { isLoading, data, code, error, setRefetch };
 };
@@ -177,9 +182,15 @@ export const useFetchGetBody = (endpoint, args) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem('user-token');
+        const headers = {
+          "Authorization": 'Bearer '+ token,
+        };
+
         const response = await fetch(process.env.REACT_APP_API_URL + endpoint, {
           body: form,
-          method: 'POST'
+          method: 'POST',
+          headers
         });
         let jsonData = '';
         if(response.ok){

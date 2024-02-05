@@ -14,9 +14,9 @@ import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
 import { EditDepartamento } from '../../modals/EditDepartamento';
 
-export const ReviewDepartamento = () => {
+export const ReviewRol = () => {
   const { idRevision } = useParams();
-  const endpoint = 'departamento'
+  const endpoint = 'rol'
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
@@ -66,7 +66,7 @@ export const ReviewDepartamento = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/departamentos', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/roles', values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 import { ConfigNavBar } from "../components/navBars/ConfigNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
-import { Button, Modal, Spinner } from "react-bootstrap";
+import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { CrearDepartamento } from "./modals/CrearDepartamento.jsx";
 import { EditDepartamento } from "./modals/EditDepartamento.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
@@ -9,9 +9,10 @@ import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
+import { StatusBadge } from "../components/StatusBadge.jsx";
 
 export const ConfigDepartamentos = () => {
-
+  const endpoint = 'departamento'
   const {user} = useContext(UserContext)
 
   //Estilo de boton
@@ -51,7 +52,7 @@ export const ConfigDepartamentos = () => {
   //Boton Cambios
   const navigate = useNavigate();
   const handleReview = () => {
-    navigate('/reviews/departamentos')
+    navigate(`/reviews/${endpoint}s`)
   }
 
   //Modal crear
@@ -65,41 +66,59 @@ export const ConfigDepartamentos = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentDepartamento, setCurrentDepartamento] = useState({});
+  const [currentData, setCurrentData] = useState({});
 
   const columns = [
     { field: 'id', headerName: '#', width: 50 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'nombre', headerName: 'Nombre', width: 250,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'departamento'} 
+            id={params.row.uuid}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
+    },
+    { field: 'geocode', headerName: 'Geocode', width: 120, },
     { field: 'version', headerName: 'Versión', width: 100 },
-    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 200 },
-    { field: 'editor', headerName: 'Editado por', width: 250,
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170,
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'editor', headerName: 'Editado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
-            id={params.formattedValue.split('-')[0]}
-            name={params.formattedValue.split('-')[1]} 
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
           />
         );
       } 
     },
-    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 200 },
-    { field: 'revisor', headerName: 'Revisado por', width: 250,
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'revisor', headerName: 'Revisado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
-            id={params.formattedValue.split('-')[0]}
-            name={params.formattedValue.split('-')[1]} 
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
           />
         );
       } 
     },
-    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 200 },
-    { field: 'eliminador', headerName: 'Eliminado por', width: 250,
+    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, 
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'eliminador', headerName: 'Eliminado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
-            id={params.formattedValue.split('-')[0]}
-            name={params.formattedValue.split('-')[1]} 
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
           />
         );
       } 
@@ -111,83 +130,81 @@ export const ConfigDepartamentos = () => {
         );
       } 
     },
-    { field: 'estado', headerName: 'Estado', width: 100 },
-    { field: 'name', headerName: 'Nombre del Departamento', width: 250,
+    { field: 'estado', headerName: 'Estado', width: 140,
       renderCell: (params) => {
         return (
-          <InfoLink 
-            type={'departamento'} 
-            id={params.row.uuid}
-            nombre={params.formattedValue}
-          />
+          <StatusBadge status={params.formattedValue} />
         );
-      } 
+      }
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Departamento.' },
     {
       field: " ",
       headerName: " ",
       width: 200,
       sortable: false,
       renderCell: (params) => {
-        if(params.row.editing){
-          return (
-            <>
-              <a href={`/reviews/departamentos/${params.row.uuid}`} target="_blank" rel="noreferrer">
+        return (
+          <>
+            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
+              <a href={`/reviews/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
                 <Button  className='py-1' style={buttonStyle}>
                   <i className="bi bi-eye-fill"></i>{' '}
                 </Button>
               </a>
-              <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'darkgreen'}} disabled>
-                <i className="bi bi-pencil-fill"></i>{' '}
-                En Revisión
-              </Button>
-            </>
-          );
-        }
-        else{
-          return (
-            <>
-              <a href={`/reviews/departamentos/${params.row.uuid}`} target="_blank" rel="noreferrer">
+            </OverlayTrigger>
+            {
+              params.row.editing ?
+              <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                <div>
+                  <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                    <i className="bi bi-pencil-fill"></i>
+                  </Button>
+                </div>
+              </OverlayTrigger>
+              :
+              <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                  setCurrentData({
+                    id: params.row.uuid,
+                    nombre: params.row.nombre,
+                    geocode: params.row.geocode
+                  })
+                  handleShowEdit()
+                }}>
+                  <i className="bi bi-pencil-fill"></i>
+                </Button>
+              </OverlayTrigger>
+            }
+            <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+              <a href={`/historial/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
                 <Button  className='py-1' style={buttonStyle}>
-                  <i className="bi bi-eye-fill"></i>{' '}
+                  <i className="bi bi-clock-history"></i>{' '}
                 </Button>
               </a>
-              <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
-              setCurrentDepartamento({
-                id: params.row.uuid,
-                nombre: params.row.name,
-                geocode: params.row.geocode
-              })
-              handleShowEdit()
-            }}>
-              <i className="bi bi-pencil-fill"></i>{' '}
-              Editar
-            </Button>
-            </>
-          );
-        }
+            </OverlayTrigger>
+          </>
+        );
       },
     }
   ];
   
 
   const populateRows = (data, page, pageSize) => (
-    data.map((departamento, index) => (
+    data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
-        version: departamento.version,
-        fechaEdicion: new Date(departamento.fechaEdicion).toLocaleString(),
-        editor: `${departamento.editor._id}-${departamento.editor.nombre}`,
-        fechaRevision: new Date(departamento.fechaRevision).toLocaleString(),
-        revisor: `${departamento.revisor._id}-${departamento.revisor.nombre}`,
-        fechaEliminacion: departamento.fechaEliminacion ? new Date(departamento.fechaEliminacion).toLocaleString() : '',
-        eliminador: `${departamento.eliminador?._id || ''}-${departamento.eliminador?.nombre || ''}`,
-        editing: departamento.pendientes.includes(user.userId),
-        estado: departamento.estado,
-        name: departamento.nombre,
-        geocode: departamento.geocode
+        uuid: item._id, 
+        version: item.version,
+        fechaEdicion: item.fechaEdicion,
+        editor: `${item.editor.nombre}-${item.editor._id}`,
+        fechaRevision: item.fechaRevision,
+        revisor: `${item.revisor.nombre}-${item.revisor._id}`,
+        fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
+        eliminador: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
+        editing: item.pendientes.includes(user.userId),
+        estado: item.estado,
+        nombre: item.nombre,
+        geocode: item.geocode
       }
     ))
   )
@@ -207,12 +224,12 @@ export const ConfigDepartamentos = () => {
 
   return(
     <>
-    <Layout pagina={'Configuracion - Departamentos'} SiteNavBar={ConfigNavBar}>
-      <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i> Departamentos</h2>
+    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+      <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
       {/*Boton Agregar*/}
       <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          Agregar Departamento
+          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
         </Button>
         {/*Boton Cambios*/}
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
@@ -253,7 +270,7 @@ export const ConfigDepartamentos = () => {
 
         {/*Table Container*/}
       <FormattedGrid 
-        model={'departamentos'} 
+        model={`${endpoint}s`} 
         pageSize={10} 
         pageSizeOptions={[10,20]}
         columns={columns} 
@@ -266,7 +283,7 @@ export const ConfigDepartamentos = () => {
 
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={setRefetchData} departamento={currentDepartamento}/>
+      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={setRefetchData} departamento={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearDepartamento handleClose={handleCloseCreate} setRefetch={handleUpdate}/>

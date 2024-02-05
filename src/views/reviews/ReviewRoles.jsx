@@ -7,8 +7,8 @@ import { AvatarChip } from "../../components/AvatarChip.jsx";
 import { FormattedGrid } from "../../components/FormattedGrid.jsx";
 import { InfoLink } from "../../components/InfoLink.jsx";
 
-export const ReviewsDepartamentos = () => {
-  const endpoint = 'departamento'
+export const ReviewsRoles = () => {
+  const endpoint = 'rol'
 
   //Estilo de boton
   const buttonStyle = {
@@ -45,7 +45,7 @@ export const ReviewsDepartamentos = () => {
       renderCell: (params) => {
         return (
           <InfoLink
-            type={'departamento'}
+            type={'municipio'}
             id={params.formattedValue}
             nombre={params.formattedValue}
           />
@@ -96,7 +96,7 @@ export const ReviewsDepartamentos = () => {
       sortable: false,
       renderCell: (params) => {
         return (
-          <a href={`/reviews/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
+          <a href={`/reviews/${endpoint}es/${params.row.uuid}`} target="_blank" rel="noreferrer">
             <Button style={buttonStyle}>
               <i className="bi bi-eye-fill"></i>{' '}
               Revisar
@@ -108,18 +108,18 @@ export const ReviewsDepartamentos = () => {
   ];
 
   const populateRows = (data, page, pageSize) => (
-    data.map((departamento, index) => (
+    data.map((municipio, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
-        original: departamento.original, 
-        nombre: departamento.nombre,
-        version: departamento.version,
-        fechaEdicion: departamento.fechaEdicion,
-        editor: `${departamento.editor.nombre}-${departamento.editor._id}`,
-        fechaRevision: departamento.fechaRevision ? departamento.fechaRevision : '',
-        revisor: `${departamento.revisor?.nombre || ''}-${departamento.revisor?._id || ''}`,
-        estado: departamento.estado
+        uuid: municipio._id, 
+        original: municipio.original, 
+        nombre: municipio.nombre,
+        version: municipio.version,
+        fechaEdicion: municipio.fechaEdicion,
+        editor: `${municipio.editor.nombre}-${municipio.editor._id}`,
+        fechaRevision: municipio.fechaRevision ? municipio.fechaRevision : '',
+        revisor: `${municipio.revisor?.nombre || ''}-${municipio.revisor?._id || ''}`,
+        estado: municipio.estado
       }
     ))
   )
@@ -133,9 +133,9 @@ export const ReviewsDepartamentos = () => {
 
   return(
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`} SiteNavBar={ConfigNavBar}>
       <div className="d-flex align-items-center">
-        <h4><i className="bi bi-geo-alt-fill"></i>{`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h4>
+        <h4><i className="bi bi-wrench"></i>{` Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`}</h4>
         {/*Boton Actualizar*/}
         {
           !updating ? 
@@ -157,8 +157,8 @@ export const ReviewsDepartamentos = () => {
 
       {/*Table Container*/}
       <FormattedGrid 
-        model={`${endpoint}s`} 
-        pageSize={10} 
+        model={`${endpoint}es`} 
+        pageSize={10}
         pageSizeOptions={[10, 15, 20, 30]}
         columns={columns} 
         hiddenColumns={hiddenColumns}

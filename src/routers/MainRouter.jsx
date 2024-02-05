@@ -49,6 +49,12 @@ import { useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
 import { ReviewsDepartamentos } from '../views/reviews/ReviewsDepartamentos'
 import { ReviewDepartamento } from '../views/reviews/unitarios/ReviewDepartamento'
+import { HistoryDepartamento } from '../views/history/HistoryDepartamento'
+import { ReviewsMunicipios } from '../views/reviews/ReviewsMunicipios'
+import { ReviewMunicipio } from '../views/reviews/unitarios/ReviewMunicipio'
+import { HistoryMunicipio } from '../views/history/HistoryMunicipio'
+import { ReviewsRoles } from '../views/reviews/ReviewRoles'
+import { ReviewRol } from '../views/reviews/unitarios/ReviewRol'
 
 export const MainRouter = () => {
 
@@ -117,8 +123,15 @@ export const MainRouter = () => {
 
             <Route path="/reviews" element={<ReviewsDepartamentos />}></Route>
             <Route path="/reviews/departamentos" element={<ReviewsDepartamentos />}></Route>
-            <Route path="/reviews/departamentos/:idDepartamento" element={<ReviewDepartamento />}></Route>
+            <Route path="/reviews/municipios" element={<ReviewsMunicipios />}></Route>
+            <Route path="/reviews/roles" element={<ReviewsRoles />}></Route>
+            <Route path="/reviews/departamentos/:idRevision" element={<ReviewDepartamento />}></Route>
+            <Route path="/reviews/municipios/:idRevision" element={<ReviewMunicipio />}></Route>
+            <Route path="/reviews/roles/:idRevision" element={<ReviewRol />}></Route>
             
+            
+            <Route path="/historial/departamentos/:id" element={<HistoryDepartamento />}></Route>
+            <Route path="/historial/municipios/:id" element={<HistoryMunicipio />}></Route>
 
             <Route path="*" element={<Navigate to="/" />} />
           </>

@@ -1,39 +1,59 @@
 import { useContext, useEffect, useState } from "react";
-import { useFetchDeleteBody, useFetchGet, useFetchPutBody } from "../../hooks/useFetch.js";
+import { useFetchGetBody, useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
-import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
+import { useNavigate } from "react-router-dom";
 
-export const EditMunicipio = ({handleClose, setRefetch, municipio}) => {
+export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=false}) => {
   //Departamento
+  const findParams = {
+    sort: '{}',
+    filter: '{}'
+  }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos } = useFetchGet('departamentos');
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
 
   useEffect(() => {
     if(deptoData && !isLoadingDeptos){
       setDeptos(deptoData)
+      setUpdating(false);
     } 
   }, [deptoData, isLoadingDeptos, errorDeptos])
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
+  //Indicador actualizando con boton
+  const [updating, setUpdating] = useState(false);
+
+  //Accion Update manual
+  const handleReload = () => {
+    setUpdating(true);
+    setRefetchDeptos(true);
+  }
+
   //Formulario
-  const { values, handleChange } = useForm({
+  const { values, handleChange, setValues } = useForm({
     idMunicipio: municipio.id,
     nombre: municipio.nombre,
-    idDepartamento: municipio.idDepartamento,
-    geocode: municipio.geocode.substring(2)
+    idDepartamento: municipio.idDepartamento || municipio.departamento._id,
+    geocode: municipio.geocode.substring(2),
+    aprobar: false
   });
 
+  const handleToggleAprobar = () => {
+    setValues({ ...values, aprobar: !values.aprobar });
+  }
+
   //Editar Departamento en Formulario
-  const [deptoGeo, setDeptoGeo] = useState('')
+  const [deptoGeo, setDeptoGeo] = useState('00')
 
   useEffect(() => {
     if(values.idDepartamento && values.idDepartamento.length > 0){
       setDeptoGeo(deptos.find(depto => depto._id === values.idDepartamento)?.geocode)
     }
     else{
-      setDeptoGeo('')
+      setDeptoGeo('00')
     }
     
   }, [values, deptos])
@@ -59,7 +79,6 @@ export const EditMunicipio = ({handleClose, setRefetch, municipio}) => {
     else{
       setErrorMessage('Geocode required')
     }
-    
   }
 
   //Boton de carga Modificar
@@ -75,13 +94,22 @@ export const EditMunicipio = ({handleClose, setRefetch, municipio}) => {
   }
 
   //Accion al completar correctamente Modificacion
+
+  const navigate = useNavigate();
+
   const handleSuccessEdit = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Municipio Modificado')
-    setContent('Municipio guardado correctamente.')
-    setVariant('success')
+    if(fixing){
+      navigate('/reviews/municipios/'+dataEdit._id)
+      navigate(0)
+    }
+    else{
+      setRefetchData(true)
+      handleClose()
+      setShowToast(true)
+      actualizarTitulo('Municipio Modificado')
+      setContent('Municipio guardado correctamente.')
+      setVariant('success')
+    }
   }
 
   useEffect(() => {
@@ -101,64 +129,14 @@ export const EditMunicipio = ({handleClose, setRefetch, municipio}) => {
   // eslint-disable-next-line
   }, [sendEdit, dataEdit, isLoadingEdit, errorEdit, codeEdit])
 
-  //Boton de confirmar Eliminacion
-  const [showDelete, setShowDelete] = useState(false);
-  const [chargingDelete, setChargingDelete] = useState(false);
-
-  const handleDelete = () => {
-    setShowDelete(true)
-    setErrorMessage('Presione de nuevo para confirmar la eliminación')
-  }
-
-  //Envio asincrono de formulario de Eliminar
-  const { setSend: setSendDelete, send: sendDelete, data: dataDelete, isLoading: isLoadingDelete, error: errorDelete, code: codeDelete } = useFetchDeleteBody('municipios', {idMunicipio: values.idMunicipio}) 
-
-  const handleSendDelete = () => {
-    setChargingDelete(true)
-    setSendDelete(true)
-  }
-
-  //Accion al completar correctamente Eliminacion
-  const handleSuccessDelete = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Municipio Eliminado')
-    setContent('Municipio eliminado correctamente.')
-    setVariant('success')
-  }
-
-  useEffect(() => {
-    setChargingDelete(false)
-    if(codeDelete === 404){
-      handleNotFound()
-    }
-    else{
-      setErrorMessage(errorDelete)
-    }
-
-    if(dataDelete){
-      handleSuccessDelete();
-    }
-  // eslint-disable-next-line
-  }, [sendDelete, dataDelete, isLoadingDelete, errorDelete])
-  
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Perfil Municipios</h4>
+      <h4 className="my-1">Modificar Municipio</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
       <Form onSubmit={handleSubmit}>
-        <Form.Group as={Row} className="mb-3" controlId="idMunicipio">
-          <Form.Label column sm="4">
-            uuid:
-          </Form.Label>
-          <Col sm="8">
-            <Form.Control readOnly disabled value={values.idMunicipio}/>
-          </Col>
-        </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
@@ -174,15 +152,33 @@ export const EditMunicipio = ({handleClose, setRefetch, municipio}) => {
             Departamento:
           </Form.Label>
           <Col sm="8">
-            <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-              <option value="">Seleccionar Departamento</option>
+          <InputGroup>
+              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
+                <option value="">Seleccionar Departamento</option>
+                {
+                  deptos &&
+                  deptos.map((depto) => (
+                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
+                  ))
+                }
+              </Form.Select>
               {
-                deptos &&
-                deptos.map((depto) => (
-                  <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                ))
+                !updating ? 
+                <Button variant="light" onClick={handleReload}>
+                  <i className="bi bi-arrow-clockwise"></i>
+                </Button>
+                : <Button variant="light">
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span className="visually-hidden">Cargando...</span>
+                </Button>
               }
-            </Form.Select>
+            </InputGroup>
           </Col>
         </Form.Group>
 
@@ -190,46 +186,26 @@ export const EditMunicipio = ({handleClose, setRefetch, municipio}) => {
           <Form.Label column sm="4">
             Geocode:
           </Form.Label>
-          <Col sm="2">
-            <Form.Control disabled readOnly value={deptoGeo}/>
-          </Col>
-          <Col sm="6">
-            <Form.Control id='geocode' name='geocode' value={values.geocode} onChange={handleChange}/>
+          <Col sm='8'>
+          <InputGroup>
+            <InputGroup.Text placeholder="00">{deptoGeo}</InputGroup.Text>
+              <Form.Control id='geocode' name='geocode' value={values.geocode} onChange={handleChange}/>
+            </InputGroup>
           </Col>
         </Form.Group>
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
-    <Card.Footer className="d-flex justify-content-end">
-      {/*Boton Eliminar*/}
-      {
-        !showDelete ? 
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary" onClick={handleDelete}>
-          Eliminar
-        </Button>
-        :
-        !chargingDelete ?
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger" onClick={handleSendDelete}>
-          Eliminar
-        </Button>
-        :
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger">
-          <Spinner
-            as="span"
-            animation="border"
-            size="sm"
-            role="status"
-            aria-hidden="true"
-          />
-          <span className="visually-hidden">Cargando...</span>
-        </Button>
-      }
+    <Card.Footer className="d-flex justify-content-between align-items-center">
+      <Form.Group>
+        <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+      </Form.Group>
       
       {/*Boton Guardar*/}
       {
         !chargingEdit ? 
         <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary" onClick={handleUpdate}>
-          Guardar
+          Enviar
         </Button>
         : <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary">
           <Spinner

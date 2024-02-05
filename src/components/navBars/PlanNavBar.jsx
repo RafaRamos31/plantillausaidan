@@ -1,8 +1,11 @@
 import { Navbar, Container, Nav, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../contexts/UserContext";
 
 export const PlanNavBar = () => {
+  const { user } = useContext(UserContext)
+
   const [actual, setActual] = useState('');
   const navigate = useNavigate();
 
@@ -20,7 +23,8 @@ export const PlanNavBar = () => {
     }
   }
 
-  const values = [
+  const page = 'Planificación';
+  const [views] = useState([
     {
       name: 'Resultados',
       url: '/planificacion/resultados',
@@ -57,7 +61,15 @@ export const PlanNavBar = () => {
       dir: 'monitoreo',
       icon: 'bi-clipboard2-data-fill'
     }
-  ]
+  ])
+
+  const [values, setValues] = useState([])
+
+  useEffect(() => {
+    const newValues = views.filter(view => user.userPermisos?.vistas[page][view.name])
+    setValues(newValues)
+  // eslint-disable-next-line
+  }, [user, views])
 
   return (
     <>

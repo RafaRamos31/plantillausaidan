@@ -1,4 +1,4 @@
-import { GridPrintExportMenuItem, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExportContainer } from '@mui/x-data-grid';
+import { GridPrintExportMenuItem, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExportContainer, GridToolbarFilterButton } from '@mui/x-data-grid';
 import React from 'react'
 
 const PrintIcon = () => {
@@ -8,6 +8,7 @@ const PrintIcon = () => {
 export const TableToolbar = () => {
     return (
       <GridToolbarContainer>
+        <GridToolbarFilterButton />
         <GridToolbarColumnsButton />
         <GridToolbarDensitySelector />
         <GridToolbarExportContainer startIcon={<PrintIcon/>}>

@@ -1,8 +1,6 @@
-import { Button, Modal, Spinner } from "react-bootstrap";
-import { EditDepartamento } from "../views/modals/EditDepartamento";
-import { useState } from "react";
+import { Button, Spinner } from "react-bootstrap";
 
-export const ReviewButton = ({handleSubmit, charging, dataDept, original}) => {
+export const ReviewButton = ({handleSubmit, charging, dataRevision}) => {
 
   //Estilo de boton
   const buttonStyle = {
@@ -11,25 +9,7 @@ export const ReviewButton = ({handleSubmit, charging, dataDept, original}) => {
     borderRadius: '3px'
   };
 
-  //Modal modificar
-  const [showEdit, setShowEdit] = useState(false);
-  const handleCloseEdit = () => setShowEdit(false);
-  const handleShowEdit = () => setShowEdit(true);
-
-  if(dataDept && dataDept.estado === 'Rechazado'){
-    return (
-      <div className="d-grid w-100">
-        <>
-          <Button variant="primary" onClick={handleShowEdit}><i className="bi bi-tools"></i>{' '}Corregir</Button>
-          <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-            <EditDepartamento handleClose={handleCloseEdit} setRefetchData={()=>{}} departamento={{...dataDept, id: original?._id}} fixing/>
-          </Modal>
-        </>
-      </div>
-    )
-  }
-
-  if(dataDept && dataDept.estado === 'En revisión'){
+  if(dataRevision && dataRevision.estado === 'En revisión'){
     return (
       <div className="d-grid w-100">
         {/**Boton para guardar revision */}

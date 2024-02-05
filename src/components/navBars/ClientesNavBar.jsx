@@ -1,8 +1,12 @@
 import { Navbar, Container, Nav, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../contexts/UserContext";
 
 export const ClientesNavBar = () => {
+
+  const { user } = useContext(UserContext);
+
   const [actual, setActual] = useState('');
   const navigate = useNavigate();
 
@@ -20,7 +24,8 @@ export const ClientesNavBar = () => {
     }
   }
 
-  const values = [
+  const page = 'Clientes';
+  const [views] = useState([
     {
       name: 'Beneficiarios',
       url: '/clientes/beneficiarios',
@@ -45,7 +50,15 @@ export const ClientesNavBar = () => {
       dir: 'cargos',
       icon: 'bi-person-badge'
     }
-  ]
+  ])
+
+  const [values, setValues] = useState([])
+
+  useEffect(() => {
+    const newValues = views.filter(view => user.userPermisos?.vistas[page][view.name])
+    setValues(newValues)
+  // eslint-disable-next-line
+  }, [user, views])
 
   return (
     <>
