@@ -45,14 +45,14 @@ export const ReviewsDepartamentos = () => {
       renderCell: (params) => {
         return (
           <InfoLink
-            type={'departamento'}
+            type={'departamentos'}
             id={params.formattedValue}
             nombre={params.formattedValue}
           />
         );
       } 
     },
-    { field: 'nombre', headerName: 'Nombre', width: 150 },
+    { field: 'nombre', headerName: 'Nombre', width: 250 },
     { field: 'version', headerName: 'Versión', width: 100 },
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, 
       type: 'dateTime',

@@ -40,8 +40,8 @@ export const ClientesNavBar = () => {
     },
     {
       name: 'Tipos de Organizaciones',
-      url: '/clientes/orgtypes',
-      dir: 'orgtypes',
+      url: '/clientes/tipoOrganizaciones',
+      dir: 'tipoOrganizaciones',
       icon: 'bi-bank'
     },
     {
@@ -49,6 +49,12 @@ export const ClientesNavBar = () => {
       url: '/clientes/cargos',
       dir: 'cargos',
       icon: 'bi-person-badge'
+    },
+    {
+      name: 'Sectores',
+      url: '/clientes/sectores',
+      dir: 'sectores',
+      icon: 'bi-diagram-2-fill'
     }
   ])
 

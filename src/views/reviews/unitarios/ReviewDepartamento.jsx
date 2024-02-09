@@ -13,10 +13,13 @@ import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
 import { EditDepartamento } from '../../modals/EditDepartamento';
+import { UserContext } from '../../../contexts/UserContext';
 
 export const ReviewDepartamento = () => {
   const { idRevision } = useParams();
   const endpoint = 'departamento'
+
+  const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
@@ -263,7 +266,11 @@ export const ReviewDepartamento = () => {
               :
               <ReviewButton  charging={charging} dataRevision={dataRevision} handleSubmit={handleSubmit}/>
             }
-            <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+            {
+              user.userPermisos?.acciones['Departamentos']['Eliminar'] 
+              &&
+              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+            }
             <p style={{color: 'red'}}>{errorMessage}</p>
           </Form>
         </Col>

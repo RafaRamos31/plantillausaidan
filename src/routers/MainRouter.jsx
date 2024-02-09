@@ -1,60 +1,25 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { RefetchContextProvider } from '../contexts/RefetchContext'
 import { ToastContextProvider } from '../contexts/ToastContext'
+import { useContext } from 'react'
+import { UserContext } from '../contexts/UserContext'
 import { Home } from '../views/Home'
 import { Clientes } from '../views/Clientes'
 import { Configuracion } from '../views/Configuracion'
-import { ConfigUsuarios } from '../views/ConfigUsuarios'
-import { ConfigRoles } from '../views/ConfigRoles'
 import { Planificacion } from '../views/Planificacion'
 import { Indicadores } from '../views/Indicadores'
-import { ClientBeneficiarios } from '../views/ClientBeneficiarios'
-import { PlanResultados } from '../views/PlanResultados'
-import { PlanIndicadores } from '../views/PlanIndicadores'
-import { PlanEstrategias } from '../views/PlanEstrategias'
-import { PlanTareas } from '../views/PlanTareas'
-import { PlanActividades } from '../views/PlanActividades'
-import { PlanMonitoreo } from '../views/PlanMonitoreo'
-import { IndIndicadores } from '../views/IndIndicadores'
-import { IndRegistro } from '../views/IndRegistro'
-import { IndMonitoreo } from '../views/IndMonitoreo'
-import { IndReportes } from '../views/IndReportes'
-import { ConfigComponentes } from '../views/ConfigComponentes'
-import { ConfigDepartamentos } from '../views/ConfigDepartamentos'
-import { ConfigMunicipios } from '../views/ConfigMunicipios'
-import { ConfigAldeas } from '../views/ConfigAldeas'
-import { ConfigCaserios } from '../views/ConfigCaserios'
-import { ConfigAreas } from '../views/ConfigAreas'
-import { ConfigSubAreas } from '../views/ConfigSubAreas'
-import { ClientOrgtypes } from '../views/ClientOrgtypes'
-import { ClientOrganizaciones } from '../views/ClientOrganizaciones'
-import { Departamento } from '../views/info/Departamento'
-import { Municipio } from '../views/info/Municipio'
-import { Aldea } from '../views/info/Aldea'
-import { Caserio } from '../views/info/Caserio'
-import { AreaTematica } from '../views/info/AreaTematica'
-import { SubAreaTematica } from '../views/info/SubAreaTematica'
-import { ClientCargos } from '../views/ClientCargos'
-import { Organizacion } from '../views/info/Organizacion'
-import { TipoOrganizacion } from '../views/info/TipoOrganizacion'
-import { Cargo } from '../views/info/Cargo'
-import { Beneficiario } from '../views/info/Beneficiario'
 import { Reportes } from '../views/Reportes'
 import { Inversiones } from '../views/Inversiones'
-import { InversionesAreas } from '../views/InversionesAreas'
-import { InversionesList } from '../views/InversionesList'
 import { Login } from '../views/Login'
 import { Register } from '../views/Register'
-import { useContext } from 'react'
-import { UserContext } from '../contexts/UserContext'
-import { ReviewsDepartamentos } from '../views/reviews/ReviewsDepartamentos'
-import { ReviewDepartamento } from '../views/reviews/unitarios/ReviewDepartamento'
-import { HistoryDepartamento } from '../views/history/HistoryDepartamento'
-import { ReviewsMunicipios } from '../views/reviews/ReviewsMunicipios'
-import { ReviewMunicipio } from '../views/reviews/unitarios/ReviewMunicipio'
-import { HistoryMunicipio } from '../views/history/HistoryMunicipio'
-import { ReviewsRoles } from '../views/reviews/ReviewRoles'
-import { ReviewRol } from '../views/reviews/unitarios/ReviewRol'
+import { ConfiguracionRouter } from './ConfiguracionRouter'
+import { ReviewsRouter } from './ReviewsRouter'
+import { HistorialRouter } from './HistorialRouter'
+import { IndicadoresRouter } from './IndicadoresRouter'
+import { ClientesRouter } from './ClientesRouter'
+import { PlanificacionRouter } from './PlanificacionRouter'
+import { InversionesRouter } from './InversionesRouter'
+import { ReportesRouter } from './ReportesRouter'
 
 export const MainRouter = () => {
 
@@ -73,70 +38,55 @@ export const MainRouter = () => {
         {
           user && 
           <>
-            <Route path="/clientes" element={<Clientes />}></Route>
-            <Route path="/clientes/beneficiarios" element={<ClientBeneficiarios />}></Route>
-            <Route path="/clientes/organizaciones" element={<ClientOrganizaciones />}></Route>
-            <Route path="/clientes/orgtypes" element={<ClientOrgtypes />}></Route>
-            <Route path="/clientes/cargos" element={<ClientCargos />}></Route>
+            {
+              (user.userPermisos?.vistas['Clientes'] && Object.values(user.userPermisos?.vistas['Clientes']).some(valor => valor === true))
+              &&
+              <Route path="/clientes" element={<Clientes />}></Route>
+            }
+            <Route path="/clientes/*" element={<ClientesRouter />}></Route>
 
-            <Route path="/inversiones" element={<Inversiones />}></Route>
-            <Route path="/inversiones/list" element={<InversionesList />}></Route>
-            <Route path="/inversiones/areas" element={<InversionesAreas />}></Route>
+            {
+              (user.userPermisos?.vistas['Inversiones'] && Object.values(user.userPermisos?.vistas['Inversiones']).some(valor => valor === true))
+              &&
+              <Route path="/inversiones" element={<Inversiones />}></Route>
+            }
+            <Route path="/inversiones/*" element={<InversionesRouter />}></Route>
 
-            <Route path="/planificacion" element={<Planificacion />}></Route>
-            <Route path="/planificacion/resultados" element={<PlanResultados />}></Route>
-            <Route path="/planificacion/indicadores" element={<PlanIndicadores />}></Route>
-            <Route path="/planificacion/estrategias" element={<PlanEstrategias />}></Route>
-            <Route path="/planificacion/tareas" element={<PlanTareas />}></Route>
-            <Route path="/planificacion/actividades" element={<PlanActividades />}></Route>
-            <Route path="/planificacion/monitoreo" element={<PlanMonitoreo />}></Route>
+            {
+              (user.userPermisos?.vistas['Planificación'] && Object.values(user.userPermisos?.vistas['Planificación']).some(valor => valor === true))
+              &&
+              <Route path="/planificacion" element={<Planificacion />}></Route>
+            }
+            <Route path="/planificacion/*" element={<PlanificacionRouter />}></Route>
 
-            <Route path="/indicadores" element={<Indicadores />}></Route>
-            <Route path="/indicadores/indicadores" element={<IndIndicadores />}></Route>
-            <Route path="/indicadores/registro" element={<IndRegistro />}></Route>
-            <Route path="/indicadores/monitoreo" element={<IndMonitoreo />}></Route>
-            <Route path="/indicadores/reportes" element={<IndReportes />}></Route>
+            {
+              (user.userPermisos?.vistas['Indicadores'] && Object.values(user.userPermisos?.vistas['Indicadores']).some(valor => valor === true))
+              &&
+              <Route path="/indicadores" element={<Indicadores />}></Route>
+            }
+            <Route path="/indicadores/*" element={<IndicadoresRouter />}></Route>
 
-            <Route path="/reportes" element={<Reportes />}></Route>
+            {
+              (user.userPermisos?.vistas['Reportes'] && Object.values(user.userPermisos?.vistas['Reportes']).some(valor => valor === true))
+              &&
+              <Route path="/reportes" element={<Reportes />}></Route>
+            }
+            <Route path="/reportes/*" element={<ReportesRouter />}></Route>
 
-            <Route path="/configuracion" element={<Configuracion />}></Route>
-            <Route path="/configuracion/usuarios" element={<ConfigUsuarios />}></Route>
-            <Route path="/configuracion/roles" element={<ConfigRoles />}></Route>
-            <Route path="/configuracion/componentes" element={<ConfigComponentes />}></Route>
-            <Route path="/configuracion/departamentos" element={<ConfigDepartamentos />}></Route>
-            <Route path="/configuracion/municipios" element={<ConfigMunicipios />}></Route>
-            <Route path="/configuracion/aldeas" element={<ConfigAldeas />}></Route>
-            <Route path="/configuracion/caserios" element={<ConfigCaserios />}></Route>
-            <Route path="/configuracion/areas" element={<ConfigAreas />}></Route>
-            <Route path="/configuracion/subareas" element={<ConfigSubAreas />}></Route>
+            {
+              (user.userPermisos?.vistas['Configuración'] && Object.values(user.userPermisos?.vistas['Configuración']).some(valor => valor === true))
+              &&
+              <Route path="/configuracion" element={<Configuracion />}></Route>
+            }
+            <Route path="/configuracion/*" element={<ConfiguracionRouter />}></Route>
 
-            <Route path="/info/departamento/:idDepartamento" element={<Departamento />}></Route>
-            <Route path="/info/municipio/:idMunicipio" element={<Municipio />}></Route>
-            <Route path="/info/aldea/:idAldea" element={<Aldea />}></Route>
-            <Route path="/info/caserio/:idCaserio" element={<Caserio />}></Route>
-            <Route path="/info/area/:idArea" element={<AreaTematica />}></Route>
-            <Route path="/info/subarea/:idSubarea" element={<SubAreaTematica />}></Route>
-            <Route path="/info/organizacion/:idOrganizacion" element={<Organizacion />}></Route>
-            <Route path="/info/orgtype/:idOrgtype" element={<TipoOrganizacion />}></Route>
-            <Route path="/info/cargo/:idCargo" element={<Cargo />}></Route>
-            <Route path="/info/beneficiario/:idBeneficiario" element={<Beneficiario />}></Route>
+            <Route path="/reviews/*" element={<ReviewsRouter />}></Route>  
 
-            <Route path="/reviews" element={<ReviewsDepartamentos />}></Route>
-            <Route path="/reviews/departamentos" element={<ReviewsDepartamentos />}></Route>
-            <Route path="/reviews/municipios" element={<ReviewsMunicipios />}></Route>
-            <Route path="/reviews/roles" element={<ReviewsRoles />}></Route>
-            <Route path="/reviews/departamentos/:idRevision" element={<ReviewDepartamento />}></Route>
-            <Route path="/reviews/municipios/:idRevision" element={<ReviewMunicipio />}></Route>
-            <Route path="/reviews/roles/:idRevision" element={<ReviewRol />}></Route>
-            
-            
-            <Route path="/historial/departamentos/:id" element={<HistoryDepartamento />}></Route>
-            <Route path="/historial/municipios/:id" element={<HistoryMunicipio />}></Route>
+            <Route path="/historial/*" element={<HistorialRouter />}></Route>
 
             <Route path="*" element={<Navigate to="/" />} />
           </>
         }
-
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
       </ToastContextProvider>

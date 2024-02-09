@@ -164,7 +164,7 @@ export const useFetchGetById = (endpoint, id) => {
 };
 
 //Peticion para solicitar datos pero con body para filtros
-export const useFetchGetBody = (endpoint, args) => {
+export const useFetchGetBody = (endpoint, args, register=false) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -182,7 +182,7 @@ export const useFetchGetBody = (endpoint, args) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('user-token');
+        const token = localStorage.getItem(register ? 'login-token' : 'user-token');
         const headers = {
           "Authorization": 'Bearer '+ token,
         };
@@ -223,7 +223,7 @@ export const useFetchGetBody = (endpoint, args) => {
 };
 
 
-export const useFetchPostBody = (endpoint, args) => {
+export const useFetchPostBody = (endpoint, args, register=false) => {
   const [send, setSend] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -241,7 +241,7 @@ export const useFetchPostBody = (endpoint, args) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('user-token');
+        const token = localStorage.getItem(register ? 'login-token' : 'user-token');
         const headers = {
           "Authorization": 'Bearer '+ token
         };

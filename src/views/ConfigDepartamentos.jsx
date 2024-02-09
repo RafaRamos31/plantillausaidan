@@ -10,6 +10,7 @@ import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
+import { getGridStringOperators } from "@mui/x-data-grid";
 
 export const ConfigDepartamentos = () => {
   const endpoint = 'departamento'
@@ -69,25 +70,38 @@ export const ConfigDepartamentos = () => {
   const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 50 },
-    { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'id', headerName: '#', width: 50, filterable: false},
+    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.',
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
     { field: 'nombre', headerName: 'Nombre', width: 250,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      ),
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'departamento'} 
-            id={params.row.uuid}
+            type={'departamentos'} 
+            id={params.row._id}
             nombre={params.formattedValue}
           />
         );
       } 
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, },
-    { field: 'version', headerName: 'Versión', width: 100 },
-    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170,
+    { field: 'geocode', headerName: 'Geocode', width: 120, 
+      filterOperators: getGridStringOperators().filter(
+      (operator) => operator.value === 'contains',
+      )},
+    { field: 'version', headerName: 'Versión', width: 100, filterable: false},
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'Editado por', width: 170,
+    { field: 'editor', headerName: 'uuid Editor', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -97,10 +111,14 @@ export const ConfigDepartamentos = () => {
         );
       } 
     },
-    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'Revisado por', width: 170,
+    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -110,10 +128,14 @@ export const ConfigDepartamentos = () => {
         );
       } 
     },
-    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, 
+    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'Eliminado por', width: 170,
+    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -123,14 +145,14 @@ export const ConfigDepartamentos = () => {
         );
       } 
     },
-    { field: 'editing', headerName: 'Editando', width: 100,
+    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
       renderCell: (params) => {
         return (
           params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
-    { field: 'estado', headerName: 'Estado', width: 140,
+    { field: 'estado', headerName: 'Estado', width: 140, filterable: false,
       renderCell: (params) => {
         return (
           <StatusBadge status={params.formattedValue} />
@@ -142,46 +164,57 @@ export const ConfigDepartamentos = () => {
       headerName: " ",
       width: 200,
       sortable: false,
+      filterable: false,
       renderCell: (params) => {
         return (
           <>
             <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
-              <a href={`/reviews/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
+              <a href={`/reviews/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
                 <Button  className='py-1' style={buttonStyle}>
                   <i className="bi bi-eye-fill"></i>{' '}
                 </Button>
               </a>
             </OverlayTrigger>
             {
-              params.row.editing ?
-              <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
-                <div>
-                  <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+              user.userPermisos?.acciones['Departamentos']['Modificar'] 
+              &&
+              <>
+              {
+                params.row.editing ?
+                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                  <div>
+                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                      <i className="bi bi-pencil-fill"></i>
+                    </Button>
+                  </div>
+                </OverlayTrigger>
+                :
+                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                    setCurrentData({
+                      id: params.row._id,
+                      nombre: params.row.nombre,
+                      geocode: params.row.geocode
+                    })
+                    handleShowEdit()
+                  }}>
                     <i className="bi bi-pencil-fill"></i>
                   </Button>
-                </div>
-              </OverlayTrigger>
-              :
-              <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
-                <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
-                  setCurrentData({
-                    id: params.row.uuid,
-                    nombre: params.row.nombre,
-                    geocode: params.row.geocode
-                  })
-                  handleShowEdit()
-                }}>
-                  <i className="bi bi-pencil-fill"></i>
-                </Button>
+                </OverlayTrigger>
+              }
+              </>
+            }
+            {
+              user.userPermisos?.acciones['Departamentos']['Ver Historial'] 
+              &&
+              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                  <Button  className='py-1' style={buttonStyle}>
+                    <i className="bi bi-clock-history"></i>{' '}
+                  </Button>
+                </a>
               </OverlayTrigger>
             }
-            <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-              <a href={`/historial/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
-                <Button  className='py-1' style={buttonStyle}>
-                  <i className="bi bi-clock-history"></i>{' '}
-                </Button>
-              </a>
-            </OverlayTrigger>
           </>
         );
       },
@@ -193,14 +226,17 @@ export const ConfigDepartamentos = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: item._id, 
+        _id: item._id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: `${item.editor.nombre}-${item.editor._id}`,
+        editor: item.editor._id,
+        editorName: `${item.editor.nombre}-${item.editor._id}`,
         fechaRevision: item.fechaRevision,
-        revisor: `${item.revisor.nombre}-${item.revisor._id}`,
+        revisor: item.revisor._id,
+        revisorName: `${item.revisor.nombre}-${item.revisor._id}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
+        eliminador: item.eliminador?._id || '',
+        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
@@ -210,14 +246,17 @@ export const ConfigDepartamentos = () => {
   )
 
   const hiddenColumns = {
-    uuid: false,
+    _id: false,
     version: false,
     fechaEdicion: false,
     editor: false,
+    editorName: false,
     fechaRevision: false,
     revisor: false,
+    revisorName: false,
     fechaEliminacion: false,
     eliminador: false,
+    eliminadorName: false,
     editing: false,
     estado: false
   }
@@ -225,18 +264,52 @@ export const ConfigDepartamentos = () => {
   return(
     <>
     <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+      <div className="d-flex gap-2 align-items-center">
       <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
+      {/*Boton Actualizar*/}
+      {
+          !updating ? 
+          <Button className='my-2' variant="light" onClick={handleUpdate} style={{height: '3rem'}}>
+            <i className="bi bi-arrow-clockwise"></i>
+          </Button>
+          : <Button className='my-2' variant="light" style={{height: '3rem'}}>
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+            <span className="visually-hidden">Cargando...</span>
+          </Button>
+        }
+      </div>
+      
       {/*Boton Agregar*/}
-      <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
+      {
+        user.userPermisos?.acciones['Departamentos']['Crear']
+        &&
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
           {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
         </Button>
-        {/*Boton Cambios*/}
+      }
+
+      {/*Boton Cambios*/}
+      {
+        user.userPermisos?.acciones['Departamentos']['Revisar']
+        &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
           Gestión de Cambios
         </Button>
-        {/*Boton Deleteds*/}
+      }
+      
+      {/*Boton Deleteds*/}
+      {
+        user.userPermisos?.acciones['Departamentos']['Ver Eliminados'] 
+        &&
+        <>
         {
           !deleteds ?
           <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleToggleDeleteds}>
@@ -249,26 +322,10 @@ export const ConfigDepartamentos = () => {
             Ocultar Eliminados
           </Button>
         }
-        
-        {/*Boton Actualizar*/}
-        {
-          !updating ? 
-          <Button className='my-2' variant="light" onClick={handleUpdate}>
-            <i className="bi bi-arrow-clockwise"></i>
-          </Button>
-          : <Button className='my-2' variant="light">
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-            />
-            <span className="visually-hidden">Cargando...</span>
-          </Button>
-        }
+        </>
+      }
 
-        {/*Table Container*/}
+      {/*Table Container*/}
       <FormattedGrid 
         model={`${endpoint}s`} 
         pageSize={10} 

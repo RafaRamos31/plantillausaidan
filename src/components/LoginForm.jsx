@@ -29,6 +29,7 @@ export const LoginForm = () => {
   const handleSuccess = () => {
     localStorage.setItem('user-token', data.token);
     setRefetch(true);
+    navigate(0);
   }
 
   useEffect(() => {

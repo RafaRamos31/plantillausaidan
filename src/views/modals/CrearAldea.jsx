@@ -1,70 +1,115 @@
 import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
-import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
-import { useFetchGet, useFetchPostBody } from "../../hooks/useFetch.js";
+import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const CrearAldea = ({handleClose, setRefetch}) => {
-  //Departamento
-  const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos } = useFetchGet('departamentos');
-  
-  useEffect(() => {
-    if(deptoData && !isLoadingDeptos){
-      setDeptos(deptoData)
-    } 
-  }, [deptoData, isLoadingDeptos, errorDeptos])
-
-  //Municipios
-  const [municipios, setMunicipios] = useState([])
-  const [queryMunicipios, setQueryMunicipios] = useState('')
-  const { data: municipiosData, isLoading: isLoadingMunicipios, error: errorMunicipios, setRefetch: setRefetchMunicipios } = useFetchGet(queryMunicipios);
-  
-  useEffect(() => {
-    if(municipiosData && !isLoadingMunicipios){
-      setMunicipios(municipiosData)
-    } 
-  }, [municipiosData, isLoadingMunicipios, errorMunicipios])
+  const { user } = useContext(UserContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange } = useForm({
+  const { values, handleChange, setValues } = useForm({
     nombre: '',
-    idMunicipio: '',
     idDepartamento: '',
-    geocode: ''
+    idMunicipio: '',
+    geocode: '',
+    aprobar: false
   });
 
-  //Editar Municipio en Formulario
-  const [municipioGeo, setMunicipioGeo] = useState('')
+  const handleToggleAprobar = () => {
+    setValues({ ...values, aprobar: !values.aprobar });
+  }
+  
+  //Departamento
+  const findParams = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [deptos, setDeptos] = useState([])
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  
+  //Indicador actualizando con boton departamento
+  const [updatingDepto, setUpdatingDepto] = useState(false);
 
+  //Accion Update manual
+  const handleUpdateDepto = () => {
+    setUpdatingDepto(true);
+    setRefetchDeptos(true);
+  }
+  
+  useEffect(() => {
+    if(deptoData && !isLoadingDeptos){
+      setDeptos(deptoData)
+      setUpdatingDepto(false)
+    } 
+  }, [deptoData, isLoadingDeptos, errorDeptos])
+
+  //Municipio
+  const [findParamsMunicipios, setFindParamsMunicipios] = useState({
+    sort: '{}',
+    filter: '{}'
+  })
+  const [municipios, setMunicipios] = useState([])
+  const [queryMunicipios, setQueryMunicipios] = useState('')
+  const { data: muniData, isLoading: isLoadingMuni, error: errorMuni, setRefetch: setRefetchMuni } = useFetchGetBody(queryMunicipios, findParamsMunicipios);
+  
+  //Indicador actualizando con boton departamento
+  const [updatingMunicipios, setUpdatingMunicipios] = useState(false);
+
+  //Accion Update manual
+  const handleUpdateMunicipios = () => {
+    setUpdatingMunicipios(true);
+    setRefetchMuni(true);
+  }
+  
+  useEffect(() => {
+    if(muniData && !isLoadingMuni && values.idDepartamento){
+      setMunicipios(muniData)
+      setUpdatingMunicipios(false)
+    } 
+  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+
+  //Editar Lista de Municipios en Formulario
   useEffect(() => {
     if(values.idDepartamento && values.idDepartamento.length > 0){
-      setQueryMunicipios('municipios/'+values.idDepartamento)
-      setRefetchMunicipios(true)
+      setFindParamsMunicipios({
+        sort: '{}',
+        filter: JSON.stringify({
+          operator: 'is',
+          field: 'departamento',
+          value: values.idDepartamento
+        })
+      })
+      setQueryMunicipios('list/municipios');
+      setRefetchMuni(true);
+      setValues({ ...values, geocode: '' });
     }
     else{
       setMunicipios([])
-      setMunicipioGeo('')
     }
-    
-  }, [values, deptos, setRefetchMunicipios])
+    // eslint-disable-next-line
+  }, [values.idDepartamento, setValues, setRefetchMuni])
+
+  //Editar Municipio en Formulario
+  const [geo, setGeo] = useState('0000')
 
   useEffect(() => {
     if(values.idMunicipio && values.idMunicipio.length > 0){
-      setMunicipioGeo(municipios.find(municipio => municipio._id === values.idMunicipio)?.geocode)
+      setGeo(municipios.find(muni => muni._id === values.idMunicipio)?.geocode || '0000')
     }
     else{
-      setMunicipioGeo('')
+      setGeo('0000')
     }
     
   }, [values, municipios])
   
-
+  
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('aldeas', {...values, geocode: `${municipioGeo}${values.geocode}`}) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('aldeas', {...values, geocode: `${geo}${values.geocode}`}) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -85,8 +130,8 @@ export const CrearAldea = ({handleClose, setRefetch}) => {
     handleClose()
     setRefetch()
     setShowToast(true)
-    actualizarTitulo('Aldea Creada')
-    setContent('Aldea guardada correctamente.')
+    actualizarTitulo('Municipio Creado')
+    setContent('Municipio guardado correctamente.')
     setVariant('success')
   }
 
@@ -107,7 +152,7 @@ export const CrearAldea = ({handleClose, setRefetch}) => {
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Perfil Aldeas</h4>
+      <h4 className="my-1">Crear Aldea</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
@@ -126,15 +171,33 @@ export const CrearAldea = ({handleClose, setRefetch}) => {
             Departamento:
           </Form.Label>
           <Col sm="8">
-          <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-            <option value="">Seleccionar Departamento</option>
-            {
-              deptos &&
-              deptos.map((depto) => (
-                <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-              ))
-            }
-          </Form.Select>
+            <InputGroup>
+              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
+                <option value="">Seleccionar Departamento</option>
+                {
+                  deptos &&
+                  deptos.map((depto) => (
+                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
+                  ))
+                }
+              </Form.Select>
+              {
+                !updatingDepto ? 
+                <Button variant="light" onClick={handleUpdateDepto}>
+                  <i className="bi bi-arrow-clockwise"></i>
+                </Button>
+                : <Button variant="light">
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span className="visually-hidden">Cargando...</span>
+                </Button>
+              }
+            </InputGroup>
           </Col>
         </Form.Group>
 
@@ -143,15 +206,33 @@ export const CrearAldea = ({handleClose, setRefetch}) => {
             Municipio:
           </Form.Label>
           <Col sm="8">
-          <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
-            <option value="">Seleccionar Municipio</option>
-            {
-              municipios &&
-              municipios.map((municipio) => (
-                <option key={municipio._id} value={municipio._id}>{municipio.nombre}</option>
-              ))
-            }
-          </Form.Select>
+            <InputGroup>
+              <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
+                <option value="">Seleccionar Municipio</option>
+                {
+                  municipios &&
+                  municipios.map((muni) => (
+                    <option key={muni._id} value={muni._id}>{muni.nombre}</option>
+                  ))
+                }
+              </Form.Select>
+              {
+                !updatingMunicipios ? 
+                <Button variant="light" onClick={handleUpdateMunicipios}>
+                  <i className="bi bi-arrow-clockwise"></i>
+                </Button>
+                : <Button variant="light">
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span className="visually-hidden">Cargando...</span>
+                </Button>
+              }
+            </InputGroup>
           </Col>
         </Form.Group>
 
@@ -159,24 +240,33 @@ export const CrearAldea = ({handleClose, setRefetch}) => {
           <Form.Label column sm="4">
             Geocode:
           </Form.Label>
-          <Col sm="3">
-            <Form.Control disabled readOnly value={municipioGeo}/>
-          </Col>
-          <Col sm="5">
-            <Form.Control id='geocode' name='geocode' value={values.geocode} onChange={handleChange}/>
+          <Col sm="4">
+            <InputGroup>
+              <InputGroup.Text placeholder="00">{geo}</InputGroup.Text>
+              <Form.Control id='geocode' name='geocode' placeholder="00" maxLength={2} value={values.geocode} onChange={handleChange}/>
+            </InputGroup>
           </Col>
         </Form.Group>
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
-    <Card.Footer className="d-flex justify-content-end">
+    <Card.Footer className="d-flex justify-content-between align-items-center">
+      {
+        user.userPermisos?.acciones['Aldeas']['Revisar']
+        ?
+        <Form.Group>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+        </Form.Group>
+        :
+        <div></div>
+      }
       {
         !charging ?
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary" onClick={handleCreate}>
-          Guardar
+        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem', marginLeft: '1rem'}} variant="secondary" onClick={handleCreate}>
+          Enviar
         </Button>
         :
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary">
+        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem', marginLeft: '1rem'}} variant="secondary">
           <Spinner
             as="span"
             animation="border"

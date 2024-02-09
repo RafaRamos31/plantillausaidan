@@ -12,11 +12,16 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
-import { EditDepartamento } from '../../modals/EditDepartamento';
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { GridExpandMoreIcon } from "@mui/x-data-grid";
+import { TreeBranch } from '../../../components/TreeBranch';
+import { UserContext } from '../../../contexts/UserContext';
+import { EditRoles } from '../../modals/EditRoles';
 
 export const ReviewRol = () => {
   const { idRevision } = useParams();
-  const endpoint = 'rol'
+  const { user } = useContext(UserContext);
+  const endpoint = 'rol';
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
@@ -32,11 +37,16 @@ export const ReviewRol = () => {
     } 
   }, [originalData, isLoadingOriginal, errorOriginal])
 
+  const [ vistasValues, setVistasValues ] = useState([])
+  const [ accionesValues, setAccionesValues ] = useState([])
+
   //Obtener datos de Original
   useEffect(() => {
     if(dataRevision && dataRevision.original){
       setQueryOriginal(`${endpoint}/${dataRevision.original}`)
       setRefetchOriginal(true)
+      setVistasValues(dataRevision.permisos?.vistas)
+      setAccionesValues(dataRevision.permisos?.acciones)
     }
     else{
       setOriginal(null)
@@ -213,15 +223,43 @@ export const ReviewRol = () => {
           </div>
           <Container style={{border: '1px solid lightgray', padding: '1.5rem', borderRadius: '10px', marginTop: '1rem'}}>
             <Row>
-              <Col md={6}>
+              <Col md={12}>
                 {
                   compare &&
                   <div className="mb-3">
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + dataRevision.version}</h5>
                   </div>
                 }
-                <CompareValue  title={'Nombre del Departamento:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
-                <CompareValue  title={'Geocode:'} value={dataRevision.geocode} original={original?.geocode} compare={compare}/>
+                <CompareValue  title={'Nombre del Rol:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
+                <Accordion defaultExpanded>
+                  <AccordionSummary
+                    expandIcon={<GridExpandMoreIcon />}
+                    id="panel1-header"
+                  >
+                    <h5 style={{fontWeight: 'bold'}}>Permisos Vistas</h5>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {
+                      vistasValues &&
+                      <TreeBranch values={vistasValues} setValues={setVistasValues} edit/>
+                    }
+                  </AccordionDetails>
+                </Accordion>
+
+                <Accordion defaultExpanded>
+                  <AccordionSummary
+                    expandIcon={<GridExpandMoreIcon />}
+                    id="panel1-header"
+                  >
+                    <h5 style={{fontWeight: 'bold'}}>Permisos Acciones</h5>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {
+                      accionesValues &&
+                      <TreeBranch values={accionesValues} setValues={setAccionesValues} edit/>
+                    }
+                  </AccordionDetails>
+                </Accordion>
               </Col>
               {
                 compare &&
@@ -229,7 +267,7 @@ export const ReviewRol = () => {
                   <div className="mb-3">
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + original.version}</h5>
                   </div>
-                  <CompareValue  title={'Nombre del Departamento:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
+                  <CompareValue  title={'Nombre del Rol:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
                   <CompareValue  title={'Geocode:'} value={dataRevision.geocode} original={original?.geocode} compare={compare} hidden/>
                 </Col>
               }
@@ -263,14 +301,18 @@ export const ReviewRol = () => {
               :
               <ReviewButton  charging={charging} dataRevision={dataRevision} handleSubmit={handleSubmit}/>
             }
-            <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+            {
+              user.userPermisos?.acciones['Roles']['Eliminar'] 
+              &&
+              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}es`} handleSubmit={handleSubmit}/>
+            }
             <p style={{color: 'red'}}>{errorMessage}</p>
           </Form>
         </Col>
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={()=>{}} departamento={{...dataRevision, id: original?._id}} fixing/>
+      <EditRoles handleClose={handleCloseEdit} setRefetchData={()=>{}} rol={{...dataRevision, id: original?._id}} fixing/>
     </Modal>
     </>
   )

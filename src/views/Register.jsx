@@ -26,7 +26,7 @@ export const Register = () => {
   return(
     valid ?
     <div className='w-100 d-flex justify-content-center align-items-center' style={{backgroundColor: 'var(--main-green)'}}>
-      <div className='my-5' style={{ width: '40vw'}}>
+      <div className='my-5'>
         <CrearUsuario />
       </div>
     </div>

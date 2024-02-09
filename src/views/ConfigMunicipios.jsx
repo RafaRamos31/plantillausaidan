@@ -9,26 +9,12 @@ import { UserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
-import { useFetchGetBody } from "../hooks/useFetch.js";
-import { LoadingScreen } from "./LoadingScreen.jsx";
+import { StatusBadge } from "../components/StatusBadge.jsx";
+import { getGridStringOperators } from "@mui/x-data-grid";
 
 export const ConfigMunicipios = () => {
   const endpoint = 'municipio'
   const {user} = useContext(UserContext)
-
-  //Departamento
-  const findParams = {
-    sort: '{}',
-    filter: '{}'
-  }
-  const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos } = useFetchGetBody('list/departamentos', findParams);
-  
-  useEffect(() => {
-    if(deptoData && !isLoadingDeptos){
-      setDeptos(deptoData)
-    } 
-  }, [deptoData, isLoadingDeptos, errorDeptos])
 
   //Estilo de boton
   const buttonStyle = {
@@ -84,41 +70,50 @@ export const ConfigMunicipios = () => {
   const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 50 },
-    { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'id', headerName: '#', width: 50, filterable: false },
+    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.', 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
     { field: 'nombre', headerName: 'Nombre del Municipio', width: 250,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      ),
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'municipio'} 
-            id={params.row.uuid}
+            type={'municipios'} 
+            id={params.row._id}
             nombre={params.formattedValue}
           />
         );
       } 
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' },
-    { field: 'departamento', headerName: 'Departamento', width: 200, description: 'Departamento al que pertenece el Municipio.',
-      type: 'singleSelect',
-      valueOptions: deptos && deptos.map((depto) => ({
-        label: depto.nombre,
-        value: depto._id
-      })),
+    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' ,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      )},
+    { field: 'departamento', headerName: 'uuid Departamento', width: 250},
+    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'departamento'} 
+            type={'departamentos'} 
             id={params.value.split('-')[1]}
             nombre={params.value.split('-')[0]}
           />
         );
       }
     },
-    { field: 'version', headerName: 'Versión', width: 100 },
-    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, 
+    { field: 'version', headerName: 'Versión', width: 100, filterable: false },
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'Editado por', width: 170,
+      { field: 'editor', headerName: 'uuid Editor', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -128,10 +123,14 @@ export const ConfigMunicipios = () => {
         );
       } 
     },
-    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170, 
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'Revisado por', width: 170,
+    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -141,10 +140,14 @@ export const ConfigMunicipios = () => {
         );
       } 
     },
-    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170,
+    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'Eliminado por', width: 170,
+    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -154,61 +157,77 @@ export const ConfigMunicipios = () => {
         );
       } 
     },
-    { field: 'editing', headerName: 'Editando', width: 100,
+    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
       renderCell: (params) => {
         return (
           params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
-    { field: 'estado', headerName: 'Estado', width: 100 },
+    { field: 'estado', headerName: 'Estado', width: 140, filterable: false,
+      renderCell: (params) => {
+        return (
+          <StatusBadge status={params.formattedValue} />
+        );
+      }
+    },
     {
       field: " ",
       headerName: " ",
       width: 200,
       sortable: false,
+      filterable: false,
       renderCell: (params) => {
         return (
           <>
             <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
-              <a href={`/reviews/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
+              <a href={`/reviews/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
                 <Button  className='py-1' style={buttonStyle}>
                   <i className="bi bi-eye-fill"></i>{' '}
                 </Button>
               </a>
             </OverlayTrigger>
             {
-              params.row.editing ?
-              <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
-                <div>
-                  <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+              user.userPermisos?.acciones['Municipios']['Modificar'] 
+              &&
+              <>
+              {
+                params.row.editing ?
+                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                  <div>
+                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                      <i className="bi bi-pencil-fill"></i>
+                    </Button>
+                  </div>
+                </OverlayTrigger>
+                :
+                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                    setCurrentData({
+                      id: params.row._id,
+                      nombre: params.row.nombre,
+                      idDepartamento: params.row.departamento,
+                      geocode: params.row.geocode
+                    })
+                    handleShowEdit()
+                  }}>
                     <i className="bi bi-pencil-fill"></i>
                   </Button>
-                </div>
-              </OverlayTrigger>
-              :
-              <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
-                <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
-                  setCurrentData({
-                    id: params.row.uuid,
-                    nombre: params.row.nombre,
-                    idDepartamento: params.row.departamento.split('-')[1],
-                    geocode: params.row.geocode,
-
-                  })
-                  handleShowEdit()
-                }}>
-                  <i className="bi bi-pencil-fill"></i>
-                </Button>
+                </OverlayTrigger>
+              }
+              </>
+            }
+            {
+              user.userPermisos?.acciones['Municipios']['Ver Historial'] 
+              &&
+              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                  <Button  className='py-1' style={buttonStyle}>
+                    <i className="bi bi-clock-history"></i>{' '}
+                  </Button>
+                </a>
               </OverlayTrigger>
             }
-            <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-              <a href={`/historial/${endpoint}s/${params.row.uuid}`} target="_blank" rel="noreferrer">
-                <Button  className='py-1' style={buttonStyle}>
-                  <i className="bi bi-clock-history"></i>{' '}
-                </Button>
-              </a>
-            </OverlayTrigger>
           </>
         );
       },
@@ -220,55 +239,93 @@ export const ConfigMunicipios = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: item._id, 
+        _id: item._id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: `${item.editor.nombre}-${item.editor._id}`,
+        editor: item.editor._id,
+        editorName: `${item.editor.nombre}-${item.editor._id}`,
         fechaRevision: item.fechaRevision,
-        revisor: `${item.revisor.nombre}-${item.revisor._id}`,
+        revisor: item.revisor._id,
+        revisorName: `${item.revisor.nombre}-${item.revisor._id}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
+        eliminador: item.eliminador?._id || '',
+        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
         geocode: item.geocode,
-        departamento: `${item.departamento.nombre}-${item.departamento._id}`,
+        departamento: item.departamento._id,
+        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
       }
     ))
   )
 
   const hiddenColumns = {
-    uuid: false,
+    _id: false,
+    departamento: false,
     version: false,
     fechaEdicion: false,
     editor: false,
+    editorName: false,
     fechaRevision: false,
     revisor: false,
+    revisorName: false,
     fechaEliminacion: false,
     eliminador: false,
+    eliminadorName: false,
     editing: false,
     estado: false
-  }
-
-  if(isLoadingDeptos){
-    return <LoadingScreen />
   }
 
   return(
     <>
     <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
-      <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
+      <div className="d-flex gap-2 align-items-center">
+        <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
+        {/*Boton Actualizar*/}
+        {
+          !updating ? 
+          <Button className='my-2' variant="light" onClick={handleUpdate} style={{height: '3rem'}}>
+            <i className="bi bi-arrow-clockwise"></i>
+          </Button>
+          : <Button className='my-2' variant="light" style={{height: '3rem'}}>
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+            <span className="visually-hidden">Cargando...</span>
+          </Button>
+        }
+      </div>
+
       {/*Boton Agregar*/}
-      <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
+      {
+        user.userPermisos?.acciones['Municipios']['Crear']
+        &&
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
           {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
         </Button>
-        {/*Boton Cambios*/}
+      }
+
+      {/*Boton Cambios*/}
+      {
+        user.userPermisos?.acciones['Municipios']['Revisar']
+        &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
           Gestión de Cambios
         </Button>
-        {/*Boton Deleteds*/}
+      }
+      
+      {/*Boton Deleteds*/}
+      {
+        user.userPermisos?.acciones['Municipios']['Ver Eliminados'] 
+        &&
+        <>
         {
           !deleteds ?
           <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleToggleDeleteds}>
@@ -281,26 +338,10 @@ export const ConfigMunicipios = () => {
             Ocultar Eliminados
           </Button>
         }
-        
-        {/*Boton Actualizar*/}
-        {
-          !updating ? 
-          <Button className='my-2' variant="light" onClick={handleUpdate}>
-            <i className="bi bi-arrow-clockwise"></i>
-          </Button>
-          : <Button className='my-2' variant="light">
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-            />
-            <span className="visually-hidden">Cargando...</span>
-          </Button>
-        }
-
-        {/*Table Container*/}
+        </>
+      }
+      
+      {/*Table Container*/}
       <FormattedGrid 
         model={`${endpoint}s`} 
         pageSize={10} 

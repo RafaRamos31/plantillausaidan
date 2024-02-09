@@ -7,9 +7,11 @@ import { Accordion, AccordionDetails, AccordionSummary, FormLabel } from "@mui/m
 import { GridExpandMoreIcon } from "@mui/x-data-grid";
 import { TreeBranch } from "../../components/TreeBranch.jsx";
 import { permisos } from "../../services/permisos-service.js";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const CrearRoles = ({handleClose, setRefetch}) => {
-
+  const { user } = useContext(UserContext);
+  
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
@@ -115,9 +117,15 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
-      <Form.Group>
+      {
+        user.userPermisos?.acciones['Roles']['Revisar']
+        ?
+        <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
-      </Form.Group>
+        </Form.Group>
+        :
+        <div></div>
+      }
       {
         !charging ?
         <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem', marginLeft: '1rem'}} variant="secondary" onClick={handleCreate}>

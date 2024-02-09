@@ -4,8 +4,10 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const EditDepartamento = ({handleClose, setRefetchData, departamento, fixing=false}) => {
+  const { user } = useContext(UserContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -109,8 +111,8 @@ export const EditDepartamento = ({handleClose, setRefetchData, departamento, fix
           <Form.Label column sm="4">
             Geocode:
           </Form.Label>
-          <Col sm="8">
-            <Form.Control id='geocode' name='geocode' value={values.geocode} onChange={handleChange}/>
+          <Col sm="2">
+            <Form.Control id='geocode' name='geocode' placeholder="00" maxLength={2} value={values.geocode} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -118,9 +120,16 @@ export const EditDepartamento = ({handleClose, setRefetchData, departamento, fix
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
-      <Form.Group>
-        <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
-      </Form.Group>
+      {
+        user.userPermisos?.acciones['Departamentos']['Revisar']
+        ?
+        <Form.Group>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+        </Form.Group>
+        :
+        <div></div>
+      }
+      
       
       {/*Boton Guardar*/}
       {

@@ -3,8 +3,11 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const CrearMunicipio = ({handleClose, setRefetch}) => {
+  const { user } = useContext(UserContext);
+  
   //Departamento
   const findParams = {
     sort: '{}',
@@ -155,10 +158,10 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
           <Form.Label column sm="4">
             Geocode:
           </Form.Label>
-          <Col sm="8">
+          <Col sm="3">
             <InputGroup>
               <InputGroup.Text placeholder="00">{deptoGeo}</InputGroup.Text>
-              <Form.Control id='geocode' name='geocode' value={values.geocode} onChange={handleChange}/>
+              <Form.Control id='geocode' name='geocode' placeholder="00" maxLength={2} value={values.geocode} onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>
@@ -166,9 +169,15 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
-      <Form.Group>
-        <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
-      </Form.Group>
+      {
+        user.userPermisos?.acciones['Municipios']['Revisar']
+        ?
+        <Form.Group>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+        </Form.Group>
+        :
+        <div></div>
+      }
       {
         !charging ?
         <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem', marginLeft: '1rem'}} variant="secondary" onClick={handleCreate}>

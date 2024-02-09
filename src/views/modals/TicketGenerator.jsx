@@ -40,7 +40,7 @@ export const TicketGenerator = ({ handleClose }) => {
   return (
     <Card style={{border: 'none'}}>
       <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-        <h4 className="my-1">Crear Tickets de Registro</h4>
+        <h4 className="my-1">Crear Ticket de Registro</h4>
         <CloseButton onClick={handleClose}/>
       </Card.Header>
       <Card.Body>

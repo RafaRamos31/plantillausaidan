@@ -37,7 +37,7 @@ export const AvatarChip = ({id=null, name=null, src=null}) => {
 
   if(src){
     return (
-      <Link to={`/info/usuario/${id}`} target='_blank'>
+      <Link to={`/reviews/usuarios/${id}`} target='_blank'>
         <Chip
           avatar={<Avatar {...stringAvatar(name)} alt={name} src={src} />}
           label={name}
@@ -48,7 +48,7 @@ export const AvatarChip = ({id=null, name=null, src=null}) => {
   }
 
   return (
-    <Link to={`/info/usuario/${id}`} target='_blank'>
+    <Link to={`/reviews/usuarios/${id}`} target='_blank'>
       <Chip avatar={<Avatar {...stringAvatar(name)} />} label={name} variant="outlined"/>
     </Link>
   )

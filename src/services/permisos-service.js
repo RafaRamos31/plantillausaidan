@@ -4,7 +4,8 @@ export const permisos = {
       'Beneficiarios': false,
       'Organizaciones': false,
       'Tipos de Organizaciones': false,
-      'Cargos': false
+      'Cargos': false,
+      'Sectores': false
     },
     'Inversiones': {
       'Inversiones': false,
@@ -113,21 +114,62 @@ export const permisos = {
       'Modificar': false,
       'Revisar': false,
       'Eliminar': false,
+    },
+    'Sectores': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Organizaciones': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Tipos de Organizaciones': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Cargos': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Beneficiarios': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
     }
   }
 }
 
-export const getPermisosActuales = ({permisosActuales, permisosUsuario}) => {
+export const getPermisosActuales = (type, permisosUsuario) => {
+  let newPermisos = {}
   // Combinar los arreglos
-  var resultado = { ...permisosActuales, ...permisosUsuario };
-
-  // Eliminar propiedades que no están en arreglo1
-  for (var key in resultado) {
-    if (!permisosActuales.hasOwnProperty(key)) {
-      delete resultado[key];
+  if(type === 'vistas'){
+    for (let key in permisos.vistas) {
+      newPermisos[key] = {...permisos.vistas[key], ...permisosUsuario[key]}
     }
   }
-
-  // Mostrar el resultado final
-  console.log(resultado);
+  if(type === 'acciones'){
+    for (let key in permisos.acciones) {
+      newPermisos[key] = {...permisos.acciones[key], ...permisosUsuario[key]}
+    }
+  }
+  return newPermisos
 }

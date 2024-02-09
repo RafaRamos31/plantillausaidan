@@ -23,6 +23,7 @@ export const TicketForm = () => {
 
   //Accion al completar correctamente
   const handleSuccess = () => {
+    localStorage.setItem('login-token', data.token);
     navigate( '/register/' + values.ticket )
   }
 

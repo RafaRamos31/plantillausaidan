@@ -1,19 +1,27 @@
 import { useContext, useEffect, useState } from "react";
-import { useFetchDeleteBody, useFetchPutBody } from "../../hooks/useFetch.js";
+import { useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../contexts/UserContext.js";
 
-export const EditComponentes = ({handleClose, setRefetch, componente}) => {
+export const EditComponente = ({handleClose, setRefetchData, componente, fixing=false}) => {
+  const { user } = useContext(UserContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange } = useForm({
+  const { values, handleChange, setValues } = useForm({
     idComponente: componente.id,
-    nombre: componente.nombre
+    nombre: componente.nombre,
+    aprobar: false
   });
+
+  const handleToggleAprobar = () => {
+    setValues({ ...values, aprobar: !values.aprobar });
+  }
 
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
@@ -45,13 +53,22 @@ export const EditComponentes = ({handleClose, setRefetch, componente}) => {
   }
 
   //Accion al completar correctamente Modificacion
+
+  const navigate = useNavigate();
+
   const handleSuccessEdit = () => {
     handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Componente Modificado')
-    setContent('Componente guardado correctamente.')
-    setVariant('success')
+    if(fixing){
+      navigate('/reviews/componentes/'+dataEdit._id)
+      navigate(0)
+    }
+    else{
+      setRefetchData(true)
+      setShowToast(true)
+      actualizarTitulo('Componente Modificado')
+      setContent('Componente guardado correctamente.')
+      setVariant('success')
+    }
   }
 
   useEffect(() => {
@@ -70,69 +87,19 @@ export const EditComponentes = ({handleClose, setRefetch, componente}) => {
     }
   // eslint-disable-next-line
   }, [sendEdit, dataEdit, isLoadingEdit, errorEdit, codeEdit])
-
-  //Boton de confirmar Eliminacion
-  const [showDelete, setShowDelete] = useState(false);
-  const [chargingDelete, setChargingDelete] = useState(false);
-
-  const handleDelete = () => {
-    setShowDelete(true)
-    setErrorMessage('Presione de nuevo para confirmar la eliminación')
-  }
-
-  //Envio asincrono de formulario de Eliminar
-  const { setSend: setSendDelete, send: sendDelete, data: dataDelete, isLoading: isLoadingDelete, error: errorDelete, code: codeDelete } = useFetchDeleteBody('componentes', {idComponente: values.idComponente}) 
-
-  const handleSendDelete = () => {
-    setChargingDelete(true)
-    setSendDelete(true)
-  }
-
-  //Accion al completar correctamente Eliminacion
-  const handleSuccessDelete = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Componente Eliminado')
-    setContent('Componente eliminado correctamente.')
-    setVariant('success')
-  }
-
-  useEffect(() => {
-    setChargingDelete(false)
-    if(codeDelete === 404){
-      handleNotFound()
-    }
-    else{
-      setErrorMessage(errorDelete)
-    }
-
-    if(dataDelete){
-      handleSuccessDelete();
-    }
-  // eslint-disable-next-line
-  }, [sendDelete, dataDelete, isLoadingDelete, errorDelete])
   
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Perfil Componentes</h4>
+      <h4 className="my-1">Modificar Componente</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
       <Form onSubmit={handleSubmit}>
-        <Form.Group as={Row} className="mb-3" controlId="idComponente">
-          <Form.Label column sm="4">
-            uuid:
-          </Form.Label>
-          <Col sm="8">
-            <Form.Control readOnly disabled value={values.idComponente}/>
-          </Col>
-        </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Nombre del Componente:
+            Nombre:
           </Form.Label>
           <Col sm="8">
             <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
@@ -141,36 +108,23 @@ export const EditComponentes = ({handleClose, setRefetch, componente}) => {
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
-    <Card.Footer className="d-flex justify-content-end">
-      {/*Boton Eliminar*/}
+    <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        !showDelete ? 
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="secondary" onClick={handleDelete}>
-          Eliminar
-        </Button>
+        user.userPermisos?.acciones['Componentes']['Revisar']
+        ?
+        <Form.Group>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+        </Form.Group>
         :
-        !chargingDelete ?
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger" onClick={handleSendDelete}>
-          Eliminar
-        </Button>
-        :
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem'}} variant="danger">
-          <Spinner
-            as="span"
-            animation="border"
-            size="sm"
-            role="status"
-            aria-hidden="true"
-          />
-          <span className="visually-hidden">Cargando...</span>
-        </Button>
+        <div></div>
       }
+      
       
       {/*Boton Guardar*/}
       {
         !chargingEdit ? 
         <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary" onClick={handleUpdate}>
-          Guardar
+          Enviar
         </Button>
         : <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', marginLeft: '1rem', width: '9rem'}} variant="secondary">
           <Spinner

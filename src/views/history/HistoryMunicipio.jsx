@@ -99,7 +99,7 @@ export const HistoryMunicipio = () => {
                     <Container style={{border: '1px solid lightgray', padding: '1.5rem', borderRadius: '10px', marginTop: '0.2rem'}}>
                       <Row>
                         <Col md={6}>
-                          <CompareValue  title={'Nombre del Departamento:'} value={rev.nombre} original={original?.nombre} compare={false}/>
+                          <CompareValue  title={'Nombre del Municipio:'} value={rev.nombre} original={original?.nombre} compare={false}/>
                           <CompareValue  title={'Geocode:'} value={rev.geocode} original={original?.geocode} compare={false}/>
                           <CompareValue  title={'Departamento:'} value={rev.departamento.nombre} original={rev?.departamento.nombre} compare={false}/>
                         </Col>
@@ -197,7 +197,7 @@ export const HistoryMunicipio = () => {
                   </Accordion.Header>
                   <Accordion.Body className='px-0 py-0'>
                     <Container  className='mx-0 my-0' style={{padding: '1.5rem'}}>
-                      <CompareValue  title={'Nombre del Departamento:'} value={original.nombre} original={original?.nombre} compare={false}/>
+                      <CompareValue  title={'Nombre del Municipio:'} value={original.nombre} original={original?.nombre} compare={false}/>
                       <CompareValue  title={'Geocode:'} value={original.geocode} original={original?.geocode} compare={false}/>
                       <CompareValue  title={'Departamento:'} value={original.departamento.nombre} original={original?.departamento.nombre} compare={false}/>
                     </Container>

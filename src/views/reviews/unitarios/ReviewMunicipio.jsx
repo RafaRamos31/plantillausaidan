@@ -13,10 +13,12 @@ import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
 import { EditMunicipio } from '../../modals/EditMunicipio';
+import { UserContext } from '../../../contexts/UserContext';
 
 export const ReviewMunicipio = () => {
   const { idRevision } = useParams();
-  const endpoint = 'municipio'
+  const { user } = useContext(UserContext);
+  const endpoint = 'municipio';
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
@@ -265,7 +267,11 @@ export const ReviewMunicipio = () => {
               :
               <ReviewButton  charging={charging} dataRevision={dataRevision} handleSubmit={handleSubmit}/>
             }
-            <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+            {
+              user.userPermisos?.acciones['Municipios']['Eliminar'] 
+              &&
+              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+            }
             <p style={{color: 'red'}}>{errorMessage}</p>
           </Form>
         </Col>

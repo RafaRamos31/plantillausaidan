@@ -1,26 +1,59 @@
 import { ConfigNavBar } from "../components/navBars/ConfigNavBar.jsx";
 import { Layout } from "./Layout.jsx";
-import { DataGrid } from "@mui/x-data-grid";
-import { useFetchGet } from "../hooks/useFetch.js";
-import { useEffect, useState } from "react";
-import { Button, Modal, Spinner } from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
+import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { InfoLink } from "../components/InfoLink.jsx";
+import { UserContext } from "../contexts/UserContext.js";
+import { useNavigate } from "react-router-dom";
+import { AvatarChip } from "../components/AvatarChip.jsx";
+import { FormattedGrid } from "../components/FormattedGrid.jsx";
+import { StatusBadge } from "../components/StatusBadge.jsx";
+import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearCaserio } from "./modals/CrearCaserio.jsx";
 import { EditCaserio } from "./modals/EditCaserio.jsx";
-import { InfoLink } from "../components/InfoLink.jsx";
 
 export const ConfigCaserios = () => {
-  //Peticio de datos a la API
-  const { data, isLoading, setRefetch } = useFetchGet('caserios');
-  const handleRefetch = () => {
-    setRefetch(true)
+  const endpoint = 'caserio'
+  const {user} = useContext(UserContext)
+
+  //Estilo de boton
+  const buttonStyle = {
+    backgroundColor: "var(--main-green)", 
+    border: '1px solid black',
+    borderRadius: '3px',
+  };
+
+  //Indicador solicitud de recarga de datos en la vista
+  const [refetchData, setRefetchData] = useState(false);
+
+  //Indicador actualizando con boton
+  const [updating, setUpdating] = useState(false);
+
+  //Indicador mostrar eliminados
+  const [deleteds, setDeleteds] = useState(false);
+
+  const handleToggleDeleteds = () => {
+    setDeleteds(!deleteds);
   }
 
-  //Update manual
-  const [update, setUpdate] = useState(false);
-
+  //Accion Update manual
   const handleUpdate = () => {
-    setUpdate(true)
-    setRefetch(true)
+    setUpdating(true)
+    setRefetchData(true)
+  }
+
+  //Efecto cuando termina el refetch
+  useEffect(() => {
+    if(!refetchData){
+      setUpdating(false)
+    }
+  }, [refetchData, setUpdating])
+  
+
+  //Boton Cambios
+  const navigate = useNavigate();
+  const handleReview = () => {
+    navigate(`/reviews/${endpoint}s`)
   }
 
   //Modal crear
@@ -34,131 +67,266 @@ export const ConfigCaserios = () => {
   const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentCaserio, setCurrentCaserio] = useState({});
-
-  //Filas y columnas para tabla
-  const [rows, setRows] = useState([])
+  const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 60 },
-    { field: 'uuid', headerName: 'uuid', width: 220, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'ultimaEdicion', headerName: 'Última Edición', width: 200 },
-    { field: 'editor', headerName: 'Editado por', width: 200 },
-    { field: 'name', headerName: 'Nombre del Caserio', width: 200, description: 'Nombre del Caserio.',
+    { field: 'id', headerName: '#', width: 50, filterable: false},
+    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'nombre', headerName: 'Nombre del Caserio', width: 250,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      ),
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'caserio'} 
-            id={params.row.uuid}
+            type={'caserios'} 
+            id={params.row._id}
             nombre={params.formattedValue}
+          />
+        );
+      } 
+    },
+    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Caserio.', 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      )},
+    { field: 'departamento', headerName: 'uuid Departamento', width: 120, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'departamentos'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
           />
         );
       }
     },
-    { field: 'aldea', headerName: 'Aldea', width: 200, description: 'Aldea a la que pertenece el Caserio.',
+    { field: 'municipio', headerName: 'uuid Municipio', width: 120, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'municipioName', headerName: 'Municipio', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'aldea'} 
-            id={data.find(caserio => caserio.aldea?.nombre === params.row.aldea).aldea._id || ''}
-            nombre={params.formattedValue}
+            type={'municipios'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
           />
         );
       }
     },
-    { field: 'municipio', headerName: 'Municipio', width: 200, description: 'Municipio al que pertenece el Caserio.',
+    { field: 'aldea', headerName: 'uuid Aldea', width: 250, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'aldeaName', headerName: 'Aldea', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'municipio'} 
-            id={data.find(caserio => caserio.aldea?.municipio?.nombre === params.row.municipio).aldea.municipio._id || ''}
-            nombre={params.formattedValue}
-          />
-        );
-      }  
-    },
-    { field: 'departamento', headerName: 'Departamento', width: 150, description: 'Departamento al que pertenece el Caserio.',
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'departamento'} 
-            id={data.find(caserio => caserio.aldea?.municipio?.departamento?.nombre === params.row.departamento).aldea.municipio.departamento._id || ''}
-            nombre={params.formattedValue}
+            type={'aldeas'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
           />
         );
       }
     },
-    { field: 'geocode', headerName: 'Geocode', width: 100, description: 'Codigo Unico del Caserio.' },
+    { field: 'version', headerName: 'Versión', width: 100, filterable: false },
+    { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'editor', headerName: 'uuid Editor', width: 120, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170, filterable: false,
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'revisor', headerName: 'uuid Revisor', width: 120, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
+      type: 'dateTime',
+      valueGetter: ({ value }) => value && new Date(value) },
+    { field: 'eliminador', headerName: 'uuid Eliminador', width: 120, 
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
+    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
+      renderCell: (params) => {
+        return (
+          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
+        );
+      } 
+    },
+    { field: 'estado', headerName: 'Estado', width: 140, filterable: false,
+      renderCell: (params) => {
+        return (
+          <StatusBadge status={params.formattedValue} />
+        );
+      }
+    },
     {
       field: " ",
       headerName: " ",
-      width: 120,
+      width: 200,
       sortable: false,
+      filterable: false,
       renderCell: (params) => {
         return (
-          <Button style={buttonStyle} onClick={() => {
-            setCurrentCaserio({
-              id: params.row.uuid,
-              nombre: params.row.name,
-              idAldea: params.row.aldea ? data.find(caserio => caserio.aldea?.nombre === params.row.aldea).aldea._id : '',
-              idMunicipio: params.row.municipio ? data.find(caserio => caserio.aldea?.municipio?.nombre === params.row.municipio).aldea?.municipio._id : '',
-              idDepartamento: params.row.departamento ? data.find(caserio => caserio.aldea?.municipio?.departamento?.nombre === params.row.departamento).aldea.municipio.departamento._id : '',
-              geocode: params.row.geocode
-            })
-            handleShowEdit()
-          }}>
-            Editar
-          </Button>
+          <>
+            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
+              <a href={`/reviews/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-eye-fill"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+            {
+              user.userPermisos?.acciones['Caserios']['Modificar'] 
+              &&
+              <>
+              {
+                params.row.editing ?
+                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                  <div>
+                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                      <i className="bi bi-pencil-fill"></i>
+                    </Button>
+                  </div>
+                </OverlayTrigger>
+                :
+                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                    setCurrentData({
+                      id: params.row._id,
+                      nombre: params.row.nombre,
+                      idDepartamento: params.row.departamento,
+                      idMunicipio: params.row.municipio,
+                      idAldea: params.row.aldea,
+                      geocode: params.row.geocode
+                    })
+                    handleShowEdit()
+                  }}>
+                    <i className="bi bi-pencil-fill"></i>
+                  </Button>
+                </OverlayTrigger>
+              }
+              </>
+            }
+            {
+              user.userPermisos?.acciones['Caserios']['Ver Historial'] 
+              &&
+              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                  <Button  className='py-1' style={buttonStyle}>
+                    <i className="bi bi-clock-history"></i>{' '}
+                  </Button>
+                </a>
+              </OverlayTrigger>
+            }
+          </>
         );
       },
     }
   ];
-
-  //Enviar datos a las filas
-  useEffect(() => {
-    if(data){
-      setRows(
-        data.map((caserio, index) => (
-          { 
-            id: index + 1, 
-            uuid: caserio._id, 
-            ultimaEdicion: new Date(caserio.ultimaEdicion).toLocaleString(),
-            editor: 'Rafael Ramos',
-            name: caserio.nombre,
-            aldea: caserio.aldea?.nombre || '',
-            municipio: caserio.aldea?.municipio?.nombre || '',
-            departamento: caserio.aldea?.municipio?.departamento?.nombre || '',
-            geocode: caserio.geocode
-          }
-        ))
-      );
-    }
-    setUpdate(false);
-  }, [data, isLoading])
   
-  //Estilo de boton
-  const buttonStyle = {
-    backgroundColor: "var(--main-green)", 
-    border: '1px solid black',
-    borderRadius: '3px'
-  };
+
+  const populateRows = (data, page, pageSize) => (
+    data.map((item, index) => (
+      { 
+        id: (page * pageSize) + index + 1, 
+        _id: item._id, 
+        version: item.version,
+        fechaEdicion: item.fechaEdicion,
+        editor: item.editor._id,
+        editorName: `${item.editor.nombre}-${item.editor._id}`,
+        fechaRevision: item.fechaRevision,
+        revisor: item.revisor._id,
+        revisorName: `${item.revisor.nombre}-${item.revisor._id}`,
+        fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
+        eliminador: item.eliminador?._id || '',
+        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
+        editing: item.pendientes.includes(user.userId),
+        estado: item.estado,
+        nombre: item.nombre,
+        geocode: item.geocode,
+        departamento: item.departamento._id,
+        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
+        municipio: item.municipio._id,
+        municipioName: `${item.municipio.nombre}-${item.municipio._id}`,
+        aldea: item.aldea._id,
+        aldeaName: `${item.aldea.nombre}-${item.aldea._id}`,
+      }
+    ))
+  )
+
+  const hiddenColumns = {
+    _id: false,
+    version: false,
+    fechaEdicion: false,
+    editor: false,
+    editorName: false,
+    fechaRevision: false,
+    revisor: false,
+    revisorName: false,
+    fechaEliminacion: false,
+    eliminador: false,
+    eliminadorName: false,
+    editing: false,
+    estado: false,
+    departamento: false,
+    municipio: false,
+    aldea: false
+  }
 
   return(
     <>
-    <Layout pagina={'Configuracion - Caserios'} SiteNavBar={ConfigNavBar}>
-      <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i> Caserios</h2>
-      {/*Boton Agregar*/}
-      <Button style={buttonStyle} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          Agregar Caserio
-        </Button>
+    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+      <div className="d-flex gap-2 align-items-center">
+        <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
         {/*Boton Actualizar*/}
         {
-          !update ? 
-          <Button className='my-2 mx-2' variant="light" onClick={handleUpdate}>
+          !updating ? 
+          <Button className='my-2' variant="light" onClick={handleUpdate} style={{height: '3rem'}}>
             <i className="bi bi-arrow-clockwise"></i>
           </Button>
-          : <Button className='my-2 mx-2' variant="light">
+          : <Button className='my-2' variant="light" style={{height: '3rem'}}>
             <Spinner
               as="span"
               animation="border"
@@ -169,34 +337,68 @@ export const ConfigCaserios = () => {
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
+      </div>
 
-        <DataGrid
-          autoHeight
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
-            },
-            columns: {
-              columnVisibilityModel: {
-                uuid: false,
-                ultimaEdicion: false,
-                editor: false
-              },
-            },
-          }}
-          rowSelection={false}
-          pageSizeOptions={[10, 20]}
-          style={{ minHeight: "160px"}}
-        />
+      {/*Boton Agregar*/}
+      {
+        user.userPermisos?.acciones['Caserios']['Crear']
+        &&
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
+          <i className="bi bi-file-earmark-plus"></i>{' '}
+          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
+        </Button>
+      }
+
+      {/*Boton Cambios*/}
+      {
+        user.userPermisos?.acciones['Caserios']['Revisar']
+        &&
+        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
+          <i className="bi bi-pencil-square"></i>{' '}
+          Gestión de Cambios
+        </Button>
+      }
+      
+      {/*Boton Deleteds*/}
+      {
+        user.userPermisos?.acciones['Caserios']['Ver Eliminados'] 
+        &&
+        <>
+        {
+          !deleteds ?
+          <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleToggleDeleteds}>
+            <i className="bi bi-eye"></i>{' '}
+            Mostrar Eliminados
+          </Button>
+          :
+          <Button style={{...buttonStyle, marginRight:'0.4rem', backgroundColor: 'var(--hover-main-green)'}} className='my-2' onClick={handleToggleDeleteds}>
+            <i className="bi bi-eye-slash"></i>{' '}
+            Ocultar Eliminados
+          </Button>
+        }
+        </>
+      }
+      
+      {/*Table Container*/}
+      <FormattedGrid 
+        model={`${endpoint}s`} 
+        pageSize={10} 
+        pageSizeOptions={[10,20]}
+        columns={columns} 
+        hiddenColumns={hiddenColumns}
+        populateRows={populateRows} 
+        refetchData={refetchData}
+        setRefetchData={setRefetchData} 
+        deleteds={deleteds}
+      />
 
     </Layout>
+
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditCaserio handleClose={handleCloseEdit} setRefetch={handleRefetch} caserio={currentCaserio}/>
+      <EditCaserio handleClose={handleCloseEdit} setRefetchData={setRefetchData} caserio={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearCaserio handleClose={handleCloseCreate} setRefetch={handleRefetch}/>
+      <CrearCaserio handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

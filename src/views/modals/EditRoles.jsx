@@ -7,14 +7,15 @@ import { useNavigate } from "react-router-dom";
 import { TreeBranch } from "../../components/TreeBranch.jsx";
 import { Accordion, AccordionDetails, AccordionSummary, FormLabel } from "@mui/material";
 import { GridExpandMoreIcon } from "@mui/x-data-grid";
+import { getPermisosActuales } from "../../services/permisos-service.js";
 
 export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
-  const [ vistasValues, setVistasValues ] = useState(rol.permisos?.vistas)
-  const [ accionesValues, setAccionesValues ] = useState(rol.permisos?.acciones)
+  const [ vistasValues, setVistasValues ] = useState(getPermisosActuales('vistas', rol.permisos?.vistas))
+  const [ accionesValues, setAccionesValues ] = useState(getPermisosActuales('acciones', rol.permisos?.acciones))
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
@@ -23,7 +24,7 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
     aprobar: false,
     permisos: {
       vistas: vistasValues,
-      acciones: accionesValues 
+      acciones: accionesValues, 
     }
   });
 
