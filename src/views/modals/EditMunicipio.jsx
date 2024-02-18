@@ -5,9 +5,11 @@ import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from '
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Departamento
   const findParams = {
@@ -41,10 +43,11 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
     nombre: municipio.nombre,
     idDepartamento: municipio.idDepartamento || municipio.departamento._id,
     geocode: municipio.geocode.substring(2),
-    aprobar: false
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -146,7 +149,7 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
             Municipio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -204,7 +207,7 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
         user.userPermisos?.acciones['Municipios']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

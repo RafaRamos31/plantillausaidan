@@ -128,7 +128,13 @@ export const ReviewUsuario = () => {
 
   return (
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/configuracion', nombre: 'Configuración'},
+        {link: '/configuracion/usuarios', nombre: 'Usuarios'},
+        {link: '/reviews/usuarios', nombre: 'Revisiones'},
+        {link: `/reviews/usuarios/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+    ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
         <h2><i className="bi bi-people-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
@@ -274,7 +280,7 @@ export const ReviewUsuario = () => {
                   <option value="false">Rechazado</option>
                 </Form.Select>
                 {
-                  user.userPermisos?.acciones['Usuarios']['Revisar'] 
+                  (user.userPermisos?.acciones['Usuarios']['Revisar'] && dataRevision.estado === 'En revisión' )
                   &&
                   <InputRol setValues={setValues} disabled={dataRevision.estado !== 'En revisión'}/>
                 }

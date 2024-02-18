@@ -2,7 +2,7 @@ import { Card, Tabs, Tab } from "react-bootstrap";
 import { LoginForm } from "../../components/LoginForm";
 import { TicketForm } from "../../components/TicketForm";
 
-export const AccessModal = () => {
+export const AccessModal = ({page=false}) => {
 
   return (
     <Card>

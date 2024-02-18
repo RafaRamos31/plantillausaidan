@@ -39,15 +39,6 @@ export const SiteNavBar = () => {
       })
     }
   
-    if(user.userPermisos?.vistas['Inversiones'] && Object.values(user.userPermisos?.vistas['Inversiones']).some(valor => valor === true)){
-      newValues = newValues.concat({
-        name: 'Inversiones',
-        url: '/inversiones',
-        dir: 'inversiones',
-        icon: 'bi-cash-stack'
-      })
-    }
-  
     if(user.userPermisos?.vistas['Planificación'] && Object.values(user.userPermisos?.vistas['Planificación']).some(valor => valor === true)){
       newValues = newValues.concat({
         name: 'Planificación',
@@ -62,7 +53,25 @@ export const SiteNavBar = () => {
         name: 'Indicadores',
         url: '/indicadores',
         dir: 'indicadores',
-        icon: 'bi-bell-fill'
+        icon: 'bi-graph-up-arrow'
+      })
+    }
+
+    if(user.userPermisos?.vistas['Eventos'] && Object.values(user.userPermisos?.vistas['Eventos']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Eventos',
+        url: '/eventos',
+        dir: 'eventos',
+        icon: 'bi-calendar-check'
+      })
+    }
+
+    if(user.userPermisos?.vistas['Inversiones'] && Object.values(user.userPermisos?.vistas['Inversiones']).some(valor => valor === true)){
+      newValues = newValues.concat({
+        name: 'Inversiones',
+        url: '/inversiones',
+        dir: 'inversiones',
+        icon: 'bi-cash-stack'
       })
     }
   

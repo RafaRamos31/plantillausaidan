@@ -15,12 +15,11 @@ export const IndicadoresNavBar = () => {
   }, [])
 
   const handleReturn = () => {
-    if(actual){
-      navigate('/indicadores');
-    }
-    else{
-      navigate('/');
-    }
+    let dirs = window.location.href.split('/')
+    // eslint-disable-next-line
+    const _ = dirs.pop;
+    const url = dirs.join('/')
+    navigate(url);
   }
 
   const page = 'Indicadores';
@@ -32,21 +31,15 @@ export const IndicadoresNavBar = () => {
       icon: 'bi-graph-up-arrow'
     },
     {
-      name: 'Registro',
-      url: '/indicadores/registro',
-      dir: 'registro',
-      icon: 'bi bi-pencil-square'
+      name: 'Áreas Temáticas',
+      url: '/indicadores/areas',
+      dir: 'areas',
+      icon: 'bi-diagram-3-fill'
     },
     {
       name: 'Monitoreo',
       url: '/indicadores/monitoreo',
       dir: 'monitoreo',
-      icon: 'bi-file-earmark-text'
-    },
-    {
-      name: 'Reportes',
-      url: '/indicadores/reportes',
-      dir: 'reportes',
       icon: 'bi-clipboard2-data-fill'
     }
   ])

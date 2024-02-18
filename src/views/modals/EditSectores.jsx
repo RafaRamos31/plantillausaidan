@@ -5,9 +5,11 @@ import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootst
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditSectores = ({handleClose, setRefetchData, sector, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -16,10 +18,11 @@ export const EditSectores = ({handleClose, setRefetchData, sector, fixing=false}
   const { values, handleChange, setValues } = useForm({
     idSector: sector.id,
     nombre: sector.nombre,
-    aprobar: false
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -102,7 +105,7 @@ export const EditSectores = ({handleClose, setRefetchData, sector, fixing=false}
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
       </Form>
@@ -110,10 +113,10 @@ export const EditSectores = ({handleClose, setRefetchData, sector, fixing=false}
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Componentes']['Revisar']
+        user.userPermisos?.acciones['Sectores']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

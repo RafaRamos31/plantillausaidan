@@ -7,9 +7,11 @@ import { MapInput } from "../../components/MapInput.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearBeneficiario = ({handleClose, setRefetch}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Formulario
   const { values, setValues, handleChange } = useForm({
@@ -27,7 +29,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch}) => {
     idAldea: '',
     idCaserio: '',
     geolocacion: '',
-    aprobar: false
+    aprobar: aprove
   });
 
   const changeLocation = (location) => {
@@ -35,6 +37,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch}) => {
   }
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -420,7 +423,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch}) => {
             Nombre del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -457,7 +460,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch}) => {
             Teléfono del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefono' name='telefono' value={values.telefono} onChange={handleChange}/>
+            <Form.Control id='telefono' name='telefono' value={values.telefono} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -761,11 +764,11 @@ export const CrearBeneficiario = ({handleClose, setRefetch}) => {
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
-    {
+      {
         user.userPermisos?.acciones['Beneficiarios']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

@@ -5,7 +5,7 @@ export const Configuracion = () => {
 
   return(
     <>
-    <Layout pagina={'Configuracion'} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={'Configuracion'} SiteNavBar={ConfigNavBar} breadcrumbs={[{link: '/', nombre: 'Inicio'},{link: '/configuracion', nombre: 'Configuración'}]}>
       <div className='w-100 h-100 d-flex flex-column justify-content-center align-items-center'>
         <i className="bi bi-gear-fill" style={{fontSize: '8rem', color: 'var(--main-green)'}}></i>
         <h2 style={{fontWeight: 'bold', fontSize: '4rem'}}>Configuración</h2>

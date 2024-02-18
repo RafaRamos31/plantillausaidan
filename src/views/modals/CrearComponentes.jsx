@@ -4,10 +4,13 @@ import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootst
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
+import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select } from "@mui/material";
 
 export const CrearComponente = ({handleClose, setRefetch}) => {
 
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -15,10 +18,11 @@ export const CrearComponente = ({handleClose, setRefetch}) => {
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
-    aprobar: false
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -58,6 +62,42 @@ export const CrearComponente = ({handleClose, setRefetch}) => {
   // eslint-disable-next-line
   }, [send, data, isLoading, error])
 
+  const [personName, setPersonName] = useState([]);
+
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
+
+  const names = [
+    'Oliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver HansenOliver Hansen',
+    'Van Henry',
+    'April Tucker',
+    'Ralph Hubbard',
+    'Omar Alexander',
+    'Carlos Abbott',
+    'Miriam Wagner',
+    'Bradley Wilkerson',
+    'Virginia Andrews',
+    'Kelly Snyder',
+  ];
+
+  const handleChangeList = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
@@ -71,9 +111,31 @@ export const CrearComponente = ({handleClose, setRefetch}) => {
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
+
+        <FormControl sx={{ m: 1, width: 300 }}>
+        <InputLabel>Actividades</InputLabel>
+        <Select
+          labelId="demo-multiple-checkbox-label"
+          id="demo-multiple-checkbox"
+          multiple
+          value={personName}
+          onChange={handleChangeList}
+          input={<OutlinedInput label="Actividades" />}
+          renderValue={(selected) => selected.join(', ')}
+          MenuProps={MenuProps}
+        >
+          {names.map((name) => (
+            <MenuItem key={name} value={name}>
+              <Checkbox checked={personName.indexOf(name) > -1} />
+              <ListItemText primary={name} />
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
@@ -82,7 +144,7 @@ export const CrearComponente = ({handleClose, setRefetch}) => {
         user.userPermisos?.acciones['Componentes']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

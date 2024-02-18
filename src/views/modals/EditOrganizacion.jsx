@@ -7,9 +7,11 @@ import { getArrayNivelesOrganizacion } from "../../services/staticCollections.js
 import { MapInput } from "../../components/MapInput.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
   const navigate = useNavigate();
 
   //Formulario
@@ -29,7 +31,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
     nombreContacto: organizacion.nombreContacto,
     telefonoContacto: organizacion.telefonoContacto,
     correoContacto: organizacion.correoContacto,
-    aprobar: false
+    aprobar: aprove
   });
 
   const changeLocation = (location) => {
@@ -37,6 +39,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
   }
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -331,7 +334,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Nombre de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={70} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -340,7 +343,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Código de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='codigoOrganizacion' name='codigoOrganizacion' value={values.codigoOrganizacion} onChange={handleChange}/>
+            <Form.Control id='codigoOrganizacion' name='codigoOrganizacion' value={values.codigoOrganizacion} maxLength={30} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -435,7 +438,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Teléfono de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefonoOrganizacion' name='telefonoOrganizacion' value={values.telefonoOrganizacion} onChange={handleChange}/>
+            <Form.Control id='telefonoOrganizacion' name='telefonoOrganizacion' value={values.telefonoOrganizacion} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
         
@@ -599,7 +602,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Nombre de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombreContacto' name='nombreContacto' value={values.nombreContacto} onChange={handleChange}/>
+            <Form.Control id='nombreContacto' name='nombreContacto' value={values.nombreContacto} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -608,7 +611,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Teléfono de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} onChange={handleChange}/>
+            <Form.Control id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -617,7 +620,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Correo de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} onChange={handleChange}/>
+            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -631,7 +634,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
         user.userPermisos?.acciones['Organizaciones']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

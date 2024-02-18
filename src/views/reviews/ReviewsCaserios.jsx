@@ -115,8 +115,8 @@ export const ReviewsCaserios = () => {
         original: departamento.original, 
         nombre: departamento.nombre,
         version: departamento.version,
-        fechaEdicion: departamento.fechaEdicion,
-        editor: `${departamento.editor.nombre}-${departamento.editor._id}`,
+        fechaEdicion: departamento.fechaEdicion ? departamento.fechaEdicion : '',
+        editor: `${departamento.editor?.nombre || ''}-${departamento.editor?._id || ''}`,
         fechaRevision: departamento.fechaRevision ? departamento.fechaRevision : '',
         revisor: `${departamento.revisor?.nombre || ''}-${departamento.revisor?._id || ''}`,
         estado: departamento.estado
@@ -133,7 +133,12 @@ export const ReviewsCaserios = () => {
 
   return(
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/configuracion', nombre: 'Configuración'},
+        {link: '/configuracion/caserios', nombre: 'Caserios'},
+        {link: '/reviews/caserios', nombre: 'Revisiones'}
+    ]}>
       <div className="d-flex align-items-center">
         <h4><i className="bi bi-geo-alt-fill"></i>{`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h4>
         {/*Boton Actualizar*/}

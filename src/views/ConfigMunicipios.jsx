@@ -242,11 +242,11 @@ export const ConfigMunicipios = () => {
         _id: item._id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor._id,
-        editorName: `${item.editor.nombre}-${item.editor._id}`,
+        editor: item.editor?._id || '',
+        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor._id,
-        revisorName: `${item.revisor.nombre}-${item.revisor._id}`,
+        revisor: item.revisor?._id || '',
+        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
         eliminador: item.eliminador?._id || '',
         eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
@@ -279,7 +279,11 @@ export const ConfigMunicipios = () => {
 
   return(
     <>
-    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/configuracion', nombre: 'Configuración'},
+        {link: '/configuracion/municipios', nombre: 'Municipios'}
+    ]}>
       <div className="d-flex gap-2 align-items-center">
         <h2 className="view-title"><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
         {/*Boton Actualizar*/}

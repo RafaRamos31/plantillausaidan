@@ -8,9 +8,11 @@ import { GridExpandMoreIcon } from "@mui/x-data-grid";
 import { TreeBranch } from "../../components/TreeBranch.jsx";
 import { permisos } from "../../services/permisos-service.js";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearRoles = ({handleClose, setRefetch}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
   
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -21,7 +23,7 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
-    aprobar: false,
+    aprobar: aprove,
     permisos: {
       vistas: {},
       acciones: {} 
@@ -34,6 +36,7 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
   
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove)
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -86,7 +89,7 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
             <FormLabel style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'black'}}>Nombre del rol:</FormLabel>
           </Form.Label>
           <Col sm="4">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -121,7 +124,7 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
         user.userPermisos?.acciones['Roles']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

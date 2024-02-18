@@ -4,7 +4,7 @@ import { Header } from "../components/Header";
 import useTitle from "../hooks/useTitle";
 import { UserContext } from "../contexts/UserContext";
 
-export const Layout = ({pagina, SiteNavBar, children}) => {
+export const Layout = ({pagina, SiteNavBar, breadcrumbs, children}) => {
   useTitle(pagina);
 
   const {user} = useContext(UserContext);
@@ -21,7 +21,7 @@ export const Layout = ({pagina, SiteNavBar, children}) => {
           }
         </div>
         <div className='px-0 content-column'>
-          <Header/>
+          <Header breadcrumbs={breadcrumbs}/>
           <main className="content">
             {children}
           </main>

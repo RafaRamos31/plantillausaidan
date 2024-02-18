@@ -5,9 +5,11 @@ import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootst
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditComponente = ({handleClose, setRefetchData, componente, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -16,10 +18,11 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
   const { values, handleChange, setValues } = useForm({
     idComponente: componente.id,
     nombre: componente.nombre,
-    aprobar: false
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove)
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -102,7 +105,7 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
       </Form>
@@ -113,7 +116,7 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
         user.userPermisos?.acciones['Componentes']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

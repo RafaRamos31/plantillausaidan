@@ -6,6 +6,7 @@ import { ClientOrganizaciones } from '../views/ClientOrganizaciones'
 import { ClientOrgtypes } from '../views/ClientOrgtypes'
 import { ClientCargos } from '../views/ClientCargos'
 import { ClientSectores } from '../views/ClientSectores'
+import { ClientesMonitoreo } from '../views/ClientesMonitoreo'
 
 export const ClientesRouter = () => {
 
@@ -37,6 +38,11 @@ export const ClientesRouter = () => {
         user.userPermisos?.vistas['Clientes']['Sectores']
         &&
         <Route path="/sectores" element={<ClientSectores />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Clientes']['Monitoreo']
+        &&
+        <Route path="/monitoreo" element={<ClientesMonitoreo />}></Route>
       }
 
       <Route path="/*" element={<Navigate to="/" />} />

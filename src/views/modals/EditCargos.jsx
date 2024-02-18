@@ -5,9 +5,11 @@ import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from '
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext)
 
   //Departamento
   const findParams = {
@@ -40,10 +42,11 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
     idCargo: cargo.id,
     nombre: cargo.nombre,
     idSector: cargo.idSector || cargo.sector._id,
-    aprobar: false
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -127,7 +130,7 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -173,7 +176,7 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
         user.userPermisos?.acciones['Cargos']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

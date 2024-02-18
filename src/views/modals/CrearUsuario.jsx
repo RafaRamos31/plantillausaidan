@@ -4,8 +4,12 @@ import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from '
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
+import { useNavigate } from "react-router-dom";
 
 export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
+
+  const navigate = useNavigate();
+
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
@@ -64,17 +68,12 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
 
   //Accion al completar correctamente
   const handleSuccess = () => {
-    if(handleClose && setRefetch){
-      handleClose()
-      setRefetch()
-      setShowToast(true)
-      actualizarTitulo('Usuario Creado')
-      setContent('Usuario guardado correctamente.')
-      setVariant('success')
-    }
-    else{
-      window.location.reload()
-    }
+    setShowToast(true)
+    actualizarTitulo('Usuario Creado')
+    setContent('Usuario guardado correctamente.')
+    setVariant('success')
+    navigate('/');
+    navigate(0);
   }
 
   //Efecto al enviar el formulario

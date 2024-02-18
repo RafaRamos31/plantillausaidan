@@ -5,27 +5,34 @@ export const permisos = {
       'Organizaciones': false,
       'Tipos de Organizaciones': false,
       'Cargos': false,
-      'Sectores': false
+      'Sectores': false,
+      'Monitoreo': false,
+    },
+    'Planificación': {
+      'Resultados': false,
+      'Sub Resultados': false,
+      'Actividades': false,
+      'Sub Actividades': false,
+      'Tareas': false,
+      'Años Fiscales': false,
+      'Trimestres': false,
+      'Monitoreo': false,
+    },
+    'Indicadores': {
+      'Indicadores': false,
+      'Áreas Temáticas': false,
+      'Monitoreo': false,
+    },
+    'Eventos': {
+      'Registro': false,
+      'Seguimiento': false,
+      'Calendario': false,
     },
     'Inversiones': {
       'Inversiones': false,
       'Áreas Temáticas': false,
       'Categorias': false,
       'Sub Categorias': false,
-    },
-    'Planificación': {
-      'Resultados': false,
-      'Indicadores': false,
-      'Estrategias': false,
-      'Actividades': false,
-      'Tareas': false,
-      'Monitoreo': false,
-    },
-    'Indicadores': {
-      'Indicadores': false,
-      'Registro': false,
-      'Monitoreo': false,
-      'Reportes': false
     },
     'Reportes': {
       'Reportes': false
@@ -37,9 +44,7 @@ export const permisos = {
       'Departamentos': false,
       'Municipios': false,
       'Aldeas': false,
-      'Caserios': false,
-      'Áreas Temáticas': false,
-      'Sub Áreas Temáticas': false,
+      'Caserios': false
     }
   },
   acciones: {
@@ -148,6 +153,30 @@ export const permisos = {
       'Eliminar': false,
     },
     'Beneficiarios': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Resultados': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Sub Resultados': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Actividades': {
       'Ver Eliminados': false,
       'Ver Historial': false,
       'Crear': false,

@@ -6,9 +6,11 @@ import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { getArrayNivelesOrganizacion } from "../../services/staticCollections.js";
 import { MapInput } from "../../components/MapInput.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearOrganizacion = ({handleClose, setRefetch}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Formulario
   const { values, setValues, handleChange } = useForm({
@@ -26,7 +28,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
     nombreContacto: '',
     telefonoContacto: '',
     correoContacto: '',
-    aprobar: false
+    aprobar: aprove
   });
 
   const changeLocation = (location) => {
@@ -34,6 +36,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
   }
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -309,6 +312,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
   }, [send, data, isLoading, error])
 
   return (
+    <>
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
       <h4 className="my-1">Crear Organización</h4>
@@ -321,7 +325,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
             Nombre de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={70} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -330,7 +334,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
             Código de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='codigoOrganizacion' name='codigoOrganizacion' value={values.codigoOrganizacion} onChange={handleChange}/>
+            <Form.Control id='codigoOrganizacion' name='codigoOrganizacion' value={values.codigoOrganizacion}  maxLength={30} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -365,6 +369,9 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
                   <span className="visually-hidden">Cargando...</span>
                 </Button>
               }
+              <Button variant="light">
+                <i className="bi bi-file-earmark-plus"></i>
+              </Button>
             </InputGroup>
           </Col>
         </Form.Group>
@@ -400,6 +407,9 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
                   <span className="visually-hidden">Cargando...</span>
                 </Button>
               }
+              <Button variant="light" onClick={handleUpdate}>
+                <i className="bi bi-file-earmark-plus"></i>
+              </Button>
             </InputGroup>
           </Col>
         </Form.Group>
@@ -425,7 +435,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
             Teléfono de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefonoOrganizacion' name='telefonoOrganizacion' value={values.telefonoOrganizacion} onChange={handleChange}/>
+            <Form.Control id='telefonoOrganizacion' name='telefonoOrganizacion' value={values.telefonoOrganizacion} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
         
@@ -589,7 +599,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
             Nombre de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombreContacto' name='nombreContacto' value={values.nombreContacto} onChange={handleChange}/>
+            <Form.Control id='nombreContacto' name='nombreContacto' value={values.nombreContacto} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -598,7 +608,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
             Teléfono de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} onChange={handleChange}/>
+            <Form.Control id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -607,7 +617,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
             Correo de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} onChange={handleChange}/>
+            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -621,7 +631,7 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
         user.userPermisos?.acciones['Organizaciones']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>
@@ -645,5 +655,6 @@ export const CrearOrganizacion = ({handleClose, setRefetch}) => {
       }
     </Card.Footer>
   </Card>
+  </>
   )
 }

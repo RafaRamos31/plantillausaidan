@@ -17,20 +17,17 @@ export const IndicadoresRouter = () => {
         &&
         <Route path="/indicadores" element={<IndIndicadores />}></Route>
       }
+      
       {
-        user.userPermisos?.vistas['Indicadores']['Registro']
+        user.userPermisos?.vistas['Indicadores']['Áreas Temáticas']
         &&
-        <Route path="/registro" element={<IndRegistro />}></Route>
+        <Route path="/areas" element={<IndReportes />}></Route>
       }
+
       {
         user.userPermisos?.vistas['Indicadores']['Monitoreo']
         &&
         <Route path="/monitoreo" element={<IndMonitoreo />}></Route>
-      }
-      {
-        user.userPermisos?.vistas['Indicadores']['Reportes']
-        &&
-        <Route path="/reportes" element={<IndReportes />}></Route>
       }
 
       <Route path="/*" element={<Navigate to="/" />} />

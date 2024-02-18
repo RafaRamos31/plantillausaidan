@@ -310,7 +310,11 @@ export const ConfigUsuarios = () => {
 
   return(
     <>
-    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Configuración - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/configuracion', nombre: 'Configuración'},
+        {link: '/configuracion/usuarios', nombre: 'Usuarios'}
+    ]}>
       <div className="d-flex gap-2 align-items-center">
       <h2 className="view-title"><i className="bi bi-people-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
       {/*Boton Actualizar*/}

@@ -25,6 +25,8 @@ import { ReviewsOrganizaciones } from '../views/reviews/ReviewsOrganizaciones'
 import { ReviewOrganizacion } from '../views/reviews/unitarios/ReviewOrganizacion'
 import { ReviewsBeneficiarios } from '../views/reviews/ReviewsBeneficiarios'
 import { ReviewBeneficiario } from '../views/reviews/unitarios/ReviewBeneficiario'
+import { ReviewsResultados } from '../views/reviews/ReviewsResultados'
+import { ReviewResultado } from '../views/reviews/unitarios/ReviewResultado'
 
 export const ReviewsRouter = () => {
 
@@ -162,6 +164,17 @@ export const ReviewsRouter = () => {
         user.userPermisos?.vistas['Clientes']['Beneficiarios']
         &&
         <Route path="/beneficiarios/:idRevision" element={<ReviewBeneficiario />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Resultados']['Revisar']
+        &&
+        <Route path="/resultados" element={<ReviewsResultados />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Planificación']['Resultados']
+        &&
+        <Route path="/resultados/:idRevision" element={<ReviewResultado />}></Route>
       }
       
       <Route path="/*" element={<Navigate to="/" />} />

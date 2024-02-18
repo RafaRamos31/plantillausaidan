@@ -15,12 +15,11 @@ export const InversionesNavBar = () => {
   }, [])
 
   const handleReturn = () => {
-    if(actual){
-      navigate('/inversiones');
-    }
-    else{
-      navigate('/');
-    }
+    let dirs = window.location.href.split('/')
+    // eslint-disable-next-line
+    const _ = dirs.pop;
+    const url = dirs.join('/')
+    navigate(url);
   }
 
   const page = 'Inversiones';
@@ -35,7 +34,19 @@ export const InversionesNavBar = () => {
       name: 'Áreas Temáticas',
       url: '/inversiones/areas',
       dir: 'areas',
+      icon: 'bi-bounding-box'
+    },
+    {
+      name: 'Categorias',
+      url: '/inversiones/categorias',
+      dir: 'areas',
       icon: 'bi-collection-fill'
+    },
+    {
+      name: 'Sub Categorias',
+      url: '/inversiones/subcategorias',
+      dir: 'areas',
+      icon: 'bi-collection'
     }
   ])
 

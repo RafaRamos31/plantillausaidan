@@ -31,7 +31,12 @@ export const HistoryOrganizacion = () => {
   }
 
   return (
-    <Layout pagina={`Historial - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Historial - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+      {link: '/', nombre: 'Inicio'},
+      {link: '/clientes', nombre: 'Clientes'},
+      {link: '/clientes/organizaciones', nombre: 'Organizaciones'},
+      {link: `/historial/organizaciones/${id}`, nombre: `Historial: ${original?.nombre || 'Organización'}`}
+  ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
           <h2 className='mb-4'><i className="bi bi-clock-history"></i>{` Historial: ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>

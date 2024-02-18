@@ -311,11 +311,11 @@ export const ClientOrganizaciones = () => {
         _id: item._id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor._id,
-        editorName: `${item.editor.nombre}-${item.editor._id}`,
+        editor: item.editor?._id || '',
+        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor._id,
-        revisorName: `${item.revisor.nombre}-${item.revisor._id}`,
+        revisor: item.revisor?._id || '',
+        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
         eliminador: item.eliminador?._id || '',
         eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
@@ -370,7 +370,11 @@ export const ClientOrganizaciones = () => {
 
   return(
     <>
-    <Layout pagina={`Clientes - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`} SiteNavBar={ClientesNavBar}>
+    <Layout pagina={`Clientes - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`} SiteNavBar={ClientesNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/clientes', nombre: 'Clientes'},
+        {link: '/clientes/organizaciones', nombre: 'Organizaciones'}
+    ]}>
       <div className="d-flex gap-2 align-items-center">
         <h2 className="view-title"><i className="bi bi-bank2"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`}</h2>
         {/*Boton Actualizar*/}

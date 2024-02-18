@@ -125,7 +125,13 @@ export const ReviewOrgType = () => {
 
   return (
     <>
-    <Layout pagina={`Revisión Tipo de Organización`} SiteNavBar={ClientesNavBar}>
+    <Layout pagina={`Revisión Tipo de Organización`} SiteNavBar={ClientesNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/clientes', nombre: 'Clientes'},
+        {link: '/clientes/tipoOrganizaciones', nombre: 'Tipos de Organizaciones'},
+        {link: '/reviews/tipoOrganizaciones', nombre: 'Revisiones'},
+        {link: `/reviews/tipoOrganizaciones/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+    ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
           <h2><i className="bi bi-bank"></i>{` Tipo de Organización`}</h2>

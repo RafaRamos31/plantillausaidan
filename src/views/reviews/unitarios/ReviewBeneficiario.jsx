@@ -125,7 +125,13 @@ export const ReviewBeneficiario = () => {
 
   return (
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ClientesNavBar}>
+    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ClientesNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/clientes', nombre: 'Clientes'},
+        {link: '/clientes/beneficiarios', nombre: 'Beneficiarios'},
+        {link: '/reviews/beneficiarios', nombre: 'Revisiones'},
+        {link: `/reviews/beneficiarios/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+    ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
           <h2><i className="bi bi-geo-alt-fill"></i>{`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>

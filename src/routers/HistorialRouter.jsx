@@ -13,6 +13,7 @@ import { HistoryCargo } from '../views/history/HistoryCargo'
 import { HistoryOrgType } from '../views/history/HistoryOrgtype'
 import { HistoryOrganizacion } from '../views/history/HistoryOrganizacion'
 import { HistoryBeneficiario } from '../views/history/HistoryBeneficiario'
+import { HistoryResultado } from '../views/history/HistoryResultado'
 
 export const HistorialRouter = () => {
 
@@ -79,6 +80,11 @@ export const HistorialRouter = () => {
         user.userPermisos?.acciones['Beneficiarios']['Ver Historial']
         &&
         <Route path="/beneficiarios/:id" element={<HistoryBeneficiario />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Resultados']['Ver Historial']
+        &&
+        <Route path="/resultados/:id" element={<HistoryResultado />}></Route>
       }
 
       <Route path="/*" element={<Navigate to="/" />} />

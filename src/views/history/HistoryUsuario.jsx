@@ -31,13 +31,18 @@ export const HistoryUsuario = () => {
   }
 
   return (
-    <Layout pagina={`Historial - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Historial - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+      {link: '/', nombre: 'Inicio'},
+      {link: '/configuracion', nombre: 'Configuración'},
+      {link: '/configuracion/usuarios', nombre: 'Usuarios'},
+      {link: `/historial/usuarios/${id}`, nombre: `Historial: ${original?.nombre || 'Usuario'}`}
+  ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
           <h2 className='mb-4'><i className="bi bi-clock-history"></i>{` Historial: ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
           <Accordion>
             {
-              ( original && original.version.split('.')[0] > data[0].version.split('.')[0]) &&
+              ( original && original?.version.split('.')[0] > data[0]?.version.split('.')[0]) &&
               <Alert className='my-0' key={ original.version } variant='success'>
                 <p style={{fontSize: '1.4rem', marginRight: '0.3rem', fontWeight: 'bold'}}>{`Versión ${original.version}`}</p>
               </Alert>

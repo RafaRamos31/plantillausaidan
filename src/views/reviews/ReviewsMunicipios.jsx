@@ -115,8 +115,8 @@ export const ReviewsMunicipios = () => {
         original: municipio.original, 
         nombre: municipio.nombre,
         version: municipio.version,
-        fechaEdicion: municipio.fechaEdicion,
-        editor: `${municipio.editor.nombre}-${municipio.editor._id}`,
+        fechaEdicion: municipio.fechaEdicion ? municipio.fechaEdicion : '',
+        editor: `${municipio.editor?.nombre || ''}-${municipio.editor?._id || ''}`,
         fechaRevision: municipio.fechaRevision ? municipio.fechaRevision : '',
         revisor: `${municipio.revisor?.nombre || ''}-${municipio.revisor?._id || ''}`,
         estado: municipio.estado
@@ -133,7 +133,12 @@ export const ReviewsMunicipios = () => {
 
   return(
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar}>
+    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ConfigNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/configuracion', nombre: 'Configuración'},
+        {link: '/configuracion/municipios', nombre: 'Municipios'},
+        {link: '/reviews/municipios', nombre: 'Revisiones'}
+    ]}>
       <div className="d-flex align-items-center">
         <h4><i className="bi bi-geo-alt-fill"></i>{`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h4>
         {/*Boton Actualizar*/}

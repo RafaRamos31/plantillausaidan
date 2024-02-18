@@ -4,9 +4,12 @@ import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from '
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearMunicipio = ({handleClose, setRefetch}) => {
+
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
   
   //Departamento
   const findParams = {
@@ -40,10 +43,11 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
     nombre: '',
     idDepartamento: '',
     geocode: '',
-    aprobar: false
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -115,7 +119,7 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
             Municipio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -173,7 +177,7 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
         user.userPermisos?.acciones['Municipios']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

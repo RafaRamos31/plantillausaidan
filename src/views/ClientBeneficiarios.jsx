@@ -9,8 +9,9 @@ import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
-import { EditOrganizacion } from "./modals/EditOrganizacion.jsx";
 import { CrearBeneficiario } from "./modals/CrearBeneficiario.jsx";
+import { EditBeneficiario } from "./modals/EditBeneficiario.jsx";
+import moment from "moment";
 
 export const ClientBeneficiarios = () => {
   const endpoint = 'beneficiario'
@@ -90,7 +91,10 @@ export const ClientBeneficiarios = () => {
         (operator) => operator.value === 'contains',
       )
     },
-    { field: 'fechaNacimiento', headerName: 'Fecha de Nacimiento', width: 170, filterable: false},
+    { field: 'fechaNacimiento', headerName: 'Fecha de Nacimiento', width: 170, filterable: false, 
+      renderCell: (params) => {
+        return (moment.utc(params.row.fechaNacimiento ).format("DD/MM/YYYY"))
+      }},
     { field: 'telefono', headerName: 'Teléfono', width: 150,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -296,7 +300,7 @@ export const ClientBeneficiarios = () => {
                       nombre: params.row.nombre,
                       dni: params.row.dni,
                       sexo: params.row.sexo,
-                      fechaNacimiento: params.row.fechaNacimiento,
+                      fechaNacimiento: moment.utc(params.row.fechaNacimiento ).format("YYYY-MM-DD"),
                       telefono: params.row.telefono,
                       idSector: params.row.sector,
                       idTipoOrganizacion: params.row.tipoOrganizacion,
@@ -341,11 +345,11 @@ export const ClientBeneficiarios = () => {
         _id: item._id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor._id,
-        editorName: `${item.editor.nombre}-${item.editor._id}`,
+        editor: item.editor?._id || '',
+        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor._id,
-        revisorName: `${item.revisor.nombre}-${item.revisor._id}`,
+        revisor: item.revisor?._id || '',
+        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
         eliminador: item.eliminador?._id || '',
         eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
@@ -354,7 +358,7 @@ export const ClientBeneficiarios = () => {
         nombre: item.nombre,
         dni: item.dni,
         sexo: item.sexo,
-        fechaNacimiento: new Date(item.fechaNacimiento).toLocaleDateString('es', {timeZone: 'UTC'}),
+        fechaNacimiento: item.fechaNacimiento,
         telefono: item.telefono,
         sector: item.sector._id,
         sectorName: `${item.sector.nombre}-${item.sector._id}`,
@@ -404,7 +408,12 @@ export const ClientBeneficiarios = () => {
 
   return(
     <>
-    <Layout pagina={`Clientes - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ClientesNavBar}>
+    <Layout pagina={`Clientes - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={ClientesNavBar}
+      breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/clientes', nombre: 'Clientes'},
+        {link: '/clientes/beneficiarios', nombre: 'Beneficiarios'}
+    ]}>
       <div className="d-flex gap-2 align-items-center">
         <h2 className="view-title"><i className="bi bi-people-fill"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
         {/*Boton Actualizar*/}
@@ -482,7 +491,7 @@ export const ClientBeneficiarios = () => {
     </Layout>
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditOrganizacion handleClose={handleCloseEdit} setRefetchData={setRefetchData} organizacion={currentData}/>
+      <EditBeneficiario handleClose={handleCloseEdit} setRefetchData={setRefetchData} beneficiario={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearBeneficiario handleClose={handleCloseCreate} setRefetch={handleUpdate}/>

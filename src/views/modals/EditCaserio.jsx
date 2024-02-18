@@ -5,9 +5,11 @@ import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from '
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
@@ -17,10 +19,11 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
     idMunicipio: caserio.idMunicipio || caserio.municipio._id,
     idAldea: caserio.idAldea || caserio.aldea._id,
     geocode: caserio.geocode.substring(6),
-    aprobar: false
+    aprobar: aprove
   });
   
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -240,7 +243,7 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
             Caserio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -368,7 +371,7 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
         user.userPermisos?.acciones['Caserios']['Revisar']
         ?
         <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
         </Form.Group>
         :
         <div></div>

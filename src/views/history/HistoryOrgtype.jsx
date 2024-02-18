@@ -31,7 +31,12 @@ export const HistoryOrgType = () => {
   }
 
   return (
-    <Layout pagina={`Historial - Tipo de Organización`} SiteNavBar={ClientesNavBar}>
+    <Layout pagina={`Historial - Tipo de Organización`} SiteNavBar={ClientesNavBar} breadcrumbs={[
+      {link: '/', nombre: 'Inicio'},
+      {link: '/clientes', nombre: 'Clientes'},
+      {link: '/clientes/tipoOrganizaciones', nombre: 'Tipos de Organización'},
+      {link: `/historial/tipoOrganizaciones/${id}`, nombre: `Historial: ${original?.nombre || 'Tipo de Organización'}`}
+  ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
           <h2 className='mb-4'><i className="bi bi-clock-history"></i>{` Historial: Tipo de Organización`}</h2>

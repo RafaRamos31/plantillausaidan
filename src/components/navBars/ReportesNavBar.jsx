@@ -15,12 +15,11 @@ export const ReportesNavBar = () => {
   }, [])
 
   const handleReturn = () => {
-    if(actual){
-      navigate('/reportes');
-    }
-    else{
-      navigate('/');
-    }
+    let dirs = window.location.href.split('/')
+    // eslint-disable-next-line
+    const _ = dirs.pop;
+    const url = dirs.join('/')
+    navigate(url);
   }
 
   const page = 'Reportes';

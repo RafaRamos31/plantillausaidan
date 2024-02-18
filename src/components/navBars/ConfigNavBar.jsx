@@ -15,12 +15,11 @@ export const ConfigNavBar = () => {
   }, [])
 
   const handleReturn = () => {
-    if(actual){
-      navigate(-1);
-    }
-    else{
-      navigate('/');
-    }
+    let dirs = window.location.href.split('/')
+    // eslint-disable-next-line
+    const _ = dirs.pop;
+    const url = dirs.join('/')
+    navigate(url);
   }
 
   const page = 'Configuración';
@@ -66,18 +65,6 @@ export const ConfigNavBar = () => {
       url: '/configuracion/caserios',
       dir: 'caserios',
       icon: 'bi-geo-alt-fill'
-    },
-    {
-      name: 'Áreas Temáticas',
-      url: '/configuracion/areas',
-      dir: 'areas',
-      icon: 'bi-collection-fill'
-    },
-    {
-      name: 'Sub Áreas Temáticas',
-      url: '/configuracion/subareas',
-      dir: 'subareas',
-      icon: 'bi-collection'
     }
   ])
 

@@ -6,9 +6,11 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}) => {
   const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
@@ -18,9 +20,11 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
     telefono: usuario.telefono,
     idComponente: usuario.idComponente,
     idRol: usuario.idRol,
+    aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -245,7 +249,7 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
           user.userPermisos?.acciones['Usuarios']['Revisar']
           ?
           <Form.Group>
-            <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
+            <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
           </Form.Group>
           :
           <div></div>

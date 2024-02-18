@@ -15,12 +15,11 @@ export const PlanNavBar = () => {
   }, [])
 
   const handleReturn = () => {
-    if(actual){
-      navigate('/planificacion');
-    }
-    else{
-      navigate('/');
-    }
+    let dirs = window.location.href.split('/')
+    // eslint-disable-next-line
+    const _ = dirs.pop;
+    const url = dirs.join('/')
+    navigate(url);
   }
 
   const page = 'Planificación';
@@ -32,28 +31,40 @@ export const PlanNavBar = () => {
       icon: 'bi-bar-chart-fill'
     },
     {
-      name: 'Indicadores',
-      url: '/planificacion/indicadores',
-      dir: 'indicadores',
-      icon: 'bi-graph-up-arrow'
-    },
-    {
-      name: 'Estrategias',
-      url: '/planificacion/estrategias',
-      dir: 'estrategias',
-      icon: 'bi-file-earmark-text'
+      name: 'Sub Resultados',
+      url: '/planificacion/subresultados',
+      dir: 'subresultados',
+      icon: 'bi-bar-chart-line'
     },
     {
       name: 'Actividades',
       url: '/planificacion/actividades',
       dir: 'actividades',
-      icon: 'bi-file-earmark-plus'
+      icon: 'bi-stack'
+    },
+    {
+      name: 'Sub Actividades',
+      url: '/planificacion/subactividades',
+      dir: 'actividades',
+      icon: 'bi-layers'
     },
     {
       name: 'Tareas',
       url: '/planificacion/tareas',
       dir: 'tareas',
-      icon: 'bi-bell-fill'
+      icon: 'bi-list-check'
+    },
+    {
+      name: 'Años Fiscales',
+      url: '/planificacion/years',
+      dir: 'years',
+      icon: 'bi-calendar3'
+    },
+    {
+      name: 'Trimestres',
+      url: '/planificacion/trimestres',
+      dir: 'trimestres',
+      icon: 'bi-calendar2-week'
     },
     {
       name: 'Monitoreo',

@@ -20,6 +20,8 @@ import { ClientesRouter } from './ClientesRouter'
 import { PlanificacionRouter } from './PlanificacionRouter'
 import { InversionesRouter } from './InversionesRouter'
 import { ReportesRouter } from './ReportesRouter'
+import { AproveContextProvider } from '../contexts/AproveContext'
+import { Eventos } from '../views/Eventos'
 
 export const MainRouter = () => {
 
@@ -29,6 +31,7 @@ export const MainRouter = () => {
     <>
       <RefetchContextProvider>
       <ToastContextProvider>  
+      <AproveContextProvider>
       <Routes>
         <Route index element={<Home />}></Route>
 
@@ -67,6 +70,13 @@ export const MainRouter = () => {
             <Route path="/indicadores/*" element={<IndicadoresRouter />}></Route>
 
             {
+              (user.userPermisos?.vistas['Eventos'] && Object.values(user.userPermisos?.vistas['Eventos']).some(valor => valor === true))
+              &&
+              <Route path="/eventos" element={<Eventos />}></Route>
+            }
+            <Route path="/eventos/*" element={<IndicadoresRouter />}></Route>
+
+            {
               (user.userPermisos?.vistas['Reportes'] && Object.values(user.userPermisos?.vistas['Reportes']).some(valor => valor === true))
               &&
               <Route path="/reportes" element={<Reportes />}></Route>
@@ -89,6 +99,7 @@ export const MainRouter = () => {
         }
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
+      </AproveContextProvider>
       </ToastContextProvider>
       </RefetchContextProvider>
     </>

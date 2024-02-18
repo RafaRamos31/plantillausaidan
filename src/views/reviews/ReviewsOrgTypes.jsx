@@ -133,7 +133,12 @@ export const ReviewsOrgTypes = () => {
 
   return(
     <>
-    <Layout pagina={`Revisión Tipos de Organizaciones`} SiteNavBar={ClientesNavBar}>
+    <Layout pagina={`Revisión Tipos de Organizaciones`} SiteNavBar={ClientesNavBar} breadcrumbs={[
+        {link: '/', nombre: 'Inicio'},
+        {link: '/clientes', nombre: 'Clientes'},
+        {link: '/clientes/tipoOrganizaciones', nombre: 'Tipos de Organizaciones'},
+        {link: '/reviews/tipoOrganizaciones', nombre: 'Revisiones'}
+    ]}>
       <div className="d-flex align-items-center">
         <h4><i className="bi bi-bank"></i>{` Revisión Tipos de Organizaciones`}</h4>
         {/*Boton Actualizar*/}

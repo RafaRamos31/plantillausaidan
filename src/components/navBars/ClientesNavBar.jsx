@@ -16,12 +16,11 @@ export const ClientesNavBar = () => {
   }, [])
 
   const handleReturn = () => {
-    if(actual){
-      navigate('/clientes');
-    }
-    else{
-      navigate('/');
-    }
+    let dirs = window.location.href.split('/')
+    // eslint-disable-next-line
+    const _ = dirs.pop;
+    const url = dirs.join('/')
+    navigate(url);
   }
 
   const page = 'Clientes';
@@ -55,6 +54,12 @@ export const ClientesNavBar = () => {
       url: '/clientes/sectores',
       dir: 'sectores',
       icon: 'bi-diagram-2-fill'
+    },
+    {
+      name: 'Monitoreo',
+      url: '/clientes/monitoreo',
+      dir: 'monitoreo',
+      icon: 'bi-clipboard2-data-fill'
     }
   ])
 

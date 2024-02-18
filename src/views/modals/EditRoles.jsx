@@ -8,8 +8,13 @@ import { TreeBranch } from "../../components/TreeBranch.jsx";
 import { Accordion, AccordionDetails, AccordionSummary, FormLabel } from "@mui/material";
 import { GridExpandMoreIcon } from "@mui/x-data-grid";
 import { getPermisosActuales } from "../../services/permisos-service.js";
+import { UserContext } from "../../contexts/UserContext.js";
+import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
+
+  const { user } = useContext(UserContext);
+  const { aprove, setAprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -21,7 +26,7 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
   const { values, handleChange, setValues } = useForm({
     idRol: rol.id,
     nombre: rol.nombre,
-    aprobar: false,
+    aprobar: aprove,
     permisos: {
       vistas: vistasValues,
       acciones: accionesValues, 
@@ -34,6 +39,7 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
 
 
   const handleToggleAprobar = () => {
+    setAprove(!aprove)
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
@@ -116,7 +122,7 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
             <FormLabel style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'black'}}>Nombre del rol:</FormLabel>
           </Form.Label>
           <Col sm="4">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -148,9 +154,16 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
-      <Form.Group>
-        <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' onChange={handleToggleAprobar}/>
-      </Form.Group>
+      {
+        user.userPermisos?.acciones['Roles']['Revisar']
+        ?
+        <Form.Group>
+          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
+        </Form.Group>
+        :
+        <div></div>
+      }
+      
       
       {/*Boton Guardar*/}
       {
