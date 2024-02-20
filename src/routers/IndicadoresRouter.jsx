@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
 import { IndIndicadores } from '../views/IndIndicadores'
-import { IndRegistro } from '../views/IndRegistro'
 import { IndMonitoreo } from '../views/IndMonitoreo'
 import { IndReportes } from '../views/IndReportes'
 

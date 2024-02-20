@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
-import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
@@ -27,7 +27,7 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
   }
 
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('resultados', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('resultados', {...values, nombre: `IR ${values.nombre}`}) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -74,8 +74,12 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
           <Form.Label column sm="4">
             Código:
           </Form.Label>
-          <Col sm="2">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={6} onChange={handleChange}/>
+          <Col sm="3">
+            <InputGroup>
+              <InputGroup.Text placeholder="IR">{'IR'}</InputGroup.Text>
+              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1} onChange={handleChange}/>
+            </InputGroup>
+            
           </Col>
         </Form.Group>
 
