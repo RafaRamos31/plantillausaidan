@@ -9,11 +9,11 @@ import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { IndicadoresNavBar } from "../components/navBars/IndicadoresNavBar.jsx";
-import { CrearIndicadores } from "./modals/CrearIndicadores.jsx";
-import { EditIndicadores } from "./modals/EditIndicadores.jsx";
+import { CrearAreaTematica } from "./modals/CrearAreaTematica.jsx";
+import { Chip, Tooltip as MuiTooltip } from "@mui/material";
+import { EditAreaTematica } from "./modals/EditAreaTematica.jsx";
 
-export const IndIndicadores = () => {
-  const endpoint = 'indicador'
+export const IndAreasTematicas = () => {
   const {user} = useContext(UserContext)
 
   //Estilo de boton
@@ -21,13 +21,6 @@ export const IndIndicadores = () => {
     backgroundColor: "var(--main-green)", 
     border: '1px solid black',
     borderRadius: '3px',
-  };
-
-  const currencyFormat = {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
   };
 
   //Indicador solicitud de recarga de datos en la vista
@@ -60,7 +53,7 @@ export const IndIndicadores = () => {
   //Boton Cambios
   const navigate = useNavigate();
   const handleReview = () => {
-    navigate(`/reviews/${endpoint}es`)
+    navigate(`/reviews/areastematicas`)
   }
 
   //Modal crear
@@ -89,7 +82,7 @@ export const IndIndicadores = () => {
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'indicadores'} 
+            type={'areas'} 
             id={params.row._id}
             nombre={params.formattedValue}
           />
@@ -97,11 +90,14 @@ export const IndIndicadores = () => {
       } 
     },
     { field: 'descripcion', headerName: 'Descripción', width: 400, filterable: false},
-    { field: 'tipoIndicador', headerName: 'Tipo de Indicador', width: 150, filterable: false},
-    { field: 'medida', headerName: 'Unidad de Medida', width: 150, filterable: false},
-    { field: 'frecuencia', headerName: 'Frecuencia', width: 150, filterable: false},
-    { field: 'metaLOP', headerName: 'Meta LOP', width: 150, filterable: false},
-    { field: 'metas', headerName: 'Metas Info', width: 150, filterable: false},
+    { field: 'indicadores', headerName: 'Indicadores', width: 400, filterable: false,
+      renderCell: (params) => (
+        JSON.parse(params.formattedValue).map(indicador => (
+          <MuiTooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
+            <Chip key={indicador._id} className="mx-1" label={indicador.nombre} style={{cursor: 'pointer'}}/>
+          </MuiTooltip>
+        ))
+    )},
     { field: 'version', headerName: 'Versión', width: 100, filterable: false},
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
@@ -178,14 +174,14 @@ export const IndIndicadores = () => {
         return (
           <>
             <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
-              <a href={`/reviews/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
+              <a href={`/reviews/areastematicas/${params.row._id}`} target="_blank" rel="noreferrer">
                 <Button  className='py-1' style={buttonStyle}>
                   <i className="bi bi-eye-fill"></i>{' '}
                 </Button>
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Indicadores']['Modificar'] 
+              user.userPermisos?.acciones['Áreas Temáticas']['Modificar'] 
               &&
               <>
               {
@@ -204,10 +200,7 @@ export const IndIndicadores = () => {
                       id: params.row._id,
                       nombre: params.row.nombre,
                       descripcion: params.row.descripcion,
-                      tipoIndicador: params.row.tipoIndicador,
-                      frecuencia: params.row.frecuencia,
-                      medida: params.row.medida,
-                      metas: JSON.parse(params.row.metas),
+                      indicadores: JSON.parse(params.row.indicadores),
                     })
                     handleShowEdit()
                   }}>
@@ -218,10 +211,10 @@ export const IndIndicadores = () => {
               </>
             }
             {
-              user.userPermisos?.acciones['Indicadores']['Ver Historial'] 
+              user.userPermisos?.acciones['Áreas Temáticas']['Ver Historial'] 
               &&
               <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
+                <a href={`/historial/areastematicas/${params.row._id}`} target="_blank" rel="noreferrer">
                   <Button  className='py-1' style={buttonStyle}>
                     <i className="bi bi-clock-history"></i>{' '}
                   </Button>
@@ -254,18 +247,13 @@ export const IndIndicadores = () => {
         estado: item.estado,
         nombre: item.nombre,
         descripcion: item.descripcion,
-        medida: item.medida,
-        tipoIndicador: item.tipoIndicador,
-        frecuencia: item.frecuencia,
-        metaLOP: item.medida === 'Monetario' ? item.metas['LOP']['Total'].toLocaleString('en-US', currencyFormat) : item.metas['LOP']['Total'],
-        metas: JSON.stringify(item.metas)
+        indicadores: JSON.stringify(item.indicadores)
       }
     ))
   )
 
   const hiddenColumns = {
     _id: false,
-    metas: false,
     version: false,
     fechaEdicion: false,
     editor: false,
@@ -282,13 +270,13 @@ export const IndIndicadores = () => {
 
   return(
     <>
-    <Layout pagina={`Clientes - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
+    <Layout pagina={`Indicadores - Áreas Temáticas`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
         {link: '/indicadores', nombre: 'Indicadores'},
-        {link: '/indicadores/indicadores', nombre: 'Indicadores'}
+        {link: '/indicadores/areas', nombre: 'Áreas Temáticas'}
     ]}>
       <div className="d-flex gap-2 align-items-center">
-      <h2 className="view-title"><i className="bi bi-graph-up-arrow"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}es`}</h2>
+      <h2 className="view-title"><i className="bi bi-diagram-3-fill"></i>{` Áreas Temáticas`}</h2>
       {/*Boton Actualizar*/}
       {
           !updating ? 
@@ -310,17 +298,17 @@ export const IndIndicadores = () => {
       
       {/*Boton Agregar*/}
       {
-        user.userPermisos?.acciones['Indicadores']['Crear']
+        user.userPermisos?.acciones['Áreas Temáticas']['Crear']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
+          {`Agregar Área Temática`}
         </Button>
       }
 
       {/*Boton Cambios*/}
       {
-        user.userPermisos?.acciones['Indicadores']['Revisar']
+        user.userPermisos?.acciones['Áreas Temáticas']['Revisar']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
@@ -330,7 +318,7 @@ export const IndIndicadores = () => {
       
       {/*Boton Deleteds*/}
       {
-        user.userPermisos?.acciones['Indicadores']['Ver Eliminados'] 
+        user.userPermisos?.acciones['Áreas Temáticas']['Ver Eliminados'] 
         &&
         <>
         {
@@ -350,7 +338,7 @@ export const IndIndicadores = () => {
 
       {/*Table Container*/}
       <FormattedGrid 
-        model={`${endpoint}es`} 
+        model={`areastematicas`} 
         pageSize={10} 
         pageSizeOptions={[10,20]}
         columns={columns} 
@@ -363,10 +351,10 @@ export const IndIndicadores = () => {
 
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditIndicadores handleClose={handleCloseEdit} setRefetchData={setRefetchData} indicador={currentData}/>
+      <EditAreaTematica handleClose={handleCloseEdit} setRefetchData={setRefetchData} areatematica={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearIndicadores handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
+      <CrearAreaTematica handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

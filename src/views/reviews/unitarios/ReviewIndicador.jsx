@@ -11,15 +11,23 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
-import { EditDepartamento } from '../../modals/EditDepartamento';
 import { UserContext } from '../../../contexts/UserContext';
-import { PlanNavBar } from '../../../components/navBars/PlanNavBar';
+import { EditSectores } from '../../modals/EditSectores';
+import { IndicadoresNavBar } from '../../../components/navBars/IndicadoresNavBar';
+import { CompareMetas } from '../../../components/CompareMetas';
 
-export const ReviewResultado = () => {
+export const ReviewIndicador = () => {
   const { idRevision } = useParams();
-  const endpoint = 'resultado'
+  const endpoint = 'indicador'
 
   const { user } = useContext(UserContext);
+
+  const currencyFormat = {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  };
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
@@ -69,7 +77,7 @@ export const ReviewResultado = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/resultados', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/indicadores', values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -126,16 +134,16 @@ export const ReviewResultado = () => {
 
   return (
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={PlanNavBar} breadcrumbs={[
+    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
-        {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/resultados', nombre: 'Resultados'},
-        {link: '/reviews/resultados', nombre: 'Revisiones'},
-        {link: `/reviews/resultados/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+        {link: '/indicadores', nombre: 'Indicadores'},
+        {link: '/indicadores/indicadores', nombre: 'Indicadores'},
+        {link: '/reviews/indicadores', nombre: 'Revisiones'},
+        {link: `/reviews/indicadores/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
-        <h2><i className="bi bi-bar-chart-fill"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
+        <h2><i className="bi bi-graph-up-arrow"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
           <div className='d-flex align-items-end' style={{marginBottom: '1rem'}}>
             <h4 className='my-0' style={{fontStyle: 'italic', marginRight: '1rem'}}>{'Versión ' + dataRevision.version}</h4>
             <StatusBadge status={dataRevision.estado}/>
@@ -229,8 +237,20 @@ export const ReviewResultado = () => {
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + dataRevision.version}</h5>
                   </div>
                 }
-                <CompareValue  title={'Código:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
+                <CompareValue  title={'Nombre del Indicador:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
                 <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare}/>
+                <CompareValue  title={'Tipo de Indicador:'} value={dataRevision.tipoIndicador} original={original?.tipoIndicador} compare={compare}/>
+                <CompareValue  title={'Frecuencia:'} value={dataRevision.frecuencia} original={original?.frecuencia} compare={compare}/>
+                <CompareValue  title={'Unidad de Medida:'} value={dataRevision.medida} original={original?.medida} compare={compare}/>
+                <CompareValue  title={'Meta LOP'} 
+                  value={dataRevision.medida === 'Monetario' ? dataRevision.metas['LOP']['Total'].toLocaleString('en-US', currencyFormat) : dataRevision.metas['LOP']['Total']} 
+                  original={original?.medida === 'Monetario' ? original?.metas['LOP']['Total'].toLocaleString('en-US', currencyFormat) : original?.metas['LOP']['Total']} 
+                  compare={compare}/>
+                <CompareMetas year={'AF24'} medida={dataRevision.medida} metas={dataRevision.metas['AF24']} original={original?.metas['AF24']} compare={compare}/>
+                <CompareMetas year={'AF25'} medida={dataRevision.medida} metas={dataRevision.metas['AF25']} original={original?.metas['AF25']} compare={compare}/>
+                <CompareMetas year={'AF26'} medida={dataRevision.medida} metas={dataRevision.metas['AF26']} original={original?.metas['AF26']} compare={compare}/>
+                <CompareMetas year={'AF27'} medida={dataRevision.medida} metas={dataRevision.metas['AF27']} original={original?.metas['AF27']} compare={compare}/>
+                <CompareMetas year={'AF28'} medida={dataRevision.medida} metas={dataRevision.metas['AF28']} original={original?.metas['AF28']} compare={compare}/>
               </Col>
               {
                 compare &&
@@ -238,8 +258,20 @@ export const ReviewResultado = () => {
                   <div className="mb-3">
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + original.version}</h5>
                   </div>
-                  <CompareValue  title={'Código:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
+                  <CompareValue  title={'Nombre del Indicador:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
                   <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare} hidden/>
+                  <CompareValue  title={'Tipo de Indicador:'} value={dataRevision.tipoIndicador} original={original?.tipoIndicador} compare={compare} hidden/>
+                  <CompareValue  title={'Frecuencia:'} value={dataRevision.frecuencia} original={original?.frecuencia} compare={compare} hidden/>
+                  <CompareValue  title={'Unidad de Medida:'} value={dataRevision.medida} original={original?.medida} compare={compare} hidden/>
+                  <CompareValue  title={'Meta LOP'} 
+                    value={dataRevision.medida === 'Monetario' ? dataRevision.metas['LOP']['Total'].toLocaleString('en-US', currencyFormat) : dataRevision.metas['LOP']['Total']} 
+                    original={original?.medida === 'Monetario' ? original?.metas['LOP']['Total'].toLocaleString('en-US', currencyFormat) : original?.metas['LOP']['Total']} 
+                    compare={compare} hidden/>
+                  <CompareMetas year={'AF24'} medida={dataRevision.medida} metas={dataRevision.metas['AF24']} original={original?.metas['AF24']} compare={compare} hidden/>
+                  <CompareMetas year={'AF25'} medida={dataRevision.medida} metas={dataRevision.metas['AF25']} original={original?.metas['AF25']} compare={compare} hidden/>
+                  <CompareMetas year={'AF26'} medida={dataRevision.medida} metas={dataRevision.metas['AF26']} original={original?.metas['AF26']} compare={compare} hidden/>
+                  <CompareMetas year={'AF27'} medida={dataRevision.medida} metas={dataRevision.metas['AF27']} original={original?.metas['AF27']} compare={compare} hidden/>
+                  <CompareMetas year={'AF28'} medida={dataRevision.medida} metas={dataRevision.metas['AF28']} original={original?.metas['AF28']} compare={compare} hidden/>
                 </Col>
               }
             </Row>
@@ -273,9 +305,9 @@ export const ReviewResultado = () => {
               <ReviewButton  charging={charging} dataRevision={dataRevision} handleSubmit={handleSubmit}/>
             }
             {
-              user.userPermisos?.acciones['Resultados']['Eliminar'] 
+              user.userPermisos?.acciones['Indicadores']['Eliminar'] 
               &&
-              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}es`} handleSubmit={handleSubmit}/>
             }
             <p style={{color: 'red'}}>{errorMessage}</p>
           </Form>
@@ -283,7 +315,7 @@ export const ReviewResultado = () => {
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={()=>{}} departamento={{...dataRevision, id: original?._id}} fixing/>
+      <EditSectores handleClose={handleCloseEdit} setRefetchData={()=>{}} sector={{...dataRevision, id: original?._id}} fixing/>
     </Modal>
     </>
   )

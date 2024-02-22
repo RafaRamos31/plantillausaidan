@@ -11,18 +11,17 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
-import { EditDepartamento } from '../../modals/EditDepartamento';
+import { EditMunicipio } from '../../modals/EditMunicipio';
 import { UserContext } from '../../../contexts/UserContext';
-import { PlanNavBar } from '../../../components/navBars/PlanNavBar';
+import { IndicadoresNavBar } from '../../../components/navBars/IndicadoresNavBar';
+import { Box, Chip, Tooltip } from '@mui/material';
 
-export const ReviewResultado = () => {
+export const ReviewAreaTematica = () => {
   const { idRevision } = useParams();
-  const endpoint = 'resultado'
-
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`areatematica/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -38,7 +37,7 @@ export const ReviewResultado = () => {
   //Obtener datos de Original
   useEffect(() => {
     if(dataRevision && dataRevision.original){
-      setQueryOriginal(`${endpoint}/${dataRevision.original}`)
+      setQueryOriginal(`areatematica/${dataRevision.original}`)
       setRefetchOriginal(true)
     }
     else{
@@ -69,7 +68,7 @@ export const ReviewResultado = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/resultados', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody(`revisiones/areastematicas`, values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -89,8 +88,8 @@ export const ReviewResultado = () => {
     handleRefetch()
     setCharging(false)
     setShowToast(true)
-    actualizarTitulo(`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} Revisado`)
-    setContent(`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} revisado correctamente.`)
+    actualizarTitulo(`Área Temática Revisada`)
+    setContent(`Área Temática revisada correctamente.`)
     setVariant('success')
   }
 
@@ -126,16 +125,16 @@ export const ReviewResultado = () => {
 
   return (
     <>
-    <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={PlanNavBar} breadcrumbs={[
+    <Layout pagina={`Revisión Área Temática`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
-        {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/resultados', nombre: 'Resultados'},
-        {link: '/reviews/resultados', nombre: 'Revisiones'},
-        {link: `/reviews/resultados/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+        {link: '/indicadores', nombre: 'Indicadores'},
+        {link: '/indicadores/areas', nombre: 'Áreas Temáticas'},
+        {link: '/reviews/areastematicas', nombre: 'Revisiones'},
+        {link: `/reviews/areastematicas/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
-        <h2><i className="bi bi-bar-chart-fill"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
+          <h2><i className="bi bi-diagram-3-fill"></i>{`Área Temática`}</h2>
           <div className='d-flex align-items-end' style={{marginBottom: '1rem'}}>
             <h4 className='my-0' style={{fontStyle: 'italic', marginRight: '1rem'}}>{'Versión ' + dataRevision.version}</h4>
             <StatusBadge status={dataRevision.estado}/>
@@ -231,6 +230,14 @@ export const ReviewResultado = () => {
                 }
                 <CompareValue  title={'Código:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
                 <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare}/>
+                <p  className='mb-1' style={{fontWeight: 'bold'}}>{'Indicadores:'}</p>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {dataRevision.indicadores.map((indicador) => (
+                    <Tooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
+                      <Chip label={indicador.nombre} style={{cursor: 'pointer'}}/>
+                    </Tooltip>
+                  ))}
+                </Box>
               </Col>
               {
                 compare &&
@@ -240,6 +247,14 @@ export const ReviewResultado = () => {
                   </div>
                   <CompareValue  title={'Código:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
                   <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare} hidden/>
+                  <p  className='mb-1' style={{fontWeight: 'bold'}}>{'Indicadores:'}</p>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {original?.indicadores.map((indicador) => (
+                      <Tooltip title={indicador.descripcion} placement="top" arrow followCursor>
+                        <Chip key={indicador._id} label={indicador.nombre} style={{cursor: 'pointer'}}/>
+                      </Tooltip>
+                    ))}
+                  </Box>
                 </Col>
               }
             </Row>
@@ -273,9 +288,9 @@ export const ReviewResultado = () => {
               <ReviewButton  charging={charging} dataRevision={dataRevision} handleSubmit={handleSubmit}/>
             }
             {
-              user.userPermisos?.acciones['Resultados']['Eliminar'] 
+              user.userPermisos?.acciones['Áreas Temáticas']['Eliminar'] 
               &&
-              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`${endpoint}s`} handleSubmit={handleSubmit}/>
+              <DeleteButton  charging={charging} dataRevision={dataRevision} type={`areastematicas`} handleSubmit={handleSubmit}/>
             }
             <p style={{color: 'red'}}>{errorMessage}</p>
           </Form>
@@ -283,7 +298,7 @@ export const ReviewResultado = () => {
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={()=>{}} departamento={{...dataRevision, id: original?._id}} fixing/>
+      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={()=>{}} municipio={{...dataRevision, id: original?._id}} fixing/>
     </Modal>
     </>
   )

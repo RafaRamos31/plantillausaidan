@@ -5,7 +5,7 @@ export const IndicadorPaper = ({titulo, descripcion, metas, progresos, medida, y
 
   const icons = {
     'Personas': 'bi-person-fill-add',
-    'Efectivo': 'bi-cash-coin',
+    'Monetario': 'bi-cash-coin',
     'Organizaciones': 'bi-house-add-fill',
     'Porcentaje': 'bi-percent',
   }
@@ -36,7 +36,7 @@ export const IndicadorPaper = ({titulo, descripcion, metas, progresos, medida, y
           </Col>
         </Row>
         {
-          medida === 'Efectivo' ?
+          medida === 'Monetario' ?
           <h5>{`${progresos[year][trimestre].toLocaleString('en-US', currencyFormat)} / ${metas[year][trimestre].toLocaleString('en-US', currencyFormat)}`}</h5>
           :
           <h5>{`${progresos[year][trimestre]} / ${metas[year][trimestre]}`}</h5>

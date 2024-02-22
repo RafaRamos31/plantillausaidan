@@ -27,6 +27,10 @@ import { ReviewsBeneficiarios } from '../views/reviews/ReviewsBeneficiarios'
 import { ReviewBeneficiario } from '../views/reviews/unitarios/ReviewBeneficiario'
 import { ReviewsResultados } from '../views/reviews/ReviewsResultados'
 import { ReviewResultado } from '../views/reviews/unitarios/ReviewResultado'
+import { ReviewsIndicadores } from '../views/reviews/ReviewIndicadores'
+import { ReviewIndicador } from '../views/reviews/unitarios/ReviewIndicador'
+import { ReviewsAreasTematicas } from '../views/reviews/ReviewsAreasTematicas'
+import { ReviewAreaTematica } from '../views/reviews/unitarios/ReviewAreaTematica'
 
 export const ReviewsRouter = () => {
 
@@ -175,6 +179,28 @@ export const ReviewsRouter = () => {
         user.userPermisos?.vistas['Planificación']['Resultados']
         &&
         <Route path="/resultados/:idRevision" element={<ReviewResultado />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Indicadores']['Revisar']
+        &&
+        <Route path="/indicadores" element={<ReviewsIndicadores />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Indicadores']['Indicadores']
+        &&
+        <Route path="/indicadores/:idRevision" element={<ReviewIndicador />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Áreas Temáticas']['Revisar']
+        &&
+        <Route path="/areastematicas" element={<ReviewsAreasTematicas />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Indicadores']['Áreas Temáticas']
+        &&
+        <Route path="/areastematicas/:idRevision" element={<ReviewAreaTematica />}></Route>
       }
       
       <Route path="/*" element={<Navigate to="/" />} />

@@ -2,14 +2,29 @@ import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
-import { useFetchPostBody } from "../../hooks/useFetch.js";
+import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { Box, Chip, FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
 
-export const CrearResultado = ({handleClose, setRefetch}) => {
+export const CrearAreaTematica = ({handleClose, setRefetch}) => {
 
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
+  
+  //Departamento
+  const findParams = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [deptos, setDeptos] = useState([])
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos} = useFetchGetBody('list/indicadores', findParams);
+
+  useEffect(() => {
+    if(deptoData && !isLoadingDeptos){
+      setDeptos(deptoData)
+    } 
+  }, [deptoData, isLoadingDeptos, errorDeptos])
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -18,16 +33,18 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
   const { values, handleChange, setValues } = useForm({
     nombre: '',
     descripcion: '',
+    indicadores: [],
     aprobar: aprove
   });
 
   const handleToggleAprobar = () => {
-    setAprove(!aprove)
+    setAprove(!aprove);
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
+  
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('resultados', {...values, nombre: `IR ${values.nombre}`}) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('areastematicas', {...values, indicadores: JSON.stringify({data: values.indicadores})}) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -43,8 +60,8 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
     handleClose()
     setRefetch()
     setShowToast(true)
-    actualizarTitulo('Resultado Creado')
-    setContent('Resultado guardado correctamente.')
+    actualizarTitulo('Área Temática Creada')
+    setContent('Área Temática guardada correctamente.')
     setVariant('success')
   }
 
@@ -65,7 +82,7 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Crear Resultado</h4>
+      <h4 className="my-1">Crear Área Temática</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
@@ -74,29 +91,59 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
           <Form.Label column sm="4">
             Código:
           </Form.Label>
-          <Col sm="3">
-            <InputGroup>
-              <InputGroup.Text placeholder="IR">{'IR'}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1} onChange={handleChange}/>
-            </InputGroup>
+          <Col sm="8">
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Descripcion:
+            Descripción:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='descripcion' name='descripcion'  as="textarea" rows={4} maxLength={500} value={values.descripcion} onChange={handleChange}/>
+            <Form.Control id='descripcion' name='descripcion' value={values.descripcion} as={'textarea'} rows={3} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
+        <Form.Group as={Row} className="mb-3 my-auto">
+          <Form.Label className="my-auto" column sm="4">
+            Indicadores:
+          </Form.Label>
+          <Col sm="8">
+            <InputGroup>
+              <FormControl className="w-100">
+                <Select
+                  id="indicadores"
+                  name="indicadores"
+                  multiple
+                  onChange={handleChange}
+                  value={values.indicadores}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={deptos.find(depto => depto._id === value).nombre} />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {deptos && deptos.map((depto) => (
+                    <MenuItem key={depto._id} value={depto._id}>
+                      <Tooltip title={depto.descripcion} placement="right" arrow followCursor>
+                        <ListItemText primary={depto.nombre} />
+                      </Tooltip>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </InputGroup>
+          </Col>
+        </Form.Group>
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Resultados']['Revisar']
+        user.userPermisos?.acciones['Áreas Temáticas']['Revisar']
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
-import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
@@ -17,7 +17,7 @@ export const EditResultado = ({handleClose, setRefetchData, resultado, fixing=fa
   //Formulario
   const { values, handleChange, setValues } = useForm({
     idResultado: resultado.id,
-    nombre: resultado.nombre,
+    nombre: resultado.nombre.split(' ')[1],
     descripcion: resultado.descripcion,
     aprobar: aprove
   });
@@ -49,7 +49,7 @@ export const EditResultado = ({handleClose, setRefetchData, resultado, fixing=fa
   const [chargingEdit, setChargingEdit] = useState(false);
   
   //Envio asincrono de formulario de Modificar
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('resultados', values) 
+  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('resultados', {...values, nombre: `IR ${values.nombre}`}) 
 
   const handleUpdate = () => {
     setChargingEdit(true)
@@ -105,8 +105,11 @@ export const EditResultado = ({handleClose, setRefetchData, resultado, fixing=fa
           <Form.Label column sm="4">
             Código:
           </Form.Label>
-          <Col sm="2">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={6} onChange={handleChange}/>
+          <Col sm="3">
+            <InputGroup>
+              <InputGroup.Text placeholder="IR">{'IR'}</InputGroup.Text>
+              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1} onChange={handleChange}/>
+            </InputGroup>
           </Col>
         </Form.Group>
 

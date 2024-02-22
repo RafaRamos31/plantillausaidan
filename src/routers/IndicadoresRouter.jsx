@@ -3,7 +3,7 @@ import { useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
 import { IndIndicadores } from '../views/IndIndicadores'
 import { IndMonitoreo } from '../views/IndMonitoreo'
-import { IndReportes } from '../views/IndReportes'
+import { IndAreasTematicas } from '../views/IndAreasTematicas'
 
 export const IndicadoresRouter = () => {
 
@@ -20,7 +20,7 @@ export const IndicadoresRouter = () => {
       {
         user.userPermisos?.vistas['Indicadores']['Áreas Temáticas']
         &&
-        <Route path="/areas" element={<IndReportes />}></Route>
+        <Route path="/areas" element={<IndAreasTematicas />}></Route>
       }
 
       {
