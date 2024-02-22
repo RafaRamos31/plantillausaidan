@@ -8,7 +8,6 @@ const currencyFormat = {
 };
 
 export const CompareMetas = ({year, medida, metas, original, compare=true, hidden=false}) => {
-  console.log(original)
   return (
     <div className="mb-2">
       <p style={{fontWeight: 'bold'}}>{year}</p>

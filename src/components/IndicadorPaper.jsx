@@ -26,7 +26,7 @@ export const IndicadorPaper = ({titulo, descripcion, metas, progresos, medida, y
         <Row className="d-flex align-items-center">
           <Col xs={11} className="my-auto">
             <ProgressBar>
-              <ProgressBar striped variant={progresos[year][trimestre] > metas[year][trimestre] ? 'danger' : 'success'} 
+              <ProgressBar striped variant={progresos[year][trimestre] > metas[year][trimestre] ? 'warning' : 'success'} 
                 now={Number.isNaN((progresos[year][trimestre] / metas[year][trimestre])) ? 0 : (progresos[year][trimestre] / metas[year][trimestre]) * 100} 
                 label={`${Number.isNaN((progresos[year][trimestre] / metas[year][trimestre])) ? 0 : Number.parseInt((progresos[year][trimestre] / metas[year][trimestre]) * 100)}%`} key={1} />
             </ProgressBar>
