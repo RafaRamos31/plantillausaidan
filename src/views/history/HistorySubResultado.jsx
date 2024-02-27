@@ -2,38 +2,24 @@ import React, { useState, useEffect } from 'react'
 import { Layout } from '../Layout'
 import { useParams } from 'react-router-dom';
 import { Row, Col, Container, Accordion, Alert } from 'react-bootstrap';
-import { useFetchGet, useFetchGetBody } from '../../hooks/useFetch';
+import { useFetchGet } from '../../hooks/useFetch';
 import { Loading } from '../Loading';
 import { AvatarChip } from '../../components/AvatarChip';
 import { StatusBadge } from '../../components/StatusBadge';
 import { CompareValue } from '../../components/CompareValue';
-import { IndicadoresNavBar } from '../../components/navBars/IndicadoresNavBar';
-import { Box, Chip, Tooltip } from '@mui/material';
+import { PlanNavBar } from '../../components/navBars/PlanNavBar';
+import { CompareTooltip } from '../../components/CompareTooltip';
 
-export const HistoryAreaTematica = () => {
+export const HistorySubResultado = () => {
   const { id } = useParams();
+  const endpoint = 'subresultado'
 
   //Peticio de datos a la API
-  const { data, isLoading } = useFetchGet(`revisiones/areatematica/${id}`);
-
-  //Indicadores
-  const findParams = {
-    sort: '{}',
-    filter: '{}'
-  }
-  const [indicadores, setIndicadores] = useState([])
-  const { data: indicadoresData, isLoading: isLoadingIndicadores} = useFetchGetBody('list/indicadores', findParams);
-
-  useEffect(() => {
-    if(indicadoresData && !isLoadingIndicadores){
-      setIndicadores(indicadoresData)
-    } 
-  }, [indicadoresData, isLoadingIndicadores])
-
+  const { data, isLoading } = useFetchGet(`revisiones/${endpoint}/${id}`);
 
   //Original
   const [original, setOriginal] = useState(null)
-  const { data: originalData, isLoading: isLoadingOriginal, error: errorOriginal } = useFetchGet(`areatematica/${id}`);
+  const { data: originalData, isLoading: isLoadingOriginal, error: errorOriginal } = useFetchGet(`${endpoint}/${id}`);
   
   useEffect(() => {
     if(originalData && !isLoadingOriginal){
@@ -46,15 +32,15 @@ export const HistoryAreaTematica = () => {
   }
 
   return (
-    <Layout pagina={`Historial - Área Temática`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
+    <Layout pagina={`Historial - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={PlanNavBar} breadcrumbs={[
       {link: '/', nombre: 'Inicio'},
-      {link: '/indicadores', nombre: 'Indicadores'},
-      {link: '/indicadores/areastematicas', nombre: 'Áreas Temáticas'},
-      {link: `/historial/areastematicas/${id}`, nombre: `Historial: ${original?.nombre || 'Área Temática'}`}
+      {link: '/planificacion', nombre: 'Planificación'},
+      {link: '/planificacion/subresultados', nombre: 'Sub Resultados'},
+      {link: `/historial/subresultados/${id}`, nombre: `Historial: ${original?.nombre || 'Sub Resultado'}`}
   ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
-          <h2 className='mb-4'><i className="bi bi-clock-history"></i>{` Historial: Areas Temáticas`}</h2>
+          <h2 className='mb-4'><i className="bi bi-clock-history"></i>{` Historial: ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}</h2>
           <Accordion>
             {
               ( original && original.version.split('.')[0] > data[0].version.split('.')[0]) &&
@@ -119,19 +105,12 @@ export const HistoryAreaTematica = () => {
                     <Container style={{border: '1px solid lightgray', padding: '1.5rem', borderRadius: '10px', marginTop: '0.2rem'}}>
                       <Row>
                         <Col md={6}>
-                          <CompareValue  title={'Nombre del Indicador:'} value={rev.nombre} original={original?.nombre} compare={false}/>
+                          <CompareValue  title={'Código:'} value={rev.nombre} original={original?.nombre} compare={false}/>
                           <CompareValue  title={'Descripción:'} value={rev.descripcion} original={original?.descripcion} compare={false}/>
-                          <p  className='mb-1' style={{fontWeight: 'bold'}}>{'Indicadores:'}</p>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {rev.indicadores.map((id) => {
-                              const indicador = indicadores.find(ind => ind._id === id);
-                              return (
-                                <Tooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
-                                  <Chip label={indicador.nombre} style={{cursor: 'help'}}/>
-                                </Tooltip>
-                              )
-                            })}
-                          </Box>
+                          <CompareTooltip  title={'Resultado:'} 
+                            value={rev.resultado.nombre} valueTooltip={rev.resultado.descripcion}
+                            original={original?.resultado.nombre} originalTooltip={original?.resultado.descripcion}
+                            compare={false}/>
                         </Col>
                       </Row>
                     </Container>
@@ -227,18 +206,12 @@ export const HistoryAreaTematica = () => {
                   </Accordion.Header>
                   <Accordion.Body className='px-0 py-0'>
                     <Container  className='mx-0 my-0' style={{padding: '1.5rem'}}>
-                      <CompareValue  title={'Nombre del Indicador:'} value={original.nombre} original={original?.nombre} compare={false}/>
+                      <CompareValue  title={'Código:'} value={original.nombre} original={original?.nombre} compare={false}/>
                       <CompareValue  title={'Descripción:'} value={original.descripcion} original={original?.descripcion} compare={false}/>
-                      <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Indicadores:</p>
-                      <Box>
-                        {
-                          original && original?.indicadores.map(indicador => (
-                            <Tooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
-                              <Chip key={indicador._id} className="mx-1" label={indicador.nombre} style={{cursor: 'help'}}/>
-                            </Tooltip>
-                          ))
-                        }
-                      </Box>
+                      <CompareTooltip  title={'Resultado:'} 
+                      value={original?.resultado.nombre} valueTooltip={original?.resultado.descripcion}
+                      original={original?.resultado.nombre} originalTooltip={original?.resultado.descripcion}
+                      compare={false}/>
                     </Container>
                   </Accordion.Body>
                 </Accordion.Item>

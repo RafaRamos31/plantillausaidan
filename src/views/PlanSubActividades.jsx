@@ -1,19 +1,20 @@
+import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
-import { EditMunicipio } from "./modals/EditMunicipio.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
-import { UserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
+import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
-import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
-import { CrearTarea } from "./modals/CrearTarea.jsx";
+import { Chip, Tooltip as MuiTooltip } from "@mui/material";
+import { CrearSubActividad } from "./modals/CrearSubActividad.jsx";
+import { EditSubActividad } from "./modals/EditSubActividad.jsx";
 
-export const PlanTareas = () => {
-  const endpoint = 'tarea'
+export const PlanSubActividades = () => {
+  const endpoint = 'subactividad'
   const {user} = useContext(UserContext)
 
   //Estilo de boton
@@ -53,7 +54,7 @@ export const PlanTareas = () => {
   //Boton Cambios
   const navigate = useNavigate();
   const handleReview = () => {
-    navigate(`/reviews/${endpoint}s`)
+    navigate(`/reviews/${endpoint}es`)
   }
 
   //Modal crear
@@ -70,46 +71,80 @@ export const PlanTareas = () => {
   const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 50, filterable: false },
-    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.', 
+    { field: 'id', headerName: '#', width: 50, filterable: false},
+    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.',
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
-    { field: 'nombre', headerName: 'Nombre del Municipio', width: 250,
+    { field: 'nombre', headerName: 'Código', width: 100,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       ),
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'municipios'} 
+            type={'subactividades'} 
             id={params.row._id}
             nombre={params.formattedValue}
           />
         );
       } 
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' ,
+    { field: 'descripcion', headerName: 'Descripción', width: 600, 
       filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'contains',
+      (operator) => operator.value === 'contains',
       )},
-    { field: 'departamento', headerName: 'uuid Departamento', width: 250},
-    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'departamentos'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
+    { field: 'resultado', headerName: 'Resultado', width: 100, filterable: false,
+    renderCell: (params) => {
+      const resultado = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={resultado.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{resultado.nombre}</p>
+        </MuiTooltip>
+      );
+    } 
     },
-    { field: 'version', headerName: 'Versión', width: 100, filterable: false },
+    { field: 'subresultado', headerName: 'Sub Resultado', width: 120, filterable: false,
+    renderCell: (params) => {
+      const resultado = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={resultado.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{resultado.nombre}</p>
+        </MuiTooltip>
+      );
+    } 
+    },
+    { field: 'actividad', headerName: 'Actividad', width: 100, filterable: false,
+    renderCell: (params) => {
+      const resultado = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={resultado.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{resultado.nombre}</p>
+        </MuiTooltip>
+      );
+    } 
+    },
+    { field: 'componentes', headerName: 'Componentes', width: 200, filterable: false,
+      renderCell: (params) => (
+        JSON.parse(params.formattedValue).map(componente => (
+          <MuiTooltip key={componente._id} title={componente.descripcion} placement="top" arrow followCursor>
+            <Chip key={componente._id} className="mx-1" label={componente.nombre} style={{cursor: 'help'}}/>
+          </MuiTooltip>
+        ))
+    )},
+    { field: 'areasTematicas', headerName: 'Áreas Temáticas', width: 400, filterable: false,
+      renderCell: (params) => (
+        JSON.parse(params.formattedValue).map(area => (
+          <MuiTooltip key={area._id} title={area.descripcion} placement="top" arrow followCursor>
+            <Chip key={area._id} className="mx-1" label={area.nombre} style={{cursor: 'help'}}/>
+          </MuiTooltip>
+        ))
+    )},
+    { field: 'version', headerName: 'Versión', width: 100, filterable: false},
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-      { field: 'editor', headerName: 'uuid Editor', width: 250, 
+    { field: 'editor', headerName: 'uuid Editor', width: 250, 
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
@@ -181,14 +216,14 @@ export const PlanTareas = () => {
         return (
           <>
             <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
-              <a href={`/reviews/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+              <a href={`/reviews/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
                 <Button  className='py-1' style={buttonStyle}>
                   <i className="bi bi-eye-fill"></i>{' '}
                 </Button>
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Municipios']['Modificar'] 
+              user.userPermisos?.acciones['Sub Actividades']['Modificar'] 
               &&
               <>
               {
@@ -206,8 +241,12 @@ export const PlanTareas = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      idDepartamento: params.row.departamento,
-                      geocode: params.row.geocode
+                      descripcion: params.row.descripcion,
+                      idResultado: JSON.parse(params.row.resultado)?._id,
+                      idSubresultado: JSON.parse(params.row.subresultado)?._id,
+                      idActividad: JSON.parse(params.row.actividad)?._id,
+                      componentes: JSON.parse(params.row.componentes),
+                      areasTematicas: JSON.parse(params.row.areasTematicas),
                     })
                     handleShowEdit()
                   }}>
@@ -218,10 +257,10 @@ export const PlanTareas = () => {
               </>
             }
             {
-              user.userPermisos?.acciones['Municipios']['Ver Historial'] 
+              user.userPermisos?.acciones['Sub Actividades']['Ver Historial'] 
               &&
               <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                <a href={`/historial/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
                   <Button  className='py-1' style={buttonStyle}>
                     <i className="bi bi-clock-history"></i>{' '}
                   </Button>
@@ -253,16 +292,18 @@ export const PlanTareas = () => {
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
-        geocode: item.geocode,
-        departamento: item.departamento._id,
-        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
+        descripcion: item.descripcion,
+        resultado: JSON.stringify(item.resultado),
+        subresultado: JSON.stringify(item.subresultado),
+        actividad: JSON.stringify(item.actividad),
+        componentes: JSON.stringify(item.componentes),
+        areasTematicas: JSON.stringify(item.areasTematicas),
       }
     ))
   )
 
   const hiddenColumns = {
     _id: false,
-    departamento: false,
     version: false,
     fechaEdicion: false,
     editor: false,
@@ -279,15 +320,15 @@ export const PlanTareas = () => {
 
   return(
     <>
-    <Layout pagina={`Planificación - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={PlanNavBar} breadcrumbs={[
+    <Layout pagina={`Planificación - Sub Actividades`} SiteNavBar={PlanNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
         {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/tareas', nombre: 'Tareas'}
+        {link: '/planificacion/subactividades', nombre: 'Sub Actividades'}
     ]}>
       <div className="d-flex gap-2 align-items-center">
-        <h2 className="view-title"><i className="bi bi-list-check"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
-        {/*Boton Actualizar*/}
-        {
+      <h2 className="view-title"><i className="bi bi-layers"></i>{` Sub Actividades`}</h2>
+      {/*Boton Actualizar*/}
+      {
           !updating ? 
           <Button className='my-2' variant="light" onClick={handleUpdate} style={{height: '3rem'}}>
             <i className="bi bi-arrow-clockwise"></i>
@@ -304,20 +345,20 @@ export const PlanTareas = () => {
           </Button>
         }
       </div>
-
+      
       {/*Boton Agregar*/}
       {
-        user.userPermisos?.acciones['Municipios']['Crear']
+        user.userPermisos?.acciones['Sub Actividades']['Crear']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
+          {`Agregar Sub Actividad`}
         </Button>
       }
 
       {/*Boton Cambios*/}
       {
-        user.userPermisos?.acciones['Municipios']['Revisar']
+        user.userPermisos?.acciones['Sub Actividades']['Revisar']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
@@ -327,7 +368,7 @@ export const PlanTareas = () => {
       
       {/*Boton Deleteds*/}
       {
-        user.userPermisos?.acciones['Municipios']['Ver Eliminados'] 
+        user.userPermisos?.acciones['Sub Actividades']['Ver Eliminados'] 
         &&
         <>
         {
@@ -344,10 +385,10 @@ export const PlanTareas = () => {
         }
         </>
       }
-      
+
       {/*Table Container*/}
       <FormattedGrid 
-        model={`${endpoint}s`} 
+        model={`${endpoint}es`} 
         pageSize={10} 
         pageSizeOptions={[10,20]}
         columns={columns} 
@@ -359,12 +400,11 @@ export const PlanTareas = () => {
       />
 
     </Layout>
-
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={setRefetchData} municipio={currentData}/>
+      <EditSubActividad handleClose={handleCloseEdit} setRefetchData={setRefetchData} subactividad={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearTarea handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
+      <CrearSubActividad handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

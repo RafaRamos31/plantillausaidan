@@ -45,7 +45,7 @@ export const PlanNavBar = () => {
     {
       name: 'Sub Actividades',
       url: '/planificacion/subactividades',
-      dir: 'actividades',
+      dir: 'subactividades',
       icon: 'bi-layers'
     },
     {
@@ -62,8 +62,8 @@ export const PlanNavBar = () => {
     },
     {
       name: 'Trimestres',
-      url: '/planificacion/trimestres',
-      dir: 'trimestres',
+      url: '/planificacion/quarters',
+      dir: 'quarters',
       icon: 'bi-calendar2-week'
     },
     {

@@ -1,19 +1,20 @@
+import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
-import { EditMunicipio } from "./modals/EditMunicipio.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
-import { UserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
+import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
-import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
-import { CrearTarea } from "./modals/CrearTarea.jsx";
+import { Tooltip as MuiTooltip } from "@mui/material";
+import { CrearSubResultado } from "./modals/CrearSubResultado.jsx";
+import { EditSubResultado } from "./modals/EditSubResultado.jsx";
 
-export const PlanTareas = () => {
-  const endpoint = 'tarea'
+export const PlanSubResultados = () => {
+  const endpoint = 'subresultado'
   const {user} = useContext(UserContext)
 
   //Estilo de boton
@@ -70,46 +71,44 @@ export const PlanTareas = () => {
   const [currentData, setCurrentData] = useState({});
 
   const columns = [
-    { field: 'id', headerName: '#', width: 50, filterable: false },
-    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.', 
+    { field: 'id', headerName: '#', width: 50, filterable: false},
+    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.',
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
-    { field: 'nombre', headerName: 'Nombre del Municipio', width: 250,
+    { field: 'nombre', headerName: 'Código', width: 100,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       ),
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'municipios'} 
+            type={'subresultados'} 
             id={params.row._id}
             nombre={params.formattedValue}
           />
         );
       } 
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' ,
+    { field: 'descripcion', headerName: 'Descripción', width: 600, 
       filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'contains',
+      (operator) => operator.value === 'contains',
       )},
-    { field: 'departamento', headerName: 'uuid Departamento', width: 250},
-    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'departamentos'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
+    { field: 'resultado', headerName: 'Resultado', width: 150, filterable: false,
+    renderCell: (params) => {
+      const resultado = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={resultado.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{resultado.nombre}</p>
+        </MuiTooltip>
+      );
+    } 
     },
-    { field: 'version', headerName: 'Versión', width: 100, filterable: false },
+    { field: 'version', headerName: 'Versión', width: 100, filterable: false},
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-      { field: 'editor', headerName: 'uuid Editor', width: 250, 
+    { field: 'editor', headerName: 'uuid Editor', width: 250, 
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
@@ -188,7 +187,7 @@ export const PlanTareas = () => {
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Municipios']['Modificar'] 
+              user.userPermisos?.acciones['Sub Resultados']['Modificar'] 
               &&
               <>
               {
@@ -206,8 +205,8 @@ export const PlanTareas = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      idDepartamento: params.row.departamento,
-                      geocode: params.row.geocode
+                      descripcion: params.row.descripcion,
+                      idResultado: JSON.parse(params.row.resultado)?._id
                     })
                     handleShowEdit()
                   }}>
@@ -218,7 +217,7 @@ export const PlanTareas = () => {
               </>
             }
             {
-              user.userPermisos?.acciones['Municipios']['Ver Historial'] 
+              user.userPermisos?.acciones['Sub Resultados']['Ver Historial'] 
               &&
               <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
                 <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
@@ -253,16 +252,14 @@ export const PlanTareas = () => {
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
-        geocode: item.geocode,
-        departamento: item.departamento._id,
-        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
+        descripcion: item.descripcion,
+        resultado: JSON.stringify(item.resultado)
       }
     ))
   )
 
   const hiddenColumns = {
     _id: false,
-    departamento: false,
     version: false,
     fechaEdicion: false,
     editor: false,
@@ -279,15 +276,15 @@ export const PlanTareas = () => {
 
   return(
     <>
-    <Layout pagina={`Planificación - ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={PlanNavBar} breadcrumbs={[
+    <Layout pagina={`Planificación - Sub Resultados`} SiteNavBar={PlanNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
         {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/tareas', nombre: 'Tareas'}
+        {link: '/planificacion/subresultados', nombre: 'Sub Resultados'}
     ]}>
       <div className="d-flex gap-2 align-items-center">
-        <h2 className="view-title"><i className="bi bi-list-check"></i>{` ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h2>
-        {/*Boton Actualizar*/}
-        {
+      <h2 className="view-title"><i className="bi bi-bar-chart-line"></i>{` Sub Resultados`}</h2>
+      {/*Boton Actualizar*/}
+      {
           !updating ? 
           <Button className='my-2' variant="light" onClick={handleUpdate} style={{height: '3rem'}}>
             <i className="bi bi-arrow-clockwise"></i>
@@ -304,20 +301,20 @@ export const PlanTareas = () => {
           </Button>
         }
       </div>
-
+      
       {/*Boton Agregar*/}
       {
-        user.userPermisos?.acciones['Municipios']['Crear']
+        user.userPermisos?.acciones['Sub Resultados']['Crear']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
+          {`Agregar Sub Resultado`}
         </Button>
       }
 
       {/*Boton Cambios*/}
       {
-        user.userPermisos?.acciones['Municipios']['Revisar']
+        user.userPermisos?.acciones['Sub Resultados']['Revisar']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
@@ -327,7 +324,7 @@ export const PlanTareas = () => {
       
       {/*Boton Deleteds*/}
       {
-        user.userPermisos?.acciones['Municipios']['Ver Eliminados'] 
+        user.userPermisos?.acciones['Sub Resultados']['Ver Eliminados'] 
         &&
         <>
         {
@@ -344,7 +341,7 @@ export const PlanTareas = () => {
         }
         </>
       }
-      
+
       {/*Table Container*/}
       <FormattedGrid 
         model={`${endpoint}s`} 
@@ -359,12 +356,11 @@ export const PlanTareas = () => {
       />
 
     </Layout>
-
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={setRefetchData} municipio={currentData}/>
+      <EditSubResultado handleClose={handleCloseEdit} setRefetchData={setRefetchData} subresultado={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearTarea handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
+      <CrearSubResultado handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

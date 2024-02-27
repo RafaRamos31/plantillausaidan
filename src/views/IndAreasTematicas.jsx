@@ -94,7 +94,7 @@ export const IndAreasTematicas = () => {
       renderCell: (params) => (
         JSON.parse(params.formattedValue).map(indicador => (
           <MuiTooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
-            <Chip key={indicador._id} className="mx-1" label={indicador.nombre} style={{cursor: 'pointer'}}/>
+            <Chip key={indicador._id} className="mx-1" label={indicador.nombre} style={{cursor: 'help'}}/>
           </MuiTooltip>
         ))
     )},

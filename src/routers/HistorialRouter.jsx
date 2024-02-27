@@ -16,6 +16,9 @@ import { HistoryBeneficiario } from '../views/history/HistoryBeneficiario'
 import { HistoryResultado } from '../views/history/HistoryResultado'
 import { HistoryIndicador } from '../views/history/HistoryIndicadores'
 import { HistoryAreaTematica } from '../views/history/HistoryAreasTematicas'
+import { HistorySubResultado } from '../views/history/HistorySubResultado'
+import { HistoryActividad } from '../views/history/HistoryActividad'
+import { HistorySubActividad } from '../views/history/HistorySubActividad'
 
 export const HistorialRouter = () => {
 
@@ -84,11 +87,6 @@ export const HistorialRouter = () => {
         <Route path="/beneficiarios/:id" element={<HistoryBeneficiario />}></Route>
       }
       {
-        user.userPermisos?.acciones['Resultados']['Ver Historial']
-        &&
-        <Route path="/resultados/:id" element={<HistoryResultado />}></Route>
-      }
-      {
         user.userPermisos?.acciones['Indicadores']['Ver Historial']
         &&
         <Route path="/indicadores/:id" element={<HistoryIndicador />}></Route>
@@ -97,6 +95,26 @@ export const HistorialRouter = () => {
         user.userPermisos?.acciones['Áreas Temáticas']['Ver Historial']
         &&
         <Route path="/areastematicas/:id" element={<HistoryAreaTematica />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Resultados']['Ver Historial']
+        &&
+        <Route path="/resultados/:id" element={<HistoryResultado />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Sub Resultados']['Ver Historial']
+        &&
+        <Route path="/subresultados/:id" element={<HistorySubResultado />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Actividades']['Ver Historial']
+        &&
+        <Route path="/actividades/:id" element={<HistoryActividad />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Sub Actividades']['Ver Historial']
+        &&
+        <Route path="/subactividades/:id" element={<HistorySubActividad />}></Route>
       }
 
       <Route path="/*" element={<Navigate to="/" />} />

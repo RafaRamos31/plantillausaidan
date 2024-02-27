@@ -31,6 +31,12 @@ import { ReviewsIndicadores } from '../views/reviews/ReviewIndicadores'
 import { ReviewIndicador } from '../views/reviews/unitarios/ReviewIndicador'
 import { ReviewsAreasTematicas } from '../views/reviews/ReviewsAreasTematicas'
 import { ReviewAreaTematica } from '../views/reviews/unitarios/ReviewAreaTematica'
+import { ReviewsSubResultados } from '../views/reviews/ReviewsSubResultados'
+import { ReviewSubResultado } from '../views/reviews/unitarios/ReviewSubResultado'
+import { ReviewsActividades } from '../views/reviews/ReviewsActividades'
+import { ReviewActividad } from '../views/reviews/unitarios/ReviewActividad'
+import { ReviewsSubActividades } from '../views/reviews/ReviewsSubActividades'
+import { ReviewSubActividad } from '../views/reviews/unitarios/ReviewSubActividad'
 
 export const ReviewsRouter = () => {
 
@@ -171,17 +177,6 @@ export const ReviewsRouter = () => {
       }
 
       {
-        user.userPermisos?.acciones['Resultados']['Revisar']
-        &&
-        <Route path="/resultados" element={<ReviewsResultados />}></Route>
-      }
-      {
-        user.userPermisos?.vistas['Planificación']['Resultados']
-        &&
-        <Route path="/resultados/:idRevision" element={<ReviewResultado />}></Route>
-      }
-
-      {
         user.userPermisos?.acciones['Indicadores']['Revisar']
         &&
         <Route path="/indicadores" element={<ReviewsIndicadores />}></Route>
@@ -201,6 +196,50 @@ export const ReviewsRouter = () => {
         user.userPermisos?.vistas['Indicadores']['Áreas Temáticas']
         &&
         <Route path="/areastematicas/:idRevision" element={<ReviewAreaTematica />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Resultados']['Revisar']
+        &&
+        <Route path="/resultados" element={<ReviewsResultados />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Planificación']['Resultados']
+        &&
+        <Route path="/resultados/:idRevision" element={<ReviewResultado />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Sub Resultados']['Revisar']
+        &&
+        <Route path="/subresultados" element={<ReviewsSubResultados />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Planificación']['Sub Resultados']
+        &&
+        <Route path="/subresultados/:idRevision" element={<ReviewSubResultado />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Actividades']['Revisar']
+        &&
+        <Route path="/actividades" element={<ReviewsActividades />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Planificación']['Actividades']
+        &&
+        <Route path="/actividades/:idRevision" element={<ReviewActividad />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Sub Actividades']['Revisar']
+        &&
+        <Route path="/subactividades" element={<ReviewsSubActividades />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Planificación']['Sub Actividades']
+        &&
+        <Route path="/subactividades/:idRevision" element={<ReviewSubActividad />}></Route>
       }
       
       <Route path="/*" element={<Navigate to="/" />} />
