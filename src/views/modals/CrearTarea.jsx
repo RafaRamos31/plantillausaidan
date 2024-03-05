@@ -2,14 +2,11 @@ import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
-import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
+import { useFetchGet, useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
-import { Box, Chip, FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
 
-import moment from "moment/moment.js";
 
 export const CrearTarea = ({handleClose, setRefetch}) => {
 
@@ -21,13 +18,16 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
-    idResultado: '',
-    idSubresultado: '',
-    idActividad: '',
+    idComponente: '',
+    idSubActividad: '',
     nombre: '',
     descripcion: '',
-    componentes: [],
-    areasTematicas: [],
+    idYear: '',
+    idQuarter: '',
+    lugar: '',
+    unidadMedida: '',
+    gastosEstimados: 0,
+    cantidadProgramada: 0,
     aprobar: aprove
   });
 
@@ -36,146 +36,98 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
-  //Componentes
-  const findParamsComponentes = {
+  //Years
+  const findParamsYears = {
     sort: '{}',
     filter: '{}'
   }
-  const [componentes, setComponentes] = useState([])
-  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes} = useFetchGetBody('list/componentes', findParamsComponentes);
+  const [years, setYears] = useState([])
+  const { data: yearsData, isLoading: isLoadingYears, error: errorYears} = useFetchGetBody('list/years', findParamsYears);
 
   useEffect(() => {
-    if(componentesData && !isLoadingComponentes){
-      setComponentes(componentesData)
+    if(yearsData && !isLoadingYears){
+      setYears(yearsData)
     } 
-  }, [componentesData, isLoadingComponentes, errorComponentes])
+  }, [yearsData, isLoadingYears, errorYears])
 
-
-  //Areas Tematicas
-  const findParamsAreas = {
-    sort: '{}',
-    filter: '{}'
-  }
-  const [areas, setAreas] = useState([])
-  const { data: areasData, isLoading: isLoadingAreas, error: errorAreas} = useFetchGetBody('list/areasTematicas', findParamsAreas);
-
-  useEffect(() => {
-    if(areasData && !isLoadingAreas){
-      setAreas(areasData)
-    } 
-  }, [areasData, isLoadingAreas, errorAreas])
-
-
-  //Resultados
-  const findParams = {
-    sort: '{}',
-    filter: '{}'
-  }
-  const [resultados, setResultados] = useState([])
-  const { data: resultadosData, isLoading: isLoadingResultados} = useFetchGetBody('list/resultados', findParams);
-
-  useEffect(() => {
-    if(resultadosData && !isLoadingResultados){
-      setResultados(resultadosData)
-    } 
-  }, [resultadosData, isLoadingResultados])
-
-  //Sub resultados
-  const [findParamsSubResultados, setfindParamsSubResultados] = useState({
+  //Trimestres
+  const [findParamsQuarters, setFindParamsQuarters] = useState({
     sort: '{}',
     filter: '{}'
   })
-  const [subresultados, setSubresultados] = useState([])
-  const [querySubresultados, setquerySubresultados] = useState('')
-  const { data: subresultadosData, isLoading: isLoadingSubResultados, setRefetch: setRefetchSubResultados } = useFetchGetBody(querySubresultados, findParamsSubResultados);
+  const [quarters, setQuarters] = useState([])
+  const [queryQuarters, setQueryQuarters] = useState('')
+  const { data: quartersData, isLoading: isLoadingQuarters, setRefetch: setRefetchQuarters } = useFetchGetBody(queryQuarters, findParamsQuarters);
 
   //Accion Update manual
   useEffect(() => {
-    if(subresultadosData && !isLoadingSubResultados && values.idResultado){
-      setSubresultados(subresultadosData)
+    if(quartersData && !isLoadingQuarters && values.idYear){
+      setQuarters(quartersData)
     } 
-  }, [subresultadosData, isLoadingSubResultados, values.idResultado])
+  }, [quartersData, isLoadingQuarters, values.idYear])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idResultado && values.idResultado.length > 0){
-      setfindParamsSubResultados({
+    if(values.idYear && values.idYear.length > 0){
+      setFindParamsQuarters({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'resultado',
-          value: values.idResultado
+          field: 'year',
+          value: values.idYear
         })
       })
-      setquerySubresultados('list/subresultados');
-      setRefetchSubResultados(true);
-      setValues({ ...values, nombre: '' });
+      setQueryQuarters('list/quarters');
+      setRefetchQuarters(true);
+      setValues({ ...values });
     }
     else{
-      setSubresultados([])
+      setQuarters([])
     }
     // eslint-disable-next-line
-  }, [values.idResultado, setValues, setRefetchSubResultados])
+  }, [values.idYear, setValues, setRefetchQuarters])
 
 
-  //Actividades
-  const [findParamsActividades, setFindParamsActividades] = useState({
+  //General config
+  const { data: dataConfig, isLoading: isLoadingConfig, error: errorConfig } = useFetchGet('config');
+
+  //Sub actividades
+  const [findParamsSubActividades, setFindParamsSubActividades] = useState({
     sort: '{}',
     filter: '{}'
   })
-  const [actividades, setActividades] = useState([])
-  const [queryActividades, setQueryActividades] = useState('')
-  const { data: actividadesData, isLoading: isLoadingActividades, setRefetch: setRefetchActividades } = useFetchGetBody(queryActividades, findParamsActividades);
+  const [subActividades, setSubActividades] = useState([])
+  const [querySubActividades, setQuerySubActividades] = useState('')
+  const { data: subActividadesData, isLoading: isLoadingSubActividades, setRefetch: setRefetchSubActividades } = useFetchGetBody(querySubActividades, findParamsSubActividades);
 
-  //Accion Update manual
   useEffect(() => {
-    if(actividadesData && !isLoadingActividades && values.idSubresultado){
-      setActividades(actividadesData)
-    } 
-  }, [actividadesData, isLoadingActividades, values.idSubresultado])
-
-  //Editar Lista de Actividades en Formulario
-  useEffect(() => {
-    if(values.idSubresultado && values.idSubresultado.length > 0){
-      setFindParamsActividades({
+    if(user && user.userComponente && dataConfig && !isLoadingConfig){
+      setFindParamsSubActividades({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'subresultado',
-          value: values.idSubresultado
+          field: 'componentes',
+          value: user.userComponente
         })
       })
-      setQueryActividades('list/actividades');
-      setRefetchActividades(true);
-      setValues({ ...values, nombre: '' });
+      setQuerySubActividades('list/subactividades');
+      setRefetchSubActividades(true);
+      setValues({...values, idComponente: user.userComponente, idYear: dataConfig.currentYear})
     }
-    else{
-      setActividades([])
-    }
-    // eslint-disable-next-line
-  }, [values.idSubresultado, setValues, setRefetchActividades])
+  // eslint-disable-next-line
+  }, [dataConfig, isLoadingConfig, errorConfig, setRefetchSubActividades, user])
+  
 
-
-   //Editar Codigo en Formulario
-  const [codigo, setCodigo] = useState('--.--.-- ')
-
+  //Accion Update manual
   useEffect(() => {
-
-    if(values.idActividad && values.idActividad.length > 0){
-      setCodigo(`${actividades.find(actividad => actividad._id === values.idActividad)?.nombre || '--.--.--'} `)
-    }
-    else{
-      setCodigo('--.--.-- ')
-    }
-    
-  }, [values, actividades])
+    if(subActividadesData && !isLoadingSubActividades){
+      setSubActividades(subActividadesData)
+    } 
+  }, [subActividadesData, isLoadingSubActividades])
+  
 
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('subactividades', {...values, 
-    nombre: `${codigo}${values.nombre}`,
-    componentes: JSON.stringify({data: values.componentes}),
-    areasTematicas: JSON.stringify({data: values.areasTematicas}),
-  }) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('tareas', values) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -191,8 +143,8 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     handleClose()
     setRefetch()
     setShowToast(true)
-    actualizarTitulo('Sub Actividad Creada')
-    setContent('Sub Actividad guardada correctamente.')
+    actualizarTitulo('Tarea Creada')
+    setContent('Tarea guardada correctamente.')
     setVariant('success')
   }
 
@@ -219,88 +171,20 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     <Card.Body>
       <Form onSubmit={handleCreate}>
 
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <DatePicker 
-        defaultValue={moment('2022-04-17')}
-        format="DD/MM/YYYY"
-        minDate={moment('2022-04-16')}
-        maxDate={moment('2022-05-18')}
-        />
-
-      <DatePicker 
-        defaultValue={moment('2022-04-17')}
-        format="DD/MM/YYYY"
-        minDate={moment('2022-04-16')}
-        maxDate={moment('2022-05-18')}
-        />
-      </LocalizationProvider>
-
       <Form.Group as={Row} className="mb-3 my-auto">
           <Form.Label className="my-auto" column sm="4">
-            Resultado:
+            Sub Actividad:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idResultado"
-                  name="idResultado"
+                  id="idSubActividad"
+                  name="idSubActividad"
                   onChange={handleChange}
-                  value={values.idResultado}
+                  value={values.idSubActividad}
                 >
-                  {resultados && resultados.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
-                      <Tooltip title={item.descripcion} placement="right" arrow followCursor>
-                        <ListItemText primary={item.nombre} />
-                      </Tooltip>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </InputGroup>
-          </Col>
-        </Form.Group>
-
-        <Form.Group as={Row} className="mb-3 my-auto">
-          <Form.Label className="my-auto" column sm="4">
-            Sub Resultado:
-          </Form.Label>
-          <Col sm="8">
-            <InputGroup>
-              <FormControl className="w-100">
-                <Select
-                  id="idSubresultado"
-                  name="idSubresultado"
-                  onChange={handleChange}
-                  value={values.idSubresultado}
-                >
-                  {subresultados && subresultados.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
-                      <Tooltip title={item.descripcion} placement="right" arrow followCursor>
-                        <ListItemText primary={item.nombre} />
-                      </Tooltip>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </InputGroup>
-          </Col>
-        </Form.Group>
-
-        <Form.Group as={Row} className="mb-3 my-auto">
-          <Form.Label className="my-auto" column sm="4">
-            Actividad:
-          </Form.Label>
-          <Col sm="8">
-            <InputGroup>
-              <FormControl className="w-100">
-                <Select
-                  id="idActividad"
-                  name="idActividad"
-                  onChange={handleChange}
-                  value={values.idActividad}
-                >
-                  {actividades && actividades.map((item) => (
+                  {subActividades && subActividades.map((item) => (
                     <MenuItem key={item._id} value={item._id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
@@ -315,51 +199,96 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Código:
+            Nombre de la Tarea:
           </Form.Label>
-          <Col sm="4">
+          <Col sm="8">
+            <Form.Control id='nombre' name='nombre'  as="textarea" rows={2} maxLength={200} value={values.nombre} onChange={handleChange}/>
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
+            Descripción de la Tarea:
+          </Form.Label>
+          <Col sm="8">
+            <Form.Control id='descripcion' name='descripcion' as="textarea" rows={5} maxLength={500} value={values.descripcion} onChange={handleChange}/>
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className="mb-3 my-auto">
+          <Form.Label className="my-auto" column sm="4">
+            Año Fiscal:
+          </Form.Label>
+          <Col sm="8">
             <InputGroup>
-              <InputGroup.Text placeholder="--.--.-- ">{codigo}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={1} onChange={handleChange}/>
+              <FormControl className="w-100">
+                <Select
+                  id="idYear"
+                  name="idYear"
+                  onChange={handleChange}
+                  value={values.idYear}
+                  disabled
+                >
+                  {years && years.map((item) => (
+                    <MenuItem key={item._id} value={item._id}>
+                      <ListItemText primary={item.nombre} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </InputGroup>
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className="mb-3 my-auto">
+          <Form.Label className="my-auto" column sm="4">
+            Trimestre:
+          </Form.Label>
+          <Col sm="8">
+            <InputGroup>
+              <FormControl className="w-100">
+                <Select
+                  id="idQuarter"
+                  name="idQuarter"
+                  onChange={handleChange}
+                  value={values.idQuarter}
+                >
+                  {quarters && quarters.map((item) => (
+                    <MenuItem key={item._id} value={item._id}>
+                      <ListItemText primary={item.nombre} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </InputGroup>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Descripción:
+            Lugar:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='descripcion' name='descripcion'  as="textarea" rows={4} maxLength={500} value={values.descripcion} onChange={handleChange}/>
+            <Form.Control id='lugar' name='lugar'  as="textarea" rows={2} maxLength={200} value={values.lugar} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3 my-auto">
           <Form.Label className="my-auto" column sm="4">
-            Componentes:
+            Unidad de Medida:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="componentes"
-                  name="componentes"
-                  multiple
+                  id="unidadMedida"
+                  name="unidadMedida"
                   onChange={handleChange}
-                  value={values.componentes}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip key={value} label={componentes.find(componente => componente._id === value).nombre} />
-                      ))}
-                    </Box>
-                  )}
+                  value={values.unidadMedida}
                 >
-                  {componentes && componentes.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
-                      <Tooltip title={item.descripcion} placement="right" arrow followCursor>
-                        <ListItemText primary={item.nombre} />
-                      </Tooltip>
+                  {['Talleres/Capacitación', 'Asistencia Técnica', 'Reunión de Gestión', 'Día de Campo', 'Foro'].map((item) => (
+                    <MenuItem key={item} value={item}>
+                      <ListItemText primary={item} />
                     </MenuItem>
                   ))}
                 </Select>
@@ -368,36 +297,24 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
           </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className="mb-3 my-auto">
-          <Form.Label className="my-auto" column sm="4">
-            Áreas Temáticas:
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
+            Eventos Estimados:
           </Form.Label>
           <Col sm="8">
-            <InputGroup>
-              <FormControl className="w-100">
-                <Select
-                  id="areasTematicas"
-                  name="areasTematicas"
-                  multiple
-                  onChange={handleChange}
-                  value={values.areasTematicas}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip key={value} label={areas.find(area => area._id === value).nombre} />
-                      ))}
-                    </Box>
-                  )}
-                >
-                  {areas && areas.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
-                      <Tooltip title={item.descripcion} placement="right" arrow followCursor>
-                        <ListItemText primary={item.nombre} />
-                      </Tooltip>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Form.Control id='cantidadProgramada' name='cantidadProgramada' type="number" min={0} value={values.cantidadProgramada} onChange={handleChange}/>
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className="mb-3 d-flex align-items-center">
+          <Form.Label column sm="4" className="my-auto">
+            Presupuesto Estimado:
+          </Form.Label>
+          <Col sm="8">
+            <InputGroup className="my-auto">
+              <InputGroup.Text>USD $</InputGroup.Text>
+              <Form.Control id='gastosEstimados' name='gastosEstimados' type="number" min={0} value={values.gastosEstimados} onChange={handleChange}/>
+              <InputGroup.Text>.00</InputGroup.Text>
             </InputGroup>
           </Col>
         </Form.Group>

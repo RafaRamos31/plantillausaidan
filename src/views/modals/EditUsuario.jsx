@@ -110,15 +110,15 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
 
   const handleSuccessEdit = () => {
     if(fixing){
-      navigate('/reviews/municipios/'+dataEdit._id)
+      navigate('/reviews/usuarios/'+dataEdit._id)
       navigate(0)
     }
     else{
       setRefetchData(true)
       handleClose()
       setShowToast(true)
-      actualizarTitulo('Municipio Modificado')
-      setContent('Municipio guardado correctamente.')
+      actualizarTitulo('Usuario Modificado')
+      setContent('Usuario guardado correctamente.')
       setVariant('success')
     }
   }

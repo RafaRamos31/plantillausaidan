@@ -2,7 +2,6 @@ import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { EditMunicipio } from "./modals/EditMunicipio.jsx";
-import { InfoLink } from "../components/InfoLink.jsx";
 import { UserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
@@ -11,6 +10,8 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { CrearTarea } from "./modals/CrearTarea.jsx";
+import { useFetchGet } from "../hooks/useFetch.js";
+import { Tooltip as MuiTooltip } from "@mui/material";
 
 export const PlanTareas = () => {
   const endpoint = 'tarea'
@@ -22,6 +23,16 @@ export const PlanTareas = () => {
     border: '1px solid black',
     borderRadius: '3px',
   };
+
+  const currencyFormat = {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  };
+
+  //General config
+  const { data: dataConfig } = useFetchGet('config');
 
   //Indicador solicitud de recarga de datos en la vista
   const [refetchData, setRefetchData] = useState(false);
@@ -75,36 +86,59 @@ export const PlanTareas = () => {
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
-    { field: 'nombre', headerName: 'Nombre del Municipio', width: 250,
+    { field: 'nombre', headerName: 'Nombre de la Tarea', width: 500,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
-      ),
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'municipios'} 
-            id={params.row._id}
-            nombre={params.formattedValue}
-          />
-        );
-      } 
+      )
     },
-    { field: 'geocode', headerName: 'Geocode', width: 120, description: 'Codigo Unico del Municipio.' ,
+    { field: 'descripcion', headerName: 'Descripción', width: 500,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
-      )},
-    { field: 'departamento', headerName: 'uuid Departamento', width: 250},
-    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'departamentos'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
+      )
     },
+    { field: 'subactividad', headerName: 'Sub Actividad', width: 150, filterable: false,
+    renderCell: (params) => {
+      const subactividad = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={subactividad.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{subactividad.nombre}</p>
+        </MuiTooltip>
+      );
+    }},
+    { field: 'actividad', headerName: 'Actividad', width: 150, filterable: false,
+    renderCell: (params) => {
+      const actividad = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={actividad.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{actividad.nombre}</p>
+        </MuiTooltip>
+      );
+    }},
+    { field: 'subresultado', headerName: 'Sub Resultado', width: 150, filterable: false,
+    renderCell: (params) => {
+      const subresultado = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={subresultado.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{subresultado.nombre}</p>
+        </MuiTooltip>
+      );
+    }},
+    { field: 'resultado', headerName: 'Resultado', width: 150, filterable: false,
+    renderCell: (params) => {
+      const resultado = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={resultado.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{resultado.nombre}</p>
+        </MuiTooltip>
+      );
+    }},
+    { field: 'year', headerName: 'Año Fiscal', width: 150, filterable: false },
+    { field: 'quarter', headerName: 'Trimestre', width: 150, filterable: false },
+    { field: 'lugar', headerName: 'Lugar', width: 300, filterable: false },
+    { field: 'unidadMedida', headerName: 'Unidad de Medida', width: 180, filterable: false },
+    { field: 'cantidadProgramada', headerName: 'Eventos Programados', width: 180, filterable: false },
+    { field: 'cantidadRealizada', headerName: 'Eventos Realizados', width: 150, filterable: false },
+    { field: 'gastosEstimados', headerName: 'Gastos Estimados', width: 150, filterable: false },
     { field: 'version', headerName: 'Versión', width: 100, filterable: false },
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
@@ -188,7 +222,7 @@ export const PlanTareas = () => {
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Municipios']['Modificar'] 
+              user.userPermisos?.acciones['Tareas']['Modificar'] 
               &&
               <>
               {
@@ -218,7 +252,7 @@ export const PlanTareas = () => {
               </>
             }
             {
-              user.userPermisos?.acciones['Municipios']['Ver Historial'] 
+              user.userPermisos?.acciones['Tareas']['Ver Historial'] 
               &&
               <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
                 <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
@@ -253,16 +287,29 @@ export const PlanTareas = () => {
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
-        geocode: item.geocode,
-        departamento: item.departamento._id,
-        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
+        descripcion: item.descripcion,
+        subactividad: JSON.stringify(item.subactividad),
+        actividad: JSON.stringify(item.actividad),
+        subresultado: JSON.stringify(item.subresultado),
+        resultado: JSON.stringify(item.resultado),
+        year: item.year?.nombre,
+        quarter: item.trimestre?.nombre,
+        lugar: item.lugar,
+        unidadMedida: item.unidadMedida,
+        cantidadProgramada: item.cantidadProgramada,
+        cantidadRealizada: item.cantidadRealizada,
+        gastosEstimados: item.gastosEstimados.toLocaleString('en-US', currencyFormat)
       }
     ))
   )
 
   const hiddenColumns = {
     _id: false,
-    departamento: false,
+    descripcion: false,
+    year: false,
+    actividad: false,
+    subresultado: false,
+    resultado: false,
     version: false,
     fechaEdicion: false,
     editor: false,
@@ -307,17 +354,21 @@ export const PlanTareas = () => {
 
       {/*Boton Agregar*/}
       {
-        user.userPermisos?.acciones['Municipios']['Crear']
+        user.userPermisos?.acciones['Tareas']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
-        </Button>
+        <MuiTooltip title={dataConfig?.enableSubirPlanificacion ?  '' : 'La opción de modificar la planificación esta actualmente deshabilidada' } placement="top" arrow followCursor>
+          <div style={{display: 'inline'}}>
+            <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate} disabled={!dataConfig?.enableSubirPlanificacion}>
+              <i className="bi bi-file-earmark-plus"></i>{' '}
+              {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
+            </Button>
+          </div>
+        </MuiTooltip>
       }
 
       {/*Boton Cambios*/}
       {
-        user.userPermisos?.acciones['Municipios']['Revisar']
+        user.userPermisos?.acciones['Tareas']['Revisar']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
@@ -327,7 +378,7 @@ export const PlanTareas = () => {
       
       {/*Boton Deleteds*/}
       {
-        user.userPermisos?.acciones['Municipios']['Ver Eliminados'] 
+        user.userPermisos?.acciones['Tareas']['Ver Eliminados'] 
         &&
         <>
         {

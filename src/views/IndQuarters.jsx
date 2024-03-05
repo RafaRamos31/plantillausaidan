@@ -1,4 +1,3 @@
-import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
@@ -9,12 +8,13 @@ import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
-import { EditResultado } from "./modals/EditResultado.jsx";
-import { CrearYear } from "./modals/CrearYear.jsx";
 import moment from "moment";
+import { IndicadoresNavBar } from "../components/navBars/IndicadoresNavBar.jsx";
+import { CrearQuarter } from "./modals/CrearQuarter.jsx";
+import { EditQuarter } from "./modals/EditQuarter.jsx";
 
-export const PlanYears = () => {
-  const endpoint = 'year'
+export const IndQuarters = () => {
+  const endpoint = 'quarter'
   const {user} = useContext(UserContext)
 
   //Estilo de boton
@@ -83,7 +83,7 @@ export const PlanYears = () => {
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'years'} 
+            type={'resultados'} 
             id={params.row._id}
             nombre={params.formattedValue}
           />
@@ -94,16 +94,17 @@ export const PlanYears = () => {
       renderCell: (params) => {
         return (
           <p>{moment(params.formattedValue).format('DD/MM/YYYY - HH:mm')}</p>
-        );
-      },
+        )
+      }
     },
     { field: 'fechaFinal', headerName: 'Fecha de Finalización', width: 250, filterable: false,
       renderCell: (params) => {
         return (
           <p>{moment(params.formattedValue).format('DD/MM/YYYY - HH:mm')}</p>
-        );
-      },
+        )
+      }
     },
+    { field: 'year', headerName: 'Año Fiscal', width: 100, filterable: false},
     { field: 'version', headerName: 'Versión', width: 100, filterable: false},
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
@@ -187,7 +188,7 @@ export const PlanYears = () => {
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Años Fiscales']['Modificar'] 
+              user.userPermisos?.acciones['Trimestres']['Modificar'] 
               &&
               <>
               {
@@ -205,7 +206,9 @@ export const PlanYears = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      descripcion: params.row.descripcion
+                      idYear: params.row.year,
+                      fechaInicio: params.row.fechaInicio,
+                      fechaFinal: params.row.fechaFinal,
                     })
                     handleShowEdit()
                   }}>
@@ -216,7 +219,7 @@ export const PlanYears = () => {
               </>
             }
             {
-              user.userPermisos?.acciones['Años Fiscales']['Ver Historial'] 
+              user.userPermisos?.acciones['Trimestres']['Ver Historial'] 
               &&
               <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
                 <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
@@ -253,12 +256,14 @@ export const PlanYears = () => {
         nombre: item.nombre,
         fechaInicio: item.fechaInicio,
         fechaFinal: item.fechaFinal,
+        year: item.year?._id
       }
     ))
   )
 
   const hiddenColumns = {
     _id: false,
+    year: false,
     version: false,
     fechaEdicion: false,
     editor: false,
@@ -275,13 +280,13 @@ export const PlanYears = () => {
 
   return(
     <>
-    <Layout pagina={`Planificación - Años Fiscales`} SiteNavBar={PlanNavBar} breadcrumbs={[
+    <Layout pagina={`Indicadores - Trimestres`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
-        {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/years', nombre: 'Años Fiscales'}
+        {link: '/indicadores', nombre: 'Indicadores'},
+        {link: '/indicadores/quarters', nombre: 'Trimestres'}
     ]}>
       <div className="d-flex gap-2 align-items-center">
-      <h2 className="view-title"><i className="bi bi-calendar3"></i>{` Años Fiscales`}</h2>
+      <h2 className="view-title"><i className="bi bi-calendar2-week"></i>{` Trimestres`}</h2>
       {/*Boton Actualizar*/}
       {
           !updating ? 
@@ -303,17 +308,17 @@ export const PlanYears = () => {
       
       {/*Boton Agregar*/}
       {
-        user.userPermisos?.acciones['Años Fiscales']['Crear']
+        user.userPermisos?.acciones['Trimestres']['Crear']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar Año Fiscal`}
+          {`Agregar Trimestre`}
         </Button>
       }
 
       {/*Boton Cambios*/}
       {
-        user.userPermisos?.acciones['Años Fiscales']['Revisar']
+        user.userPermisos?.acciones['Trimestres']['Revisar']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
@@ -323,7 +328,7 @@ export const PlanYears = () => {
       
       {/*Boton Deleteds*/}
       {
-        user.userPermisos?.acciones['Años Fiscales']['Ver Eliminados'] 
+        user.userPermisos?.acciones['Trimestres']['Ver Eliminados'] 
         &&
         <>
         {
@@ -356,10 +361,10 @@ export const PlanYears = () => {
 
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditResultado handleClose={handleCloseEdit} setRefetchData={setRefetchData} resultado={currentData}/>
+      <EditQuarter handleClose={handleCloseEdit} setRefetchData={setRefetchData} quarter={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearYear handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
+      <CrearQuarter handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

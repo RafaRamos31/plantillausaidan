@@ -55,18 +55,6 @@ export const PlanNavBar = () => {
       icon: 'bi-list-check'
     },
     {
-      name: 'Años Fiscales',
-      url: '/planificacion/years',
-      dir: 'years',
-      icon: 'bi-calendar3'
-    },
-    {
-      name: 'Trimestres',
-      url: '/planificacion/quarters',
-      dir: 'quarters',
-      icon: 'bi-calendar2-week'
-    },
-    {
       name: 'Monitoreo',
       url: '/planificacion/monitoreo',
       dir: 'monitoreo',

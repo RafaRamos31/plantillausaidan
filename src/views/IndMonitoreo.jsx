@@ -11,6 +11,7 @@ export const IndMonitoreo = () => {
   const [globalPercent, setGlobalPercent] = useState(0)
   const [year, setYear] = useState('LOP');
   const [trimestre, setTrimestre] = useState('Total');
+  const [mes, setMes] = useState('Total');
 
   //Obtener indicadores
   
@@ -48,6 +49,8 @@ export const IndMonitoreo = () => {
     if(year === 'LOP'){
       setTrimestre('Total')
     }
+
+    setMes('Total');
 
     const suma = indicadores.reduce((acum, indicador) => {
       if(indicador.metas[year][trimestre] === 0){
@@ -92,9 +95,45 @@ export const IndMonitoreo = () => {
         <Button color="success" variant={trimestre === 'T4' ? 'contained' : 'outlined'} onClick={() => setTrimestre('T4')}>T4</Button>
         <Button color="success" variant={trimestre === 'Total' ? 'contained' : 'outlined'} onClick={() => setTrimestre('Total')}>Total</Button>
       </ButtonGroup>
+      <br />
+      <ButtonGroup variant="outlined" className="mb-3" disabled={trimestre==='Total'}>
+        {
+          trimestre === 'T1' &&
+          <>
+            <Button color="success" variant={mes === 'OCT' ? 'contained' : 'outlined'} onClick={() => setMes('OCT')}>OCT</Button>
+            <Button color="success" variant={mes === 'NOV' ? 'contained' : 'outlined'} onClick={() => setMes('NOV')}>NOV</Button>
+            <Button color="success" variant={mes === 'DIC' ? 'contained' : 'outlined'} onClick={() => setMes('DIC')}>DIC</Button>
+          </>
+        }
+        {
+          trimestre === 'T2' &&
+          <>
+            <Button color="success" variant={mes === 'ENE' ? 'contained' : 'outlined'} onClick={() => setMes('ENE')}>ENE</Button>
+            <Button color="success" variant={mes === 'FEB' ? 'contained' : 'outlined'} onClick={() => setMes('FEB')}>FEB</Button>
+            <Button color="success" variant={mes === 'MAR' ? 'contained' : 'outlined'} onClick={() => setMes('MAR')}>MAR</Button>
+          </>
+        }
+        {
+          trimestre === 'T3' &&
+          <>
+            <Button color="success" variant={mes === 'ABR' ? 'contained' : 'outlined'} onClick={() => setMes('ABR')}>ABR</Button>
+            <Button color="success" variant={mes === 'MAY' ? 'contained' : 'outlined'} onClick={() => setMes('MAY')}>MAY</Button>
+            <Button color="success" variant={mes === 'JUN' ? 'contained' : 'outlined'} onClick={() => setMes('JUN')}>JUN</Button>
+          </>
+        }
+        {
+          trimestre === 'T4' &&
+          <>
+            <Button color="success" variant={mes === 'JUL' ? 'contained' : 'outlined'} onClick={() => setMes('JUL')}>JUL</Button>
+            <Button color="success" variant={mes === 'AGO' ? 'contained' : 'outlined'} onClick={() => setMes('AGO')}>AGO</Button>
+            <Button color="success" variant={mes === 'SEP' ? 'contained' : 'outlined'} onClick={() => setMes('SEP')}>SEP</Button>
+          </>
+        }
+        <Button color="success" variant={mes === 'Total' ? 'contained' : 'outlined'} onClick={() => setMes('Total')}>Total</Button>
+      </ButtonGroup>
 
       <Paper elevation={8} className='px-5 py-4' style={{textAlign: 'center', backgroundColor: '#A9CCE3'}}>
-        <h6 className='my-0' style={{textAlign: 'end', fontWeight: 'bold'}}>{`${year}${trimestre !== 'Total' ? '-' + trimestre : ''}`}</h6>
+        <h6 className='my-0' style={{textAlign: 'end', fontWeight: 'bold'}}>{`${year}${trimestre !== 'Total' ? '-' + trimestre : ''}${mes !== 'Total' ? '-' + mes : ''}`}</h6>
         <i className="bi bi-flag" style={{fontSize: '3rem', fontWeight:'bold'}}></i>
         <h2 className="pb-4">Mejora de la calidad de las dietas en los municipios destinatarios.</h2>
         <ProgressBar>
@@ -111,6 +150,7 @@ export const IndMonitoreo = () => {
               medida={indicador.medida}
               metas={indicador.metas}
               progresos={indicador.progresos}
+              mes={mes}
               trimestre={trimestre}
               year={year}
             />

@@ -75,7 +75,7 @@ export const ConfigComponentes = () => {
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
-    { field: 'nombre', headerName: 'Nombre', width: 250,
+    { field: 'nombre', headerName: 'Siglas', width: 150,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       ),
@@ -89,6 +89,7 @@ export const ConfigComponentes = () => {
         );
       } 
     },
+    { field: 'descripcion', headerName: 'Nombre', width: 300, filterable: false},
     { field: 'version', headerName: 'Versión', width: 100, filterable: false},
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
@@ -190,7 +191,7 @@ export const ConfigComponentes = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      geocode: params.row.geocode
+                      descripcion: params.row.descripcion
                     })
                     handleShowEdit()
                   }}>
@@ -236,7 +237,7 @@ export const ConfigComponentes = () => {
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
-        geocode: item.geocode
+        descripcion: item.descripcion
       }
     ))
   )

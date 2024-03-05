@@ -7,8 +7,6 @@ import { PlanTareas } from '../views/PlanTareas'
 import { PlanMonitoreo } from '../views/PlanMonitoreo'
 import { PlanSubResultados } from '../views/PlanSubResultados'
 import { PlanSubActividades } from '../views/PlanSubActividades'
-import { PlanYears } from '../views/PlanYears'
-import { PlanQuarters } from '../views/PlanQuarters'
 
 export const PlanificacionRouter = () => {
 
@@ -46,17 +44,6 @@ export const PlanificacionRouter = () => {
         &&
         <Route path="/monitoreo" element={<PlanMonitoreo />}></Route>
       }
-      {
-        user.userPermisos?.vistas['Planificación']['Años Fiscales']
-        &&
-        <Route path="/years" element={<PlanYears />}></Route>
-      }
-      {
-        user.userPermisos?.vistas['Planificación']['Trimestres']
-        &&
-        <Route path="/quarters" element={<PlanQuarters />}></Route>
-      }
-
       <Route path="/*" element={<Navigate to="/" />} />
     </Routes>
   )

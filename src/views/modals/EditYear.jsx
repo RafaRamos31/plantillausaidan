@@ -2,14 +2,15 @@ import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
-import { useFetchPostBody } from "../../hooks/useFetch.js";
+import { useFetchPutBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
-export const CrearYear = ({handleClose, setRefetch}) => {
+export const EditYear = ({handleClose, setRefetchData, year, fixing=false}) => {
 
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
@@ -19,9 +20,10 @@ export const CrearYear = ({handleClose, setRefetch}) => {
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
-    nombre: '',
-    fechaInicio: moment(),
-    fechaFinal: moment(),
+    idYear: year.id,
+    nombre: year.nombre.split('AF')[1],
+    fechaInicio: moment(year.fechaInicio),
+    fechaFinal: moment(year.fechaFinal),
     timezone: '',
     aprobar: aprove
   });
@@ -42,7 +44,7 @@ export const CrearYear = ({handleClose, setRefetch}) => {
   }
 
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('years', {...values,
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('years', {...values,
     nombre: `AF${values.nombre}`,
     fechaInicio: moment(values.fechaInicio).format('YYYY-MM-DD'),
     fechaFinal: moment(values.fechaFinal).format('YYYY-MM-DD'),
@@ -57,14 +59,22 @@ export const CrearYear = ({handleClose, setRefetch}) => {
   //Boton de carga
   const [charging, setCharging] = useState(false);
 
+  const navigate = useNavigate();
+
   //Accion al completar correctamente
   const handleSuccess = () => {
-    handleClose()
-    setRefetch()
-    setShowToast(true)
-    actualizarTitulo('Año Fiscal Creado')
-    setContent('Año Fiscal guardado correctamente.')
-    setVariant('success')
+    if(fixing){
+      navigate('/reviews/years/'+data._id)
+      navigate(0)
+    }
+    else{
+      setRefetchData(true)
+      handleClose()
+      setShowToast(true)
+      actualizarTitulo('Año fiscal Modificado')
+      setContent('Año fiscal guardado correctamente.')
+      setVariant('success')
+    }
   }
 
   //Efecto al enviar el formulario
@@ -84,7 +94,7 @@ export const CrearYear = ({handleClose, setRefetch}) => {
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Crear Año Fiscal</h4>
+      <h4 className="my-1">Modificar Año Fiscal</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>

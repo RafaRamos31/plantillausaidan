@@ -1,4 +1,3 @@
-import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
@@ -9,12 +8,13 @@ import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
-import { EditResultado } from "./modals/EditResultado.jsx";
-import moment from "moment";
 import { CrearYear } from "./modals/CrearYear.jsx";
+import moment from "moment";
+import { IndicadoresNavBar } from "../components/navBars/IndicadoresNavBar.jsx";
+import { EditYear } from "./modals/EditYear.jsx";
 
-export const PlanQuarters = () => {
-  const endpoint = 'quarter'
+export const IndYears = () => {
+  const endpoint = 'year'
   const {user} = useContext(UserContext)
 
   //Estilo de boton
@@ -83,7 +83,7 @@ export const PlanQuarters = () => {
       renderCell: (params) => {
         return (
           <InfoLink 
-            type={'resultados'} 
+            type={'years'} 
             id={params.row._id}
             nombre={params.formattedValue}
           />
@@ -93,16 +93,16 @@ export const PlanQuarters = () => {
     { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 250, filterable: false,
       renderCell: (params) => {
         return (
-          <p>{moment.utc(params.formattedValue).format('DD/MM/YYYY - HH:mm')}</p>
-        )
-      }
+          <p>{moment(params.formattedValue).format('DD/MM/YYYY - HH:mm')}</p>
+        );
+      },
     },
     { field: 'fechaFinal', headerName: 'Fecha de Finalización', width: 250, filterable: false,
       renderCell: (params) => {
         return (
-          <p>{moment.utc(params.formattedValue).format('DD/MM/YYYY - HH:mm')}</p>
-        )
-      }
+          <p>{moment(params.formattedValue).format('DD/MM/YYYY - HH:mm')}</p>
+        );
+      },
     },
     { field: 'version', headerName: 'Versión', width: 100, filterable: false},
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
@@ -187,7 +187,7 @@ export const PlanQuarters = () => {
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Resultados']['Modificar'] 
+              user.userPermisos?.acciones['Años Fiscales']['Modificar'] 
               &&
               <>
               {
@@ -205,7 +205,8 @@ export const PlanQuarters = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      descripcion: params.row.descripcion
+                      fechaInicio: params.row.fechaInicio,
+                      fechaFinal: params.row.fechaFinal,
                     })
                     handleShowEdit()
                   }}>
@@ -216,7 +217,7 @@ export const PlanQuarters = () => {
               </>
             }
             {
-              user.userPermisos?.acciones['Resultados']['Ver Historial'] 
+              user.userPermisos?.acciones['Años Fiscales']['Ver Historial'] 
               &&
               <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
                 <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
@@ -275,13 +276,13 @@ export const PlanQuarters = () => {
 
   return(
     <>
-    <Layout pagina={`Planificación - Trimestres`} SiteNavBar={PlanNavBar} breadcrumbs={[
+    <Layout pagina={`Indicadores - Años Fiscales`} SiteNavBar={IndicadoresNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
-        {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/quarters', nombre: 'Trimestres'}
+        {link: '/indicadores', nombre: 'Indicadores'},
+        {link: '/indicadores/years', nombre: 'Años Fiscales'}
     ]}>
       <div className="d-flex gap-2 align-items-center">
-      <h2 className="view-title"><i className="bi bi-calendar2-week"></i>{` Trimestres`}</h2>
+      <h2 className="view-title"><i className="bi bi-calendar3"></i>{` Años Fiscales`}</h2>
       {/*Boton Actualizar*/}
       {
           !updating ? 
@@ -356,7 +357,7 @@ export const PlanQuarters = () => {
 
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditResultado handleClose={handleCloseEdit} setRefetchData={setRefetchData} resultado={currentData}/>
+      <EditYear handleClose={handleCloseEdit} setRefetchData={setRefetchData} year={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearYear handleClose={handleCloseCreate} setRefetch={handleUpdate}/>

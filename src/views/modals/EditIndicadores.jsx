@@ -30,7 +30,50 @@ export const EditIndicadores = ({handleClose, setRefetchData, indicador, fixing=
     tipoIndicador: indicador.tipoIndicador,
     frecuencia: indicador.frecuencia,
     medida: indicador.medida,
-    metas: indicador.metas,
+    metas: {
+      'AF24': {
+        'T1': indicador.metas['AF24']['T1']['Total'],
+        'T2': indicador.metas['AF24']['T2']['Total'],
+        'T3': indicador.metas['AF24']['T3']['Total'],
+        'T4': indicador.metas['AF24']['T4']['Total'],
+        'Total': indicador.metas['AF24']['Total']['Total'],
+      },
+      'AF25': {
+        'T1': indicador.metas['AF25']['T1']['Total'],
+        'T2': indicador.metas['AF25']['T2']['Total'],
+        'T3': indicador.metas['AF25']['T3']['Total'],
+        'T4': indicador.metas['AF25']['T4']['Total'],
+        'Total': indicador.metas['AF25']['Total']['Total'],
+      },
+      'AF26': {
+        'T1': indicador.metas['AF26']['T1']['Total'],
+        'T2': indicador.metas['AF26']['T2']['Total'],
+        'T3': indicador.metas['AF26']['T3']['Total'],
+        'T4': indicador.metas['AF26']['T4']['Total'],
+        'Total': indicador.metas['AF26']['Total']['Total'],
+      },
+      'AF27': {
+        'T1': indicador.metas['AF27']['T1']['Total'],
+        'T2': indicador.metas['AF27']['T2']['Total'],
+        'T3': indicador.metas['AF27']['T3']['Total'],
+        'T4': indicador.metas['AF27']['T4']['Total'],
+        'Total': indicador.metas['AF27']['Total']['Total'],
+      },
+      'AF28': {
+        'T1': indicador.metas['AF28']['T1']['Total'],
+        'T2': indicador.metas['AF28']['T2']['Total'],
+        'T3': indicador.metas['AF28']['T3']['Total'],
+        'T4': indicador.metas['AF28']['T4']['Total'],
+        'Total': indicador.metas['AF28']['Total']['Total'],
+      },
+      'LOP': {
+        'T1': indicador.metas['LOP']['T1']['Total'],
+        'T2': indicador.metas['LOP']['T2']['Total'],
+        'T3': indicador.metas['LOP']['T3']['Total'],
+        'T4': indicador.metas['LOP']['T4']['Total'],
+        'Total': indicador.metas['LOP']['Total']['Total'],
+      },
+    },
     aprobar: aprove
   });
 

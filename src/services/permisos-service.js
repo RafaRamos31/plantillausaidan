@@ -14,13 +14,13 @@ export const permisos = {
       'Actividades': false,
       'Sub Actividades': false,
       'Tareas': false,
-      'Años Fiscales': false,
-      'Trimestres': false,
       'Monitoreo': false,
     },
     'Indicadores': {
       'Indicadores': false,
       'Áreas Temáticas': false,
+      'Años Fiscales': false,
+      'Trimestres': false,
       'Monitoreo': false,
     },
     'Eventos': {
@@ -44,7 +44,8 @@ export const permisos = {
       'Departamentos': false,
       'Municipios': false,
       'Aldeas': false,
-      'Caserios': false
+      'Caserios': false,
+      'Ajustes Generales': false
     }
   },
   acciones: {

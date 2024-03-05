@@ -22,6 +22,7 @@ import { InversionesRouter } from './InversionesRouter'
 import { ReportesRouter } from './ReportesRouter'
 import { AproveContextProvider } from '../contexts/AproveContext'
 import { Eventos } from '../views/Eventos'
+import { EventosRouter } from './EventosRouter'
 
 export const MainRouter = () => {
 
@@ -74,7 +75,7 @@ export const MainRouter = () => {
               &&
               <Route path="/eventos" element={<Eventos />}></Route>
             }
-            <Route path="/eventos/*" element={<IndicadoresRouter />}></Route>
+            <Route path="/eventos/*" element={<EventosRouter />}></Route>
 
             {
               (user.userPermisos?.vistas['Reportes'] && Object.values(user.userPermisos?.vistas['Reportes']).some(valor => valor === true))

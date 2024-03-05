@@ -37,6 +37,18 @@ export const IndicadoresNavBar = () => {
       icon: 'bi-diagram-3-fill'
     },
     {
+      name: 'Años Fiscales',
+      url: '/indicadores/years',
+      dir: 'years',
+      icon: 'bi-calendar3'
+    },
+    {
+      name: 'Trimestres',
+      url: '/indicadores/quarters',
+      dir: 'quarters',
+      icon: 'bi-calendar2-week'
+    },
+    {
       name: 'Monitoreo',
       url: '/indicadores/monitoreo',
       dir: 'monitoreo',

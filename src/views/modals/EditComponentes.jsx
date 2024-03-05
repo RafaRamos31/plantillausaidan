@@ -18,6 +18,7 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
   const { values, handleChange, setValues } = useForm({
     idComponente: componente.id,
     nombre: componente.nombre,
+    descripcion: componente.descripcion,
     aprobar: aprove
   });
 
@@ -100,12 +101,21 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
     <Card.Body>
       <Form onSubmit={handleSubmit}>
 
-        <Form.Group as={Row} className="mb-3">
+        <Form.Group as={Row} className="mb-4">
+          <Form.Label column sm="4">
+            Siglas:
+          </Form.Label>
+          <Col sm="8">
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row}>
           <Form.Label column sm="4">
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='descripcion' name='descripcion' value={values.descripcion} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
       </Form>

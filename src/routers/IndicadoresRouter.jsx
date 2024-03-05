@@ -4,6 +4,8 @@ import { UserContext } from '../contexts/UserContext'
 import { IndIndicadores } from '../views/IndIndicadores'
 import { IndMonitoreo } from '../views/IndMonitoreo'
 import { IndAreasTematicas } from '../views/IndAreasTematicas'
+import { IndYears } from '../views/IndYears'
+import { IndQuarters } from '../views/IndQuarters'
 
 export const IndicadoresRouter = () => {
 
@@ -22,7 +24,16 @@ export const IndicadoresRouter = () => {
         &&
         <Route path="/areas" element={<IndAreasTematicas />}></Route>
       }
-
+      {
+        user.userPermisos?.vistas['Indicadores']['Años Fiscales']
+        &&
+        <Route path="/years" element={<IndYears />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Indicadores']['Trimestres']
+        &&
+        <Route path="/quarters" element={<IndQuarters />}></Route>
+      }
       {
         user.userPermisos?.vistas['Indicadores']['Monitoreo']
         &&

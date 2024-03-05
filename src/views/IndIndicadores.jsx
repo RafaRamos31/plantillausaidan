@@ -257,7 +257,7 @@ export const IndIndicadores = () => {
         medida: item.medida,
         tipoIndicador: item.tipoIndicador,
         frecuencia: item.frecuencia,
-        metaLOP: item.medida === 'Monetario' ? item.metas['LOP']['Total'].toLocaleString('en-US', currencyFormat) : item.metas['LOP']['Total'],
+        metaLOP: item.medida === 'Monetario' ? item.metas['LOP']['Total']['Total'].toLocaleString('en-US', currencyFormat) : item.metas['LOP']['Total']['Total'],
         metas: JSON.stringify(item.metas)
       }
     ))

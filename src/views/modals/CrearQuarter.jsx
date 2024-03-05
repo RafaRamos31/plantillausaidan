@@ -2,14 +2,15 @@ import { useContext, useEffect, useState } from "react";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
-import { useFetchPostBody } from "../../hooks/useFetch.js";
+import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
+import { FormControl, ListItemText, MenuItem, Select } from "@mui/material";
 
-export const CrearYear = ({handleClose, setRefetch}) => {
+export const CrearQuarter = ({handleClose, setRefetch}) => {
 
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
@@ -17,9 +18,13 @@ export const CrearYear = ({handleClose, setRefetch}) => {
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
+  const [minDate, setMinDate] = useState(moment())
+  const [maxDate, setMaxDate] = useState(moment())
+
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
+    idYear: '',
     fechaInicio: moment(),
     fechaFinal: moment(),
     timezone: '',
@@ -41,9 +46,39 @@ export const CrearYear = ({handleClose, setRefetch}) => {
     }
   }
 
+  //Años fiscales
+  const findParams = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [years, setYears] = useState([])
+  const { data: yearsData, isLoading: isLoadingYears} = useFetchGetBody('list/years', findParams);
+
+  useEffect(() => {
+    if(yearsData && !isLoadingYears){
+      setYears(yearsData)
+    } 
+  }, [yearsData, isLoadingYears])
+
+   //Editar Departamento en Formulario
+  const [codigo, setCodigo] = useState('AF00-T')
+
+  useEffect(() => {
+    if(values.idYear && values.idYear.length > 0){
+      const year = years.find(year => year._id === values.idYear);
+      setCodigo(`${year?.nombre}-T`);
+      setMinDate(moment(year?.fechaInicio));
+      setMaxDate(moment(year?.fechaFinal));
+    }
+    else{
+      setCodigo('AF00-T')
+    }
+    
+  }, [values, years])
+
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('years', {...values,
-    nombre: `AF${values.nombre}`,
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('quarters', {...values,
+    nombre: `${codigo}${values.nombre}`,
     fechaInicio: moment(values.fechaInicio).format('YYYY-MM-DD'),
     fechaFinal: moment(values.fechaFinal).format('YYYY-MM-DD'),
   }) 
@@ -62,8 +97,8 @@ export const CrearYear = ({handleClose, setRefetch}) => {
     handleClose()
     setRefetch()
     setShowToast(true)
-    actualizarTitulo('Año Fiscal Creado')
-    setContent('Año Fiscal guardado correctamente.')
+    actualizarTitulo('Trimestre Creado')
+    setContent('Trimestre guardado correctamente.')
     setVariant('success')
   }
 
@@ -84,18 +119,42 @@ export const CrearYear = ({handleClose, setRefetch}) => {
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Crear Año Fiscal</h4>
+      <h4 className="my-1">Crear Trimestre</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
       <Form onSubmit={handleCreate}>
+      <Form.Group as={Row} className="mb-3 my-auto">
+          <Form.Label className="my-auto" column sm="4">
+            Año Fiscal:
+          </Form.Label>
+          <Col sm="8">
+            <InputGroup>
+              <FormControl className="w-100">
+                <Select
+                  id="idYear"
+                  name="idYear"
+                  onChange={handleChange}
+                  value={values.idYear}
+                >
+                  {years && years.map((item) => (
+                    <MenuItem key={item._id} value={item._id}>
+                      <ListItemText primary={item.nombre} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </InputGroup>
+          </Col>
+        </Form.Group>
+
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
             Nombre:
           </Form.Label>
           <Col sm="4">
             <InputGroup>
-              <InputGroup.Text placeholder="AF">{'AF'}</InputGroup.Text>
+              <InputGroup.Text placeholder="AF">{codigo}</InputGroup.Text>
               <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={2} min={1} onChange={handleChange}/>
             </InputGroup>
           </Col>
@@ -113,6 +172,8 @@ export const CrearYear = ({handleClose, setRefetch}) => {
               id='fechaInicio'
               name='fechaInicio'
               value={moment(values.fechaInicio)}
+              minDate={minDate}
+              maxDate={maxDate}
               onChange={(value) => handleToggleDate(value, 'fechaInicio')}
               />
             </Col>
@@ -127,6 +188,8 @@ export const CrearYear = ({handleClose, setRefetch}) => {
               format="DD/MM/YYYY"
               id='fechaFinal'
               name='fechaFinal'
+              minDate={minDate}
+              maxDate={maxDate}
               value={moment(values.fechaFinal)}
               onChange={(value) => handleToggleDate(value, 'fechaFinal')}
               />

@@ -8,6 +8,7 @@ import { ConfigComponentes } from '../views/ConfigComponentes'
 import { ConfigMunicipios } from '../views/ConfigMunicipios'
 import { ConfigAldeas } from '../views/ConfigAldeas'
 import { ConfigCaserios } from '../views/ConfigCaserios'
+import { ConfigGenerales } from '../views/ConfigGenerales'
 
 export const ConfiguracionRouter = () => {
 
@@ -49,6 +50,11 @@ export const ConfiguracionRouter = () => {
         user.userPermisos?.vistas['Configuración']['Caserios']
         &&
         <Route path="/caserios" element={<ConfigCaserios />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Configuración']['Ajustes Generales']
+        &&
+        <Route path="/generales" element={<ConfigGenerales />}></Route>
       }
       
       <Route path="/*" element={<Navigate to="/" />} />

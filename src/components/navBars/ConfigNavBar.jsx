@@ -65,6 +65,12 @@ export const ConfigNavBar = () => {
       url: '/configuracion/caserios',
       dir: 'caserios',
       icon: 'bi-geo-alt-fill'
+    },
+    {
+      name: 'Ajustes Generales',
+      url: '/configuracion/generales',
+      dir: 'generales',
+      icon: 'bi-sliders'
     }
   ])
 

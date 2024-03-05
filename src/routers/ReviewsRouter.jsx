@@ -37,6 +37,12 @@ import { ReviewsActividades } from '../views/reviews/ReviewsActividades'
 import { ReviewActividad } from '../views/reviews/unitarios/ReviewActividad'
 import { ReviewsSubActividades } from '../views/reviews/ReviewsSubActividades'
 import { ReviewSubActividad } from '../views/reviews/unitarios/ReviewSubActividad'
+import { ReviewsYears } from '../views/reviews/ReviewsYears'
+import { ReviewYear } from '../views/reviews/unitarios/ReviewYear'
+import { ReviewsQuarters } from '../views/reviews/ReviewsQuarters'
+import { ReviewQuarter } from '../views/reviews/unitarios/ReviewQuarter'
+import { ReviewsTareas } from '../views/reviews/ReviewsTareas'
+import { ReviewTarea } from '../views/reviews/unitarios/ReviewTarea'
 
 export const ReviewsRouter = () => {
 
@@ -199,6 +205,28 @@ export const ReviewsRouter = () => {
       }
 
       {
+        user.userPermisos?.acciones['Años Fiscales']['Revisar']
+        &&
+        <Route path="/years" element={<ReviewsYears />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Indicadores']['Áreas Temáticas']
+        &&
+        <Route path="/years/:idRevision" element={<ReviewYear />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Trimestres']['Revisar']
+        &&
+        <Route path="/quarters" element={<ReviewsQuarters />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Indicadores']['Trimestres']
+        &&
+        <Route path="/quarters/:idRevision" element={<ReviewQuarter />}></Route>
+      }
+
+      {
         user.userPermisos?.acciones['Resultados']['Revisar']
         &&
         <Route path="/resultados" element={<ReviewsResultados />}></Route>
@@ -240,6 +268,17 @@ export const ReviewsRouter = () => {
         user.userPermisos?.vistas['Planificación']['Sub Actividades']
         &&
         <Route path="/subactividades/:idRevision" element={<ReviewSubActividad />}></Route>
+      }
+
+      {
+        user.userPermisos?.acciones['Tareas']['Revisar']
+        &&
+        <Route path="/tareas" element={<ReviewsTareas />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Planificación']['Tareas']
+        &&
+        <Route path="/tareas/:idRevision" element={<ReviewTarea />}></Route>
       }
       
       <Route path="/*" element={<Navigate to="/" />} />

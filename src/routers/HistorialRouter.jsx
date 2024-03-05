@@ -19,6 +19,8 @@ import { HistoryAreaTematica } from '../views/history/HistoryAreasTematicas'
 import { HistorySubResultado } from '../views/history/HistorySubResultado'
 import { HistoryActividad } from '../views/history/HistoryActividad'
 import { HistorySubActividad } from '../views/history/HistorySubActividad'
+import { HistoryYear } from '../views/history/HistoryYear'
+import { HistoryQuarter } from '../views/history/HistoryQuarter'
 
 export const HistorialRouter = () => {
 
@@ -95,6 +97,16 @@ export const HistorialRouter = () => {
         user.userPermisos?.acciones['Áreas Temáticas']['Ver Historial']
         &&
         <Route path="/areastematicas/:id" element={<HistoryAreaTematica />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Años Fiscales']['Ver Historial']
+        &&
+        <Route path="/years/:id" element={<HistoryYear />}></Route>
+      }
+      {
+        user.userPermisos?.acciones['Trimestres']['Ver Historial']
+        &&
+        <Route path="/quarters/:id" element={<HistoryQuarter />}></Route>
       }
       {
         user.userPermisos?.acciones['Resultados']['Ver Historial']
