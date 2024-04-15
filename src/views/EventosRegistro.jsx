@@ -3,52 +3,90 @@ import { EventosNavBar } from "../components/navBars/EventosNavBar.jsx";
 import { DndProvider} from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Col, Row } from "react-bootstrap";
-import { EventStack } from "../components/EventStack.jsx";
-import { useState } from "react";
+import { CreateButton } from "../components/CreateButton.jsx";
+import { CrearEvento } from "./modals/CrearEvento.jsx";
+import { useFetchGetBody } from "../hooks/useFetch.js";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../contexts/UserContext.js";
+import { EventoCard } from "../components/EventoCard.jsx";
+import { LoadingScreen } from "./LoadingScreen.jsx";
 
-export const EventosRegistro = () => {
+export const EventosTablero = () => {
 
+  const { user } = useContext(UserContext)
 
-const eventos = [
-  {_id: '1212', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Pendiente', date: '01/02/2024'},
-  {_id: '1212', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Pendiente', date: '01/02/2024'},
-  {_id: '456', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Cancelado', date: '10/02/2024'},
-  {_id: '456', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Cancelado', date: '10/02/2024'},
-  {_id: '456', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'En proceso', date: '10/02/2024'},
-  {_id: '456', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'En proceso', date: '10/02/2024'},
-  {_id: '456', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'En proceso', date: '10/02/2024'},
-  {_id: '4564', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Pendiente', date: new Date()},
-  {_id: '345', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Finalizado', date: '11/02/2024'},
-  {_id: '345', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Finalizado', date: '11/02/2024'},
-  {_id: '345', nombre: 'Taller de Fortalecimiento de Capacidades', estado: 'Finalizado', date: '11/02/2024'},
-];
+  const [eventos, setEventos] = useState([])
+  const [queryEventos, setQueryEventos] = useState('')
+  const [findParams, setFindParams] = useState({
+    sort: '{}',
+    filter: '{}'
+  })
+  const { data, isLoading, setRefetch } = useFetchGetBody(queryEventos, findParams);
 
-const [pendientes, setPendientes] = useState(eventos.filter(e => e.estado === 'Pendiente' || e.estado === 'Cancelado'))
-const [procesos, setProcesos] = useState(eventos.filter(e => e.estado === 'En proceso'))
-const [finalizados, setFinalizados] = useState(eventos.filter(e => e.estado === 'Finalizado'))
+  useEffect(() => {
+    if(user && user.userComponente){  
+      setFindParams({
+        sort: '{}',
+        filter: JSON.stringify({
+          operator: 'is',
+          field: 'componenteEncargado',
+          value: user.userComponente
+        })
+      }) 
+      setQueryEventos('kanban/eventos')
+    }
+  }, [user])
+
+  useEffect(() => {
+    if(!isLoading && data){   
+      setEventos(data)
+    }
+  }, [data, isLoading])
+
+  if(isLoading){
+    return(
+      <LoadingScreen />
+    )
+  }
 
   return(
-    <Layout pagina={`Eventos - Registro`} SiteNavBar={EventosNavBar} breadcrumbs={[
+    <Layout pagina={`Eventos - Tablero`} SiteNavBar={EventosNavBar} breadcrumbs={[
       {link: '/', nombre: 'Inicio'},
       {link: '/eventos', nombre: 'Eventos'},
-      {link: '/eventos/registro', nombre: 'Registro'}
+      {link: '/eventos/tablero', nombre: 'Tablero'}
   ]}>
+    {
+      (user && user.userPermisos?.acciones['Eventos']['Crear'] ) &&
+      <CreateButton title={'Evento'} ModalForm={CrearEvento} setRefetch={setRefetch} />
+    }
       <DndProvider backend={HTML5Backend}>
         <Row>
           <Col xs={4}>
-            <h3>Tareas Pendientes</h3>
+            <h3>Eventos Pendientes</h3>
             <hr />
-            <EventStack events={pendientes}/>
+            {
+              eventos?.filter(e => e.estadoRealizacion === 'Pendiente').map((e, index) => (
+                <EventoCard values={e} key={index} />
+              ))
+            }
           </Col>
           <Col xs={4}>
-            <h3>Tareas en Ejecución</h3>
+            <h3>Eventos en Ejecución</h3>
             <hr />
-            <EventStack events={procesos}/>
+            {
+              eventos?.filter(e => e.estadoRealizacion === 'En Ejecución').map((e, index) => (
+                <EventoCard values={e} key={index} />
+              ))
+            }
           </Col>
           <Col xs={4}>
-            <h3>Tareas Procesadas</h3>
+            <h3>Eventos Registrados</h3>
             <hr />
-            <EventStack events={finalizados}/>
+            {
+              eventos?.filter(e => e.estadoRealizacion === 'Finalizado').map((e, index) => (
+                <EventoCard values={e} key={index} />
+              ))
+            }
           </Col>
         </Row>
       </DndProvider>

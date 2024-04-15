@@ -237,27 +237,30 @@ export const ReviewTarea = () => {
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + dataRevision.version}</h5>
                   </div>
                 }
-                <CompareValue  title={'Nombre de la Tarea:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
+                <CompareValue  title={'Nombre de la Tarea:'} value={dataRevision.titulo} original={original?.titulo} compare={compare}/>
+                <CompareValue  title={'Código de la Tarea:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
                 <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare}/>
                 <CompareValue  title={'Componente:'} value={dataRevision.componente?.descripcion} original={original?.componente.descripcion} compare={compare}/>
+                <CompareValue  title={'Trimestre:'} value={dataRevision.trimestre?.nombre} original={original?.trimestre.nombre} compare={compare}/>
                 <CompareTooltip title={'Sub Actividad:'} 
                 value={dataRevision.subactividad.nombre} valueTooltip={dataRevision.subactividad.descripcion}
                 original={original?.subactividad.nombre} originalTooltip={original?.subactividad.descripcion}
-                compare={compare} hidden/>
+                compare={compare}/>
                 <CompareTooltip title={'Actividad:'} 
                 value={dataRevision.actividad.nombre} valueTooltip={dataRevision.actividad.descripcion}
                 original={original?.actividad.nombre} originalTooltip={original?.actividad.descripcion}
-                compare={compare} hidden/>
+                compare={compare}/>
                 <CompareTooltip title={'Sub Resultado:'} 
                 value={dataRevision.subresultado.nombre} valueTooltip={dataRevision.subresultado.descripcion}
                 original={original?.subresultado.nombre} originalTooltip={original?.subresultado.descripcion}
-                compare={compare} hidden/>
+                compare={compare}/>
                 <CompareTooltip title={'Resultado:'} 
                 value={dataRevision.resultado.nombre} valueTooltip={dataRevision.resultado.descripcion}
                 original={original?.resultado.nombre} originalTooltip={original?.resultado.descripcion}
-                compare={compare} hidden/>
+                compare={compare}/>
                 <CompareValue  title={'Lugar:'} value={dataRevision.lugar} original={original?.lugar} compare={compare}/>
                 <CompareValue  title={'Unidad de Medida:'} value={dataRevision.unidadMedida} original={original?.unidadMedida} compare={compare}/>
+                <CompareValue  title={'Cantidad programada:'} value={dataRevision.cantidadProgramada} original={original?.cantidadProgramada} compare={compare}/>
                 <CompareValue  title={'Gastos estimados:'} value={dataRevision.gastosEstimados.toLocaleString('en-US', currencyFormat)} original={original?.gastosEstimados.toLocaleString('en-US', currencyFormat)} compare={compare}/>
               </Col>
               {
@@ -266,8 +269,31 @@ export const ReviewTarea = () => {
                   <div className="mb-3">
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + original.version}</h5>
                   </div>
-                  <CompareValue  title={'Código:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare} hidden/>
+                  <CompareValue  title={'Nombre de la Tarea:'} value={dataRevision.titulo} original={original?.titulo} compare={compare}/>
+                  <CompareValue  title={'Código de la Tarea:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
+                  <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare}/>
+                  <CompareValue  title={'Componente:'} value={dataRevision.componente?.descripcion} original={original?.componente.descripcion} compare={compare}/>
+                  <CompareValue  title={'Trimestre:'} value={dataRevision.trimestre?.nombre} original={original?.trimestre.nombre} compare={compare}/>
+                  <CompareTooltip title={'Sub Actividad:'} 
+                  value={dataRevision.subactividad.nombre} valueTooltip={dataRevision.subactividad.descripcion}
+                  original={original?.subactividad.nombre} originalTooltip={original?.subactividad.descripcion}
+                  compare={compare} hidden/>
+                  <CompareTooltip title={'Actividad:'} 
+                  value={dataRevision.actividad.nombre} valueTooltip={dataRevision.actividad.descripcion}
+                  original={original?.actividad.nombre} originalTooltip={original?.actividad.descripcion}
+                  compare={compare} hidden/>
+                  <CompareTooltip title={'Sub Resultado:'} 
+                  value={dataRevision.subresultado.nombre} valueTooltip={dataRevision.subresultado.descripcion}
+                  original={original?.subresultado.nombre} originalTooltip={original?.subresultado.descripcion}
+                  compare={compare} hidden/>
+                  <CompareTooltip title={'Resultado:'} 
+                  value={dataRevision.resultado.nombre} valueTooltip={dataRevision.resultado.descripcion}
+                  original={original?.resultado.nombre} originalTooltip={original?.resultado.descripcion}
+                  compare={compare} hidden/>
+                  <CompareValue  title={'Lugar:'} value={dataRevision.lugar} original={original?.lugar} compare={compare}/>
+                  <CompareValue  title={'Unidad de Medida:'} value={dataRevision.unidadMedida} original={original?.unidadMedida} compare={compare}/>
+                  <CompareValue  title={'Cantidad programada:'} value={dataRevision.cantidadProgramada} original={original?.cantidadProgramada} compare={compare}/>
+                  <CompareValue  title={'Gastos estimados:'} value={dataRevision.gastosEstimados.toLocaleString('en-US', currencyFormat)} original={original?.gastosEstimados.toLocaleString('en-US', currencyFormat)} compare={compare}/>
                 </Col>
               }
             </Row>

@@ -77,7 +77,7 @@ export const CrearResultado = ({handleClose, setRefetch}) => {
           <Col sm="3">
             <InputGroup>
               <InputGroup.Text placeholder="IR">{'IR'}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1} onChange={handleChange}/>
+              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1}  autoComplete='off' onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>

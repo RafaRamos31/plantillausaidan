@@ -24,11 +24,19 @@ export const permisos = {
       'Monitoreo': false,
     },
     'Eventos': {
-      'Registro': false,
-      'Seguimiento': false,
+      'Planificación': false,
+      'Tablero': false,
       'Calendario': false,
+      'Aprobación': false,
+      'Finalización': false,
+      'Digitación': false,
+    },
+    'Monitoreo': {
+      'Aprobar Evento': false,
+      'Consolidar Evento': false
     },
     'Inversiones': {
+      'Presupuestar Evento': false,
       'Inversiones': false,
       'Áreas Temáticas': false,
       'Categorias': false,
@@ -45,6 +53,7 @@ export const permisos = {
       'Municipios': false,
       'Aldeas': false,
       'Caserios': false,
+      'Tipos de Eventos': false,
       'Ajustes Generales': false
     }
   },
@@ -216,6 +225,25 @@ export const permisos = {
       'Modificar': false,
       'Revisar': false,
       'Eliminar': false,
+    },
+    'Tipos de Eventos': {
+      'Ver Eliminados': false,
+      'Ver Historial': false,
+      'Crear': false,
+      'Modificar': false,
+      'Revisar': false,
+      'Eliminar': false,
+    },
+    'Eventos': {
+      'Crear': false,
+      'Aprobar Crear': false,
+      'Aprobar Crear MEL': false,
+      'Finalizar': false,
+      'Aprobar Finalizar': false,
+      'Digitalizar': false,
+      'Aprobar Digitalizar': false,
+      'Presupuestar': false,
+      'Consolidar': false,
     }
   }
 }

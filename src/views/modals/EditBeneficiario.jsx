@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { AproveContext } from "../../contexts/AproveContext.js";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
@@ -8,42 +7,44 @@ import { MapInput } from "../../components/MapInput.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearSectores } from "./CrearSectores.jsx";
+import { CrearOrgtype } from "./CrearOrgtype.jsx";
+import { CrearOrganizacion } from "./CrearOrganizacion.jsx";
+import { CrearCargo } from "./CrearCargos.jsx";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { CrearMunicipio } from "./CrearMunicipio.jsx";
+import { CrearAldea } from "./CrearAldea.jsx";
+import { CrearCaserio } from "./CrearCaserio.jsx";
 import { useNavigate } from "react-router-dom";
 
-
-export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fixing=false}) => {
-
+export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=false, editParticipante=false}) => {
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
-  const navigate = useNavigate();
-
-  //Toast
-  const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
   const { values, setValues, handleChange } = useForm({
-    idBeneficiario: beneficiario.id,
+    idBeneficiario: beneficiario._id || beneficiario.id || beneficiario.uuid,
     nombre: beneficiario.nombre,
     dni: beneficiario.dni,
     sexo: beneficiario.sexo,
     fechaNacimiento: beneficiario.fechaNacimiento,
     telefono: beneficiario.telefono,
-    idSector: beneficiario.idSector,
-    idTipoOrganizacion: beneficiario.idTipoOrganizacion,
-    idOrganizacion: beneficiario.idOrganizacion,
-    idCargo: beneficiario.idCargo,
-    idDepartamento: beneficiario.idDepartamento,
-    idMunicipio: beneficiario.idMunicipio,
-    idAldea: beneficiario.idAldea,
-    idCaserio: beneficiario.idCaserio,
+    idSector: beneficiario.idSector || beneficiario.sector._id,
+    idTipoOrganizacion: beneficiario.idTipoOrganizacion || beneficiario.tipoOrganizacion._id,
+    idOrganizacion: beneficiario.idOrganizacion || beneficiario.organizacion._id,
+    idCargo: beneficiario.idCargo || beneficiario.cargo._id,
+    idDepartamento: beneficiario.idDepartamento || beneficiario.departamento._id,
+    idMunicipio: beneficiario.idMunicipio || beneficiario.municipio._id,
+    idAldea: beneficiario.idAldea || beneficiario.aldea._id,
+    idCaserio: beneficiario.idCaserio || beneficiario.caserio._id,
     geolocacion: beneficiario.geolocacion,
-    aprobar: aprove
+    aprobar: editParticipante ? true : aprove
   });
 
   const changeLocation = (location) => {
-    setValues((previos) => {
-      return { ...previos, 'geolocacion': location }
-    });
+    setValues({ ...values, 'geolocacion': location });
   }
 
   const handleToggleAprobar = () => {
@@ -51,7 +52,7 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
     setValues({ ...values, aprobar: !values.aprobar });
   }
 
-   //Sectores
+  //Sectores
   const findParams = {
     sort: '{}',
     filter: '{}'
@@ -378,40 +379,35 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
     setRefetchCaserios(true);
   }
 
-  //Efecto al enviar el formulario
-  const [errorMessage, setErrorMessage] = useState('');
+  //Toast
+  const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
-  //Accion No Encontrado
-  const handleNotFound = () => {
-    handleClose()
-    setShowToast(true)
-    actualizarTitulo('Beneficiario No Encontrado')
-    setContent('El Beneficiario que deseas modificar ya no existe.')
-    setVariant('warning')
+  //Envio asincrono de formulario
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('beneficiarios', values) 
+
+  const handleCreate = (e) => {
+    e.preventDefault();
+    setSend(true);
+    setCharging(true)
   }
 
-  //Accion por defecto envio de formulario
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setChargingEdit(true)
-    setSendEdit(true)
-  }
+  //Boton de carga
+  const [charging, setCharging] = useState(false);
 
-  //Boton de carga Modificar
-  const [chargingEdit, setChargingEdit] = useState(false);
-  
-  //Envio asincrono de formulario de Modificar
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('beneficiarios', values) 
+  const navigate = useNavigate()
 
-  //Accion al completar correctamente Modificacion
   //Accion al completar correctamente
-  const handleSuccessEdit = () => {
+  const handleSuccess = () => {
+    if(editParticipante){
+      editParticipante(values.idBeneficiario, data)
+    }
+
     if(fixing){
-      navigate('/reviews/beneficiarios/'+dataEdit._id)
+      navigate('/reviews/beneficiarios/'+data._id)
       navigate(0)
     }
     else{
-      setRefetchData(true)
+      setRefetch(true)
       handleClose()
       setShowToast(true)
       actualizarTitulo('Beneficiario Modificado')
@@ -420,40 +416,37 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
     }
   }
 
-  useEffect(() => {
+  //Efecto al enviar el formulario
+  const [errorMessage, setErrorMessage] = useState('');
 
-    if(errorEdit){
-      setChargingEdit(false)
-      if(codeEdit === 404){
-        handleNotFound()
-      }
-      else{
-        setErrorMessage(errorEdit)
-      }
+  useEffect(() => {
+    if(error){
+      setErrorMessage(error)
+      setCharging(false)
     }
-    if(dataEdit){
-      handleSuccessEdit();
+    if(data){
+      handleSuccess();
     }
   // eslint-disable-next-line
-  }, [sendEdit, dataEdit, isLoadingEdit, errorEdit, codeEdit])
-  
+  }, [send, data, isLoading, error])
+
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Perfil Beneficiarios</h4>
+      <h4 className="my-1">Modificar Beneficiario</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleCreate}>
 
-        <InputDNI setValues={setValues} value={values.dni} search/>
+        <InputDNI setValues={setValues} search value={values.dni}/>
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
             Nombre del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -500,20 +493,19 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
           </Card.Header>
           <Card.Body>
             <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm="4">
+            <Form.Label column sm="4" className="my-auto">
               Sector:
             </Form.Label>
             <Col sm="8">
               <InputGroup>
-                <Form.Select id='idSector' name='idSector' value={values.idSector} onChange={handleChange}>
-                  <option value="">Seleccionar Sector</option>
-                  {
-                    sectores &&
-                    sectores.map((depto) => (
-                      <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                    ))
-                  }
-                </Form.Select>
+                  <InputAutocomplete
+                    valueList={sectores} 
+                    value={values.idSector}
+                    name={'idSector'}
+                    setValues={setValues}
+                    setRefetch={setRefetchSectores}
+                    ModalCreate={CrearSectores}
+                  />
                 {
                   !updatingSectores ? 
                   <Button variant="light" onClick={handleUpdate}>
@@ -535,20 +527,19 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
           </Form.Group>
 
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm="4">
+            <Form.Label column sm="4" className="my-auto">
               Tipo de Organización:
             </Form.Label>
             <Col sm="8" className="my-auto">
               <InputGroup>
-                <Form.Select id='idTipoOrganizacion' name='idTipoOrganizacion' value={values.idTipoOrganizacion} onChange={handleChange}>
-                  <option value="">Seleccionar Tipo de Organización</option>
-                  {
-                    orgtypes &&
-                    orgtypes.map((depto) => (
-                      <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                    ))
-                  }
-                </Form.Select>
+                  <InputAutocomplete
+                    valueList={orgtypes} 
+                    value={values.idTipoOrganizacion}
+                    name={'idTipoOrganizacion'}
+                    setValues={setValues}
+                    setRefetch={setRefetchOrgtypes}
+                    ModalCreate={CrearOrgtype}
+                  />
                 {
                   !updatingOrgtypes ? 
                   <Button variant="light" onClick={handleUpdateOrgtypes}>
@@ -570,20 +561,19 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
           </Form.Group>
 
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm="4">
+            <Form.Label column sm="4" className="my-auto">
               Organización:
             </Form.Label>
             <Col sm="8" className="my-auto">
               <InputGroup>
-                <Form.Select id='idOrganizacion' name='idOrganizacion' value={values.idOrganizacion} onChange={handleChange}>
-                  <option value="">Seleccionar Organización</option>
-                  {
-                    organizaciones &&
-                    organizaciones.map((depto) => (
-                      <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                    ))
-                  }
-                </Form.Select>
+                <InputAutocomplete
+                  valueList={organizaciones} 
+                  value={values.idOrganizacion}
+                  name={'idOrganizacion'}
+                  setValues={setValues}
+                  setRefetch={setRefetchOrganizaciones}
+                  ModalCreate={CrearOrganizacion}
+                />
                 {
                   !updatingOrganizaciones ? 
                   <Button variant="light" onClick={handleUpdateOrganizaciones}>
@@ -605,20 +595,19 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
           </Form.Group>
 
           <Form.Group as={Row} className="my-4">
-            <Form.Label column sm="4">
+            <Form.Label column sm="4" className="my-auto">
               Cargo:
             </Form.Label>
             <Col sm="8" className="my-auto">
               <InputGroup>
-                <Form.Select id='idCargo' name='idCargo' value={values.idCargo} onChange={handleChange}>
-                  <option value="">Seleccionar Cargo</option>
-                  {
-                    cargos &&
-                    cargos.map((depto) => (
-                      <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                    ))
-                  }
-                </Form.Select>
+                <InputAutocomplete
+                  valueList={cargos} 
+                  value={values.idCargo}
+                  name={'idCargo'}
+                  setValues={setValues}
+                  setRefetch={setRefetchCargos}
+                  ModalCreate={CrearCargo}
+                />
                 {
                   !updatingCargos ? 
                   <Button variant="light" onClick={handleUpdateCargos}>
@@ -640,27 +629,26 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
           </Form.Group>
           </Card.Body>
         </Card>
-
+        
         <Card>
           <Card.Header>
             <h5>Ubicación</h5>
           </Card.Header>
           <Card.Body className='p-4'>
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Departamento:
               </Form.Label>
               <Col sm="8" className="my-auto">
                 <InputGroup>
-                  <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                    <option value="">Seleccionar Departamento</option>
-                    {
-                      deptos &&
-                      deptos.map((depto) => (
-                        <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete
+                    valueList={deptos} 
+                    value={values.idDepartamento}
+                    name={'idDepartamento'}
+                    setValues={setValues}
+                    setRefetch={setRefetchDeptos}
+                    ModalCreate={CrearDepartamento}
+                  />
                   {
                     !updatingDepto ? 
                     <Button variant="light" onClick={handleUpdateDepto}>
@@ -682,20 +670,19 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
             </Form.Group>
 
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Municipio:
               </Form.Label>
               <Col sm="8">
                 <InputGroup>
-                  <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
-                    <option value="">Seleccionar Municipio</option>
-                    {
-                      municipios &&
-                      municipios.map((muni) => (
-                        <option key={muni._id} value={muni._id}>{muni.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete
+                    valueList={municipios} 
+                    value={values.idMunicipio}
+                    name={'idMunicipio'}
+                    setValues={setValues}
+                    setRefetch={setRefetchMuni}
+                    ModalCreate={CrearMunicipio}
+                  />
                   {
                     !updatingMunicipios ? 
                     <Button variant="light" onClick={handleUpdateMunicipios}>
@@ -717,20 +704,19 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
             </Form.Group>
 
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Aldea:
               </Form.Label>
               <Col sm="8">
                 <InputGroup>
-                  <Form.Select id='idAldea' name='idAldea' value={values.idAldea} onChange={handleChange}>
-                    <option value="">Seleccionar Aldea</option>
-                    {
-                      aldeas &&
-                      aldeas.map((aldea) => (
-                        <option key={aldea._id} value={aldea._id}>{aldea.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete
+                    valueList={aldeas} 
+                    value={values.idAldea}
+                    name={'idAldea'}
+                    setValues={setValues}
+                    setRefetch={setRefetchAldeas}
+                    ModalCreate={CrearAldea}
+                  />
                   {
                     !updatingAldeas ? 
                     <Button variant="light" onClick={handleUpdateAldeas}>
@@ -757,15 +743,14 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
               </Form.Label>
               <Col sm="8">
                 <InputGroup>
-                  <Form.Select id='idCaserio' name='idCaserio' value={values.idCaserio} onChange={handleChange}>
-                    <option value="">Seleccionar Caserio</option>
-                    {
-                      caserios &&
-                      caserios.map((caserio) => (
-                        <option key={caserio._id} value={caserio._id}>{caserio.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete
+                    valueList={caserios} 
+                    value={values.idCaserio}
+                    name={'idCaserio'}
+                    setValues={setValues}
+                    setRefetch={setRefetchCaserios}
+                    ModalCreate={CrearCaserio}
+                  />
                   {
                     !updatingCaserios ? 
                     <Button variant="light" onClick={handleUpdateCaserios}>
@@ -788,14 +773,18 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
           </Card.Body>
         </Card>
 
-        <MapInput changeLocation={changeLocation} initialLocation={values.geolocacion}/>
+        {
+          false &&
+          <MapInput changeLocation={changeLocation}/>
+        }
+        
 
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Beneficiarios']['Revisar']
+        (!editParticipante && user.userPermisos?.acciones['Beneficiarios']['Revisar'])
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
@@ -804,8 +793,8 @@ export const EditBeneficiario = ({handleClose, setRefetchData, beneficiario, fix
         <div></div>
       }
       {
-        !chargingEdit ?
-        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem', marginLeft: '1rem'}} variant="secondary" onClick={handleSubmit}>
+        !charging ?
+        <Button style={{borderRadius: '5px', padding: '0.5rem 2rem', width: '9rem', marginLeft: '1rem'}} variant="secondary" onClick={handleCreate}>
           Enviar
         </Button>
         :

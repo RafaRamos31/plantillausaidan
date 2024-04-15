@@ -11,6 +11,7 @@ import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ConfigMunicipios = () => {
   const endpoint = 'municipio'
@@ -55,11 +56,6 @@ export const ConfigMunicipios = () => {
   const handleReview = () => {
     navigate(`/reviews/${endpoint}s`)
   }
-
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -309,10 +305,7 @@ export const ConfigMunicipios = () => {
       {
         user.userPermisos?.acciones['Municipios']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
-        </Button>
+        <CreateButton title={endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} ModalForm={CrearMunicipio} setRefetch={handleUpdate} />
       }
 
       {/*Boton Cambios*/}
@@ -344,7 +337,7 @@ export const ConfigMunicipios = () => {
         }
         </>
       }
-      
+
       {/*Table Container*/}
       <FormattedGrid 
         model={`${endpoint}s`} 
@@ -359,13 +352,19 @@ export const ConfigMunicipios = () => {
       />
 
     </Layout>
+    <Modal show={showEdit} onHide={handleCloseEdit} autoFocus renderBackdrop={renderBackdrop}>
+      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={setRefetchData} municipio={currentData}/>  
+    </Modal>
 
-    <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={setRefetchData} municipio={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearMunicipio handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
-    </Modal>
     </>
   );
 }
+
+const renderBackdrop = () => <div style={{position: 'fixed',
+    zIndex: 1040,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#000',
+    opacity: 0.5}}/>;

@@ -76,6 +76,7 @@ export const InputDNI = ({value='', setValues, disabled=false, search=false}) =>
             onChange={handleInputChange}
             placeholder='0000-0000-00000'
             maxLength={15} 
+            autoComplete={'off'}
             disabled={disabled}
             />
           {

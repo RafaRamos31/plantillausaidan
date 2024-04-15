@@ -6,7 +6,7 @@ import { useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
-export const CrearDepartamento = ({handleClose, setRefetch}) => {
+export const CrearDepartamento = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
 
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
@@ -16,9 +16,9 @@ export const CrearDepartamento = ({handleClose, setRefetch}) => {
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
-    nombre: '',
-    geocode: '',
-    aprobar: aprove
+    deptNombre: '',
+    deptGeocode: '',
+    aprobar: modal ? true : aprove
   });
 
   const handleToggleAprobar = () => {
@@ -27,7 +27,11 @@ export const CrearDepartamento = ({handleClose, setRefetch}) => {
   }
 
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('departamentos', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('departamentos', {
+    ...values, 
+    nombre: values.deptNombre,
+    geocode: values.deptGeocode
+  }) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -41,7 +45,12 @@ export const CrearDepartamento = ({handleClose, setRefetch}) => {
   //Accion al completar correctamente
   const handleSuccess = () => {
     handleClose()
-    setRefetch()
+    if(modal){
+      modalRefetch(true)
+    }
+    else{
+      setRefetch()
+    }
     setShowToast(true)
     actualizarTitulo('Departamento Creado')
     setContent('Departamento guardado correctamente.')
@@ -75,7 +84,7 @@ export const CrearDepartamento = ({handleClose, setRefetch}) => {
             Departamento:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='deptNombre' name='deptNombre' value={values.deptNombre} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -84,7 +93,7 @@ export const CrearDepartamento = ({handleClose, setRefetch}) => {
             Geocode:
           </Form.Label>
           <Col sm="2">
-            <Form.Control id='geocode' name='geocode' placeholder="00" maxLength={2} value={values.geocode} onChange={handleChange}/>
+            <Form.Control id='deptGeocode' name='deptGeocode' placeholder="00" maxLength={2} value={values.deptGeocode} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -93,7 +102,7 @@ export const CrearDepartamento = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Departamentos']['Revisar']
+        (!modal && user.userPermisos?.acciones['Departamentos']['Revisar'])
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>

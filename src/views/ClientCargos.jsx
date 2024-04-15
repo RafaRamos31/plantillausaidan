@@ -11,6 +11,7 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearCargo } from "./modals/CrearCargos.jsx";
 import { EditCargo } from "./modals/EditCargos.jsx";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ClientCargos = () => {
   const endpoint = 'cargo'
@@ -55,11 +56,6 @@ export const ClientCargos = () => {
   const handleReview = () => {
     navigate(`/reviews/${endpoint}s`)
   }
-
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -301,17 +297,14 @@ export const ClientCargos = () => {
 
       {/*Boton Agregar*/}
       {
-        user.userPermisos?.acciones['Municipios']['Crear']
+        user.userPermisos?.acciones['Cargos']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
-        </Button>
+        <CreateButton title={endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} ModalForm={CrearCargo} setRefetch={handleUpdate}/>
       }
 
       {/*Boton Cambios*/}
       {
-        user.userPermisos?.acciones['Municipios']['Revisar']
+        user.userPermisos?.acciones['Cargos']['Revisar']
         &&
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
           <i className="bi bi-pencil-square"></i>{' '}
@@ -321,7 +314,7 @@ export const ClientCargos = () => {
       
       {/*Boton Deleteds*/}
       {
-        user.userPermisos?.acciones['Municipios']['Ver Eliminados'] 
+        user.userPermisos?.acciones['Cargos']['Ver Eliminados'] 
         &&
         <>
         {
@@ -356,9 +349,6 @@ export const ClientCargos = () => {
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditCargo handleClose={handleCloseEdit} setRefetchData={setRefetchData} cargo={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearCargo handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

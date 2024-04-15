@@ -5,11 +5,26 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
 
-export const CrearMunicipio = ({handleClose, setRefetch}) => {
+export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
 
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
+
+  //Formulario
+  const { values, handleChange, setValues } = useForm({
+    nombreMuni: '',
+    idDepartamento: '',
+    geocodeMuni: '',
+    aprobar: modal ? true : aprove
+  });
+
+  const handleToggleAprobar = () => {
+    setAprove(!aprove);
+    setValues({ ...values, aprobar: !values.aprobar });
+  }
   
   //Departamento
   const findParams = {
@@ -38,25 +53,13 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
-  //Formulario
-  const { values, handleChange, setValues } = useForm({
-    nombre: '',
-    idDepartamento: '',
-    geocode: '',
-    aprobar: aprove
-  });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Editar Departamento en Formulario
   const [deptoGeo, setDeptoGeo] = useState('00')
 
   useEffect(() => {
     if(values.idDepartamento && values.idDepartamento.length > 0){
-      setDeptoGeo(deptos.find(depto => depto._id === values.idDepartamento).geocode)
+      setDeptoGeo(deptos.find(depto => depto._id === values.idDepartamento)?.geocode)
     }
     else{
       setDeptoGeo('00')
@@ -66,11 +69,15 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
   
   
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('municipios', {...values, geocode: `${deptoGeo}${values.geocode}`}) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('municipios', {
+    ...values, 
+    nombre: values.nombreMuni,
+    geocode: `${deptoGeo}${values.geocodeMuni}`
+  }) 
 
   const handleCreate = (e) => {
     e.preventDefault();
-    if(values.geocode){
+    if(values.geocodeMuni){
       setSend(true)
       setCharging(true)
     }
@@ -85,7 +92,12 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
   //Accion al completar correctamente
   const handleSuccess = () => {
     handleClose()
-    setRefetch()
+    if(modal){
+      modalRefetch(true)
+    }
+    else{
+      setRefetch()
+    }
     setShowToast(true)
     actualizarTitulo('Municipio Creado')
     setContent('Municipio guardado correctamente.')
@@ -107,6 +119,7 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
   }, [send, data, isLoading, error])
 
   return (
+    <>
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
       <h4 className="my-1">Crear Municipio</h4>
@@ -119,25 +132,24 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
             Municipio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombreMuni' name='nombreMuni' value={values.nombreMuni} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Departamento:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                <option value="">Seleccionar Departamento</option>
-                {
-                  deptos &&
-                  deptos.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={deptos} 
+                value={values.idDepartamento}
+                name={'idDepartamento'}
+                setValues={setValues}
+                setRefetch={setRefetchDeptos}
+                ModalCreate={CrearDepartamento}
+              />
               {
                 !updating ? 
                 <Button variant="light" onClick={handleUpdate}>
@@ -165,7 +177,7 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
           <Col sm="3">
             <InputGroup>
               <InputGroup.Text placeholder="00">{deptoGeo}</InputGroup.Text>
-              <Form.Control id='geocode' name='geocode' placeholder="00" maxLength={2} value={values.geocode} onChange={handleChange}/>
+              <Form.Control id='geocodeMuni' name='geocodeMuni' placeholder="00" maxLength={2} value={values.geocodeMuni} autoComplete={'off'} onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>
@@ -174,7 +186,7 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Municipios']['Revisar']
+        (!modal && user.userPermisos?.acciones['Municipios']['Revisar'])
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
@@ -199,7 +211,8 @@ export const CrearMunicipio = ({handleClose, setRefetch}) => {
           <span className="visually-hidden">Cargando...</span>
         </Button>
       }
-    </Card.Footer>
+    </Card.Footer>  
   </Card>
+  </>
   )
 }

@@ -11,7 +11,7 @@ export const StatusChip = ({status}) => {
     'Pendiente': 'gold',
     'Retrasado': 'red',
     'Cancelado': 'lightgray',
-    'En proceso': 'cyan',
+    'En Ejecución': 'cyan',
     'Finalizado': 'lime',
   }
 
@@ -19,7 +19,7 @@ export const StatusChip = ({status}) => {
     'Pendiente': 'orange',
     'Retrasado': 'brown',
     'Cancelado': 'gray',
-    'En proceso': 'mediumblue',
+    'En Ejecución': 'mediumblue',
     'Finalizado': 'green',
   }
 
@@ -47,7 +47,7 @@ export const StatusChip = ({status}) => {
     )
   }
 
-  if(status === 'En proceso'){
+  if(status === 'En Ejecución'){
     return (
       <Chip icon={<TonalityIcon style={{color: iconsColors[status]}}/>} className='m-2' label={status} variant="outlined" style={{ borderWidth: '2px', borderColor: statusColors[status]}}/>
     )

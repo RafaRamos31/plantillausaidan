@@ -1,7 +1,16 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
-import { EventosRegistro } from '../views/EventosRegistro'
+import { EventosTablero } from '../views/EventosRegistro'
+import { EventosPlanificacion } from '../views/EventosPlanificacion'
+import { EventosTabla } from '../views/EventosTabla'
+import { EventosAprobacion } from '../views/EventosAprobacion'
+import { EventosAprobacionMEL } from '../views/EventosAprobacionMEL'
+import { EventosTerminar } from '../views/EventosTerminar'
+import { EventosDigitar } from '../views/EventosDigitar'
+import { EventosDigitarForm } from '../views/EventoDigitarForm'
+import { EventosConsolidado } from '../views/EventosConsolidado'
+import { EventosPresupuesto } from '../views/EventosPresupuesto'
 
 export const EventosRouter = () => {
 
@@ -10,10 +19,31 @@ export const EventosRouter = () => {
   return (
     <Routes>
       {
-        user.userPermisos?.vistas['Eventos']['Registro']
+        user.userPermisos?.vistas['Eventos']['Planificación']
         &&
-        <Route path="/registro" element={<EventosRegistro />}></Route>
+        <Route path="/tabla" element={<EventosTabla />}></Route>
       }
+      {
+        user.userPermisos?.vistas['Eventos']['Planificación']
+        &&
+        <Route path="/planificacion" element={<EventosPlanificacion />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Eventos']['Tablero']
+        &&
+        <Route path="/tablero" element={<EventosTablero />}></Route>
+      }
+
+
+      <Route path="/aprobacion" element={<EventosAprobacion />}></Route>
+      <Route path="/aprobacionMEL" element={<EventosAprobacionMEL />}></Route>
+      <Route path="/terminar" element={<EventosTerminar />}></Route>
+      <Route path="/digitar" element={<EventosDigitar />}></Route>
+      <Route path="/digitar/:idEvento" element={<EventosDigitarForm />}></Route>
+      <Route path="/consolidado" element={<EventosConsolidado />}></Route>
+      <Route path="/verificacion" element={<EventosPresupuesto />}></Route>
+
+
       <Route path="/*" element={<Navigate to="/" />} />
     </Routes>
   )

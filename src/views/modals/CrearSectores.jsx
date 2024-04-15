@@ -6,7 +6,7 @@ import { useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
-export const CrearSectores = ({handleClose, setRefetch}) => {
+export const CrearSectores = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
 
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext); 
@@ -17,7 +17,7 @@ export const CrearSectores = ({handleClose, setRefetch}) => {
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
-    aprobar: aprove
+    aprobar: modal ? true : aprove
   });
 
   const handleToggleAprobar = () => {
@@ -40,7 +40,12 @@ export const CrearSectores = ({handleClose, setRefetch}) => {
   //Accion al completar correctamente
   const handleSuccess = () => {
     handleClose()
-    setRefetch()
+    if(modal){
+      modalRefetch(true)
+    }
+    else{
+      setRefetch()
+    }
     setShowToast(true)
     actualizarTitulo('Sector Creado')
     setContent('Sector guardado correctamente.')
@@ -74,7 +79,7 @@ export const CrearSectores = ({handleClose, setRefetch}) => {
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
       </Form>
@@ -82,7 +87,7 @@ export const CrearSectores = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Sectores']['Revisar']
+        (!modal && user.userPermisos?.acciones['Sectores']['Revisar'])
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>

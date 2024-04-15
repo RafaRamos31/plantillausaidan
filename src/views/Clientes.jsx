@@ -1,4 +1,3 @@
-
 import { ClientesNavBar } from "../components/navBars/ClientesNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 

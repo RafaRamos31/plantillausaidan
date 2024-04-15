@@ -11,6 +11,7 @@ import { CrearAldea } from "./modals/CrearAldea.jsx";
 import { StatusBadge } from "../components/StatusBadge.jsx";
 import { EditAldea } from "./modals/EditAldea.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ConfigAldeas = () => {
   const endpoint = 'aldea'
@@ -55,11 +56,6 @@ export const ConfigAldeas = () => {
   const handleReview = () => {
     navigate(`/reviews/${endpoint}s`)
   }
-
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -328,10 +324,7 @@ export const ConfigAldeas = () => {
       {
         user.userPermisos?.acciones['Aldeas']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
-        </Button>
+        <CreateButton title={endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} ModalForm={CrearAldea} setRefetch={handleUpdate}/>
       }
 
       {/*Boton Cambios*/}
@@ -381,9 +374,6 @@ export const ConfigAldeas = () => {
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditAldea handleClose={handleCloseEdit} setRefetchData={setRefetchData} aldea={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearAldea handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

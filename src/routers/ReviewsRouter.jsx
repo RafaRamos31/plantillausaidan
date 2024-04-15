@@ -43,6 +43,12 @@ import { ReviewsQuarters } from '../views/reviews/ReviewsQuarters'
 import { ReviewQuarter } from '../views/reviews/unitarios/ReviewQuarter'
 import { ReviewsTareas } from '../views/reviews/ReviewsTareas'
 import { ReviewTarea } from '../views/reviews/unitarios/ReviewTarea'
+import { ReviewEventoCrear } from '../views/reviews/unitarios/ReviewEventoCrear'
+import { ReviewEventoFinalizar } from '../views/reviews/unitarios/ReviewEventoFinalizar'
+import { ReviewEventoDigitalizar } from '../views/reviews/unitarios/ReviewEventoDigitalizar'
+import { ReviewsTiposEventos } from '../views/reviews/ReviewsTiposEventos'
+import { ReviewTipoEvento } from '../views/reviews/unitarios/ReviewTipoEvento'
+import { ReviewEventoPresupuesto } from '../views/reviews/unitarios/ReviewEventoPresupuestar'
 
 export const ReviewsRouter = () => {
 
@@ -126,6 +132,17 @@ export const ReviewsRouter = () => {
         &&
         <Route path="/usuarios/:idRevision" element={<ReviewUsuario />}></Route>
       }
+
+      {
+        user.userPermisos?.acciones['Tipos de Eventos']['Revisar']
+        &&
+        <Route path="/tiposEventos" element={<ReviewsTiposEventos />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Configuración']['Tipos de Eventos']
+        &&
+        <Route path="/tiposEventos/:idRevision" element={<ReviewTipoEvento />}></Route>
+      } 
 
       {
         user.userPermisos?.acciones['Sectores']['Revisar']
@@ -280,6 +297,11 @@ export const ReviewsRouter = () => {
         &&
         <Route path="/tareas/:idRevision" element={<ReviewTarea />}></Route>
       }
+
+      <Route path="/eventos/aprobacion/:idRevision" element={<ReviewEventoCrear />}></Route>
+      <Route path="/eventos/finalizar/:idRevision" element={<ReviewEventoFinalizar />}></Route>
+      <Route path="/eventos/digitalizar/:idRevision" element={<ReviewEventoDigitalizar />}></Route>
+      <Route path="/eventos/presupuestar/:idRevision" element={<ReviewEventoPresupuesto />}></Route>
       
       <Route path="/*" element={<Navigate to="/" />} />
     </Routes>

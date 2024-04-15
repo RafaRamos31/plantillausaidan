@@ -1,6 +1,6 @@
 import { Avatar, AvatarGroup, Tooltip } from '@mui/material';
 
-export const ResponsablesChip = ({nombre}) => {
+export const ResponsablesChip = ({colaboradores}) => {
 
   function stringToColor(string) {
     let hash = 0;
@@ -30,37 +30,13 @@ export const ResponsablesChip = ({nombre}) => {
       children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
     };
   }
-
-  const responsables = [
-    {
-      id: 1,
-      nombre: 'Rafael Ramos'
-    },
-    {
-      id: 1,
-      nombre: 'Manuel Palma'
-    },
-    {
-      id: 1,
-      nombre: 'Juan Perez'
-    },
-    {
-      id: 1,
-      nombre: 'Juan Perez'
-    },
-    {
-      id: 1,
-      nombre: 'Juan Perez'
-    },
-
-  ]
   
   return (
-    <AvatarGroup max={4} style={{cursor: 'pointer'}}>
+    <AvatarGroup max={8} style={{cursor: 'pointer'}}>
       {
-        responsables.map(responsable => (
-          <Tooltip title={responsable.nombre} placement="top" arrow>
-            <Avatar {...stringAvatar(responsable.nombre)} />
+        colaboradores.map(colaborador => (
+          <Tooltip title={colaborador.nombre} placement="top" arrow>
+            <Avatar {...stringAvatar(colaborador.nombre)} />
           </Tooltip>
         ))
       }

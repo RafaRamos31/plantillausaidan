@@ -5,8 +5,10 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { CrearSectores } from "./CrearSectores.jsx";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 
-export const CrearOrgtype = ({handleClose, setRefetch}) => {
+export const CrearOrgtype = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
   
@@ -41,7 +43,7 @@ export const CrearOrgtype = ({handleClose, setRefetch}) => {
   const { values, handleChange, setValues } = useForm({
     nombre: '',
     idSector: '',
-    aprobar: aprove
+    aprobar: modal ? true : aprove
   });
 
   const handleToggleAprobar = () => {
@@ -65,7 +67,12 @@ export const CrearOrgtype = ({handleClose, setRefetch}) => {
   //Accion al completar correctamente
   const handleSuccess = () => {
     handleClose()
-    setRefetch()
+    if(modal){
+      modalRefetch(true)
+    }
+    else{
+      setRefetch()
+    }
     setShowToast(true)
     actualizarTitulo('Tipo de Organización Creado')
     setContent('Tipo de Organización guardado correctamente.')
@@ -99,25 +106,24 @@ export const CrearOrgtype = ({handleClose, setRefetch}) => {
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} autoComplete='off' onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Sector:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idSector' name='idSector' value={values.idSecto} onChange={handleChange}>
-                <option value="">Seleccionar Sector</option>
-                {
-                  sectores &&
-                  sectores.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={sectores} 
+                value={values.idSector}
+                name={'idSector'}
+                setValues={setValues}
+                setRefetch={setRefetchSectores}
+                ModalCreate={CrearSectores}
+              />
               {
                 !updating ? 
                 <Button variant="light" onClick={handleUpdate}>
@@ -143,7 +149,7 @@ export const CrearOrgtype = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Tipos de Organizaciones']['Revisar']
+        (!modal && user.userPermisos?.acciones['Tipos de Organizaciones']['Revisar'])
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>

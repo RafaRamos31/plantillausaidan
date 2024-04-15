@@ -23,6 +23,8 @@ import { ReportesRouter } from './ReportesRouter'
 import { AproveContextProvider } from '../contexts/AproveContext'
 import { Eventos } from '../views/Eventos'
 import { EventosRouter } from './EventosRouter'
+import { MonitoreoRouter } from './MonitoreoRouter'
+import { Monitoreo } from '../views/Monitoreo'
 
 export const MainRouter = () => {
 
@@ -90,6 +92,10 @@ export const MainRouter = () => {
               <Route path="/configuracion" element={<Configuracion />}></Route>
             }
             <Route path="/configuracion/*" element={<ConfiguracionRouter />}></Route>
+
+            <Route path="/monitoreo" element={<Monitoreo />}></Route>
+
+            <Route path="/monitoreo/*" element={<MonitoreoRouter />}></Route>
 
             <Route path="/reviews/*" element={<ReviewsRouter />}></Route>  
 

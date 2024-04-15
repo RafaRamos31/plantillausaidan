@@ -21,6 +21,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     idComponente: '',
     idSubActividad: '',
     nombre: '',
+    titulo: '',
     descripcion: '',
     idYear: '',
     idQuarter: '',
@@ -118,6 +119,20 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
   }, [dataConfig, isLoadingConfig, errorConfig, setRefetchSubActividades, user])
   
 
+   //Editar Codigo en Formulario
+  const [codigo, setCodigo] = useState('--.--.-- x')
+
+  useEffect(() => {
+
+    if(values.idSubActividad && values.idSubActividad.length > 0){
+      setCodigo(`${subActividades.find(actividad => actividad._id === values.idSubActividad)?.nombre || '--.--.-- X'} `)
+    }
+    else{
+      setCodigo('--.--.-- X')
+    }
+    
+  }, [values, subActividades])
+
   //Accion Update manual
   useEffect(() => {
     if(subActividadesData && !isLoadingSubActividades){
@@ -127,7 +142,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
   
 
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('tareas', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('tareas', {...values, nombre: `${codigo} ${values.nombre}`}) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -199,10 +214,22 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
+            Código:
+          </Form.Label>
+          <Col sm="4">
+            <InputGroup>
+              <InputGroup.Text placeholder="--.--.-- X">{codigo}</InputGroup.Text>
+              <Form.Control id='nombre' name='nombre' value={values.nombre} type="number"  autoComplete='off' onChange={handleChange}/>
+            </InputGroup>
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
             Nombre de la Tarea:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre'  as="textarea" rows={2} maxLength={200} value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='titulo' name='titulo'  as="textarea" rows={2} maxLength={200} value={values.titulo} autoComplete='off' onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -306,25 +333,24 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
           </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className="mb-3 d-flex align-items-center">
-          <Form.Label column sm="4" className="my-auto">
-            Presupuesto Estimado:
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
+            Gastos Estimados:
           </Form.Label>
           <Col sm="8">
-            <InputGroup className="my-auto">
-              <InputGroup.Text>USD $</InputGroup.Text>
+            <InputGroup className="mb-3">
+              <InputGroup.Text>$</InputGroup.Text>
               <Form.Control id='gastosEstimados' name='gastosEstimados' type="number" min={0} value={values.gastosEstimados} onChange={handleChange}/>
               <InputGroup.Text>.00</InputGroup.Text>
             </InputGroup>
-          </Col>
+            </Col>
         </Form.Group>
-
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Sub Actividades']['Revisar']
+        true
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>

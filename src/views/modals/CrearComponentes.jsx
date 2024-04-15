@@ -70,21 +70,22 @@ export const CrearComponente = ({handleClose, setRefetch}) => {
     </Card.Header>
     <Card.Body>
       <Form onSubmit={handleCreate}>
+
         <Form.Group as={Row} className="mb-4">
           <Form.Label column sm="4">
-            Siglas:
+            Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='descripcion' name='descripcion' value={values.descripcion} maxLength={50} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row}>
           <Form.Label column sm="4">
-            Nombre:
+            Nombre Abreviado:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='descripcion' name='descripcion' value={values.descripcion} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 

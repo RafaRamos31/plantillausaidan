@@ -5,8 +5,12 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearMunicipio } from "./CrearMunicipio.jsx";
+import { CrearAldea } from "./CrearAldea.jsx";
 
-export const CrearCaserio = ({handleClose, setRefetch}) => {
+export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
   const { user } = useContext(UserContext);
   const { aprove, setAprove } = useContext(AproveContext);
 
@@ -20,7 +24,7 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
     idMunicipio: '',
     idAldea: '',
     geocode: '',
-    aprobar: aprove
+    aprobar: modal ? true : aprove
   });
 
   const handleToggleAprobar = () => {
@@ -178,7 +182,12 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
   //Accion al completar correctamente
   const handleSuccess = () => {
     handleClose()
-    setRefetch()
+    if(modal){
+      modalRefetch(true)
+    }
+    else{
+      setRefetch()
+    }
     setShowToast(true)
     actualizarTitulo('Caserio Creado')
     setContent('Caserio guardado correctamente.')
@@ -212,25 +221,24 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
             Caserio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Departamento:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                <option value="">Seleccionar Departamento</option>
-                {
-                  deptos &&
-                  deptos.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={deptos} 
+                value={values.idDepartamento}
+                name={'idDepartamento'}
+                setValues={setValues}
+                setRefetch={setRefetchDeptos}
+                ModalCreate={CrearDepartamento}
+              />
               {
                 !updatingDepto ? 
                 <Button variant="light" onClick={handleUpdateDepto}>
@@ -252,20 +260,19 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Municipio:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
-                <option value="">Seleccionar Municipio</option>
-                {
-                  municipios &&
-                  municipios.map((muni) => (
-                    <option key={muni._id} value={muni._id}>{muni.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={municipios} 
+                value={values.idMunicipio}
+                name={'idMunicipio'}
+                setValues={setValues}
+                setRefetch={setRefetchMuni}
+                ModalCreate={CrearMunicipio}
+              />
               {
                 !updatingMunicipios ? 
                 <Button variant="light" onClick={handleUpdateMunicipios}>
@@ -287,20 +294,19 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Aldea:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idAldea' name='idAldea' value={values.idAldea} onChange={handleChange}>
-                <option value="">Seleccionar Aldea</option>
-                {
-                  aldeas &&
-                  aldeas.map((aldea) => (
-                    <option key={aldea._id} value={aldea._id}>{aldea.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={aldeas} 
+                value={values.idAldea}
+                name={'idAldea'}
+                setValues={setValues}
+                setRefetch={setRefetchAldeas}
+                ModalCreate={CrearAldea}
+              />
               {
                 !updatingAldeas ? 
                 <Button variant="light" onClick={handleUpdateAldeas}>
@@ -328,7 +334,7 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
           <Col sm="4">
             <InputGroup>
               <InputGroup.Text placeholder="00">{geo}</InputGroup.Text>
-              <Form.Control id='geocode' name='geocode' placeholder="000" maxLength={3} value={values.geocode} onChange={handleChange}/>
+              <Form.Control id='geocode' name='geocode' placeholder="000" maxLength={3} value={values.geocode} autoComplete={'off'} onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>
@@ -337,7 +343,7 @@ export const CrearCaserio = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Caserios']['Revisar']
+        (!modal && user.userPermisos?.acciones['Caserios']['Revisar'])
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>

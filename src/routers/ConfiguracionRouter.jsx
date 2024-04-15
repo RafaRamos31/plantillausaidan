@@ -9,6 +9,7 @@ import { ConfigMunicipios } from '../views/ConfigMunicipios'
 import { ConfigAldeas } from '../views/ConfigAldeas'
 import { ConfigCaserios } from '../views/ConfigCaserios'
 import { ConfigGenerales } from '../views/ConfigGenerales'
+import { ConfigTiposEventos } from '../views/ConfigTiposEventos'
 
 export const ConfiguracionRouter = () => {
 
@@ -50,6 +51,11 @@ export const ConfiguracionRouter = () => {
         user.userPermisos?.vistas['Configuración']['Caserios']
         &&
         <Route path="/caserios" element={<ConfigCaserios />}></Route>
+      }
+      {
+        user.userPermisos?.vistas['Configuración']['Tipos de Eventos']
+        &&
+        <Route path="/tiposEventos" element={<ConfigTiposEventos />}></Route>
       }
       {
         user.userPermisos?.vistas['Configuración']['Ajustes Generales']

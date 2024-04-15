@@ -12,6 +12,7 @@ import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearBeneficiario } from "./modals/CrearBeneficiario.jsx";
 import { EditBeneficiario } from "./modals/EditBeneficiario.jsx";
 import moment from "moment";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ClientBeneficiarios = () => {
   const endpoint = 'beneficiario'
@@ -56,11 +57,6 @@ export const ClientBeneficiarios = () => {
   const handleReview = () => {
     navigate(`/reviews/${endpoint}s`)
   }
-
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -439,10 +435,7 @@ export const ClientBeneficiarios = () => {
       {
         user.userPermisos?.acciones['Beneficiarios']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar Beneficiario`}
-        </Button>
+        <CreateButton title={'Beneficiario'} ModalForm={CrearBeneficiario} setRefetch={handleUpdate}/>
       }
 
       {/*Boton Cambios*/}
@@ -491,10 +484,7 @@ export const ClientBeneficiarios = () => {
     </Layout>
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditBeneficiario handleClose={handleCloseEdit} setRefetchData={setRefetchData} beneficiario={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearBeneficiario handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
+      <EditBeneficiario handleClose={handleCloseEdit} setRefetch={setRefetchData} beneficiario={currentData}/>
     </Modal>
     </>
   );

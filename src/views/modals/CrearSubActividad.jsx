@@ -300,7 +300,7 @@ export const CrearSubActividad = ({handleClose, setRefetch}) => {
           <Col sm="4">
             <InputGroup>
               <InputGroup.Text placeholder="--.--.-- ">{codigo}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={1} onChange={handleChange}/>
+              <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={1} autoComplete='off' onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>

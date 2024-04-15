@@ -12,6 +12,7 @@ import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { CrearTarea } from "./modals/CrearTarea.jsx";
 import { useFetchGet } from "../hooks/useFetch.js";
 import { Tooltip as MuiTooltip } from "@mui/material";
+import { InfoLink } from "../components/InfoLink.jsx";
 
 export const PlanTareas = () => {
   const endpoint = 'tarea'
@@ -86,11 +87,21 @@ export const PlanTareas = () => {
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
-    { field: 'nombre', headerName: 'Nombre de la Tarea', width: 500,
+      { field: 'nombre', headerName: 'Código', width: 100,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
-      )
+      ),
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'tareas'} 
+            id={params.row._id}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
     },
+    { field: 'titulo', headerName: 'Título', width: 300},
     { field: 'descripcion', headerName: 'Descripción', width: 500,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -138,7 +149,6 @@ export const PlanTareas = () => {
     { field: 'unidadMedida', headerName: 'Unidad de Medida', width: 180, filterable: false },
     { field: 'cantidadProgramada', headerName: 'Eventos Programados', width: 180, filterable: false },
     { field: 'cantidadRealizada', headerName: 'Eventos Realizados', width: 150, filterable: false },
-    { field: 'gastosEstimados', headerName: 'Gastos Estimados', width: 150, filterable: false },
     { field: 'version', headerName: 'Versión', width: 100, filterable: false },
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
@@ -287,6 +297,7 @@ export const PlanTareas = () => {
         editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
+        titulo: item.titulo,
         descripcion: item.descripcion,
         subactividad: JSON.stringify(item.subactividad),
         actividad: JSON.stringify(item.actividad),

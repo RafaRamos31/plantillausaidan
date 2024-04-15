@@ -3,6 +3,7 @@ import { useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
 import { InversionesList } from '../views/InversionesList'
 import { InversionesAreas } from '../views/InversionesAreas'
+import { EventosPresupuesto } from '../views/EventosPresupuesto'
 
 export const InversionesRouter = () => {
 
@@ -30,6 +31,8 @@ export const InversionesRouter = () => {
         &&
         <Route path="/subcategorias" element={<InversionesAreas />}></Route>
       }
+
+      <Route path="/presupuestar" element={<EventosPresupuesto />}></Route>
 
       <Route path="/*" element={<Navigate to="/" />} />
     </Routes>

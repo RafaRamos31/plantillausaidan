@@ -4,8 +4,9 @@ import { Layout } from "./Layout.jsx";
 import useForm from "../hooks/useForm.js";
 import { useFetchGet, useFetchGetBody, useFetchPutBody } from "../hooks/useFetch.js";
 import { useContext, useEffect, useState } from "react";
-import { FormControlLabel, Switch } from "@mui/material";
+import { FormControlLabel, Switch, Tooltip } from "@mui/material";
 import { ToastContext } from "../contexts/ToastContext.js";
+import HelpIcon from '@mui/icons-material/Help';
 
 export const ConfigGenerales = () => {
   //Formulario
@@ -118,7 +119,7 @@ export const ConfigGenerales = () => {
           <h4><i className="bi bi-list-task"></i>{' '}Planificación</h4>
           <Form.Group className="my-4 d-flex align-items-center">
             <Form.Label className="my-0" style={{marginRight: '1rem'}}>
-              Año Actual:
+              Año Fiscal Actual:
             </Form.Label>
             <InputGroup style={{maxWidth: '300px'}}>
               <Form.Select id='idCurrentYear' name='idCurrentYear' value={values.idCurrentYear} onChange={handleChange}>
@@ -141,7 +142,9 @@ export const ConfigGenerales = () => {
               />} 
             label="Habilitar actualización de planificación" 
           />
-          
+          <Tooltip title={'Habilita esta opción para permitir la carga de Tareas para el Año Fiscal en curso.'} placement="top" arrow followCursor>
+            <HelpIcon style={{cursor: 'help'}}/>
+          </Tooltip>
         </Container>
       </Row>
     </Layout>

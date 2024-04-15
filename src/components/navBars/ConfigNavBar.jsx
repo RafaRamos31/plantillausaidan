@@ -67,6 +67,12 @@ export const ConfigNavBar = () => {
       icon: 'bi-geo-alt-fill'
     },
     {
+      name: 'Tipos de Eventos',
+      url: '/configuracion/tiposEventos',
+      dir: 'tiposEventos',
+      icon: 'bi-postcard-fill'
+    },
+    {
       name: 'Ajustes Generales',
       url: '/configuracion/generales',
       dir: 'generales',

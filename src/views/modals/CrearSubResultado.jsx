@@ -133,7 +133,7 @@ export const CrearSubResultado = ({handleClose, setRefetch}) => {
           <Col sm="5">
             <InputGroup>
               <InputGroup.Text placeholder="Sub IR --.">{codigo}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1} onChange={handleChange}/>
+              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={6} min={1} autoComplete='off' onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>

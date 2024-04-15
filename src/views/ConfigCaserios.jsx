@@ -11,6 +11,7 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearCaserio } from "./modals/CrearCaserio.jsx";
 import { EditCaserio } from "./modals/EditCaserio.jsx";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ConfigCaserios = () => {
   const endpoint = 'caserio'
@@ -55,11 +56,6 @@ export const ConfigCaserios = () => {
   const handleReview = () => {
     navigate(`/reviews/${endpoint}s`)
   }
-
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -347,10 +343,7 @@ export const ConfigCaserios = () => {
       {
         user.userPermisos?.acciones['Caserios']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
-        </Button>
+        <CreateButton title={endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} ModalForm={CrearCaserio} setRefetch={handleUpdate}/>
       }
 
       {/*Boton Cambios*/}
@@ -400,9 +393,6 @@ export const ConfigCaserios = () => {
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditCaserio handleClose={handleCloseEdit} setRefetchData={setRefetchData} caserio={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearCaserio handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

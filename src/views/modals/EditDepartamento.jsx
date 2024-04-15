@@ -17,8 +17,8 @@ export const EditDepartamento = ({handleClose, setRefetchData, departamento, fix
   //Formulario
   const { values, handleChange, setValues } = useForm({
     idDepartamento: departamento.id,
-    nombre: departamento.nombre,
-    geocode: departamento.geocode,
+    nombreDept: departamento.nombre,
+    geocodeDept: departamento.geocode,
     aprobar: aprove
   });
 
@@ -49,7 +49,11 @@ export const EditDepartamento = ({handleClose, setRefetchData, departamento, fix
   const [chargingEdit, setChargingEdit] = useState(false);
   
   //Envio asincrono de formulario de Modificar
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('departamentos', values) 
+  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('departamentos', {
+    ...values,
+    nombre: values.nombreDept,
+    geocode: values.geocodeDept
+  }) 
 
   const handleUpdate = () => {
     setChargingEdit(true)
@@ -106,7 +110,7 @@ export const EditDepartamento = ({handleClose, setRefetchData, departamento, fix
             Departamento:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombreDept' name='nombreDept' value={values.nombreDept} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -115,7 +119,7 @@ export const EditDepartamento = ({handleClose, setRefetchData, departamento, fix
             Geocode:
           </Form.Label>
           <Col sm="2">
-            <Form.Control id='geocode' name='geocode' placeholder="00" maxLength={2} value={values.geocode} onChange={handleChange}/>
+            <Form.Control id='geocodeDept' name='geocodeDept' placeholder="00" maxLength={2} value={values.geocodeDept} onChange={handleChange}/>
           </Col>
         </Form.Group>
 

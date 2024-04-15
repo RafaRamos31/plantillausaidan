@@ -1,14 +1,8 @@
 import React, { useState } from 'react'
 import { EventoCard } from './EventoCard';
-import { useDrop } from 'react-dnd';
 
 export const EventStack = ({ events }) => {
   const [cardList, setCardList] = useState(events);
-
-  const [, drop] = useDrop({
-    accept: 'CARD', // Tipo de elemento que puedes soltar
-    drop: (item) => ({}), // Función para manejar el evento de soltar
-  });
 
   const moveCard = (fromIndex, toIndex) => {
     const updatedList = [...cardList];

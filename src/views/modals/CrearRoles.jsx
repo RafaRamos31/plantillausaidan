@@ -89,7 +89,7 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
             <FormLabel style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'black'}}>Nombre del rol:</FormLabel>
           </Form.Label>
           <Col sm="4">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 

@@ -11,6 +11,7 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearOrgtype } from "./modals/CrearOrgtype.jsx";
 import { EditOrgtype } from "./modals/EditOrgtype.jsx";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ClientOrgtypes = () => {
   const endpoint = 'tipoOrganizacion'
@@ -55,11 +56,6 @@ export const ClientOrgtypes = () => {
   const handleReview = () => {
     navigate(`/reviews/${endpoint}es`)
   }
-
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -303,10 +299,7 @@ export const ClientOrgtypes = () => {
       {
         user.userPermisos?.acciones['Tipos de Organizaciones']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar Tipo de Organización`}
-        </Button>
+        <CreateButton title={'Tipo de Organización'} ModalForm={CrearOrgtype} setRefetch={handleUpdate}/>
       }
 
       {/*Boton Cambios*/}
@@ -356,9 +349,6 @@ export const ClientOrgtypes = () => {
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditOrgtype handleClose={handleCloseEdit} setRefetchData={setRefetchData} orgtype={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearOrgtype handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

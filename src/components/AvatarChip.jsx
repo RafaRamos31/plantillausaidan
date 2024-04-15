@@ -30,26 +30,45 @@ function stringAvatar(name) {
   };
 }
 
-export const AvatarChip = ({id=null, name=null, src=null}) => {
+export const AvatarChip = ({id=null, name=null, src=null, link=true}) => {
   if(!id || !name){
     return null
   }
 
-  if(src){
+  if(link){
+    if(src){
+      return (
+        <Link to={`/reviews/usuarios/${id}`} target='_blank'>
+          <Chip
+            avatar={<Avatar {...stringAvatar(name)} alt={name} src={src} />}
+            label={name}
+            variant="outlined"
+          />
+        </Link>
+      )
+    }
+  
     return (
       <Link to={`/reviews/usuarios/${id}`} target='_blank'>
-        <Chip
-          avatar={<Avatar {...stringAvatar(name)} alt={name} src={src} />}
-          label={name}
-          variant="outlined"
-        />
+        <Chip avatar={<Avatar {...stringAvatar(name)} />} label={name} variant="outlined"/>
       </Link>
     )
   }
-
-  return (
-    <Link to={`/reviews/usuarios/${id}`} target='_blank'>
+  else{
+    if(src){
+      return (
+        <Chip
+            avatar={<Avatar {...stringAvatar(name)} alt={name} src={src} />}
+            label={name}
+            variant="outlined"
+          />
+      )
+    }
+  
+    return (
       <Chip avatar={<Avatar {...stringAvatar(name)} />} label={name} variant="outlined"/>
-    </Link>
-  )
+    )
+  }
+
+  
 }

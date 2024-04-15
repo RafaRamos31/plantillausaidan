@@ -25,6 +25,12 @@ export const InversionesNavBar = () => {
   const page = 'Inversiones';
   const [views] = useState([
     {
+      name: 'Presupuestar Evento',
+      url: '/inversiones/presupuestar',
+      dir: 'presupuestar',
+      icon: 'bi-calendar2-plus'
+    },
+    {
       name: 'Inversiones',
       url: '/inversiones/list',
       dir: 'list',

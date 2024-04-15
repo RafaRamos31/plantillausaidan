@@ -11,6 +11,7 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearOrganizacion } from "./modals/CrearOrganizacion.jsx";
 import { EditOrganizacion } from "./modals/EditOrganizacion.jsx";
+import { CreateButton } from "../components/CreateButton.jsx";
 
 export const ClientOrganizaciones = () => {
   const endpoint = 'organizacion'
@@ -56,10 +57,6 @@ export const ClientOrganizaciones = () => {
     navigate(`/reviews/${endpoint}es`)
   }
 
-  //Modal crear
-  const [showCreate, setShowCreate] = useState(false);
-  const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
 
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
@@ -400,10 +397,7 @@ export const ClientOrganizaciones = () => {
       {
         user.userPermisos?.acciones['Organizaciones']['Crear']
         &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
-          <i className="bi bi-file-earmark-plus"></i>{' '}
-          {`Agregar Organización`}
-        </Button>
+        <CreateButton title={'Organización'} ModalForm={CrearOrganizacion} setRefetch={handleUpdate}/>
       }
 
       {/*Boton Cambios*/}
@@ -453,9 +447,6 @@ export const ClientOrganizaciones = () => {
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
       <EditOrganizacion handleClose={handleCloseEdit} setRefetchData={setRefetchData} organizacion={currentData}/>
-    </Modal>
-    <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
-      <CrearOrganizacion handleClose={handleCloseCreate} setRefetch={handleUpdate}/>
     </Modal>
     </>
   );

@@ -106,7 +106,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
             Nombre:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -117,7 +117,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
             Teléfono:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='telefono' name='telefono' value={values.telefono} onChange={handleChange}/>
+            <Form.Control id='telefono' name='telefono' value={values.telefono} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -132,7 +132,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
                 {
                   componentes &&
                   componentes.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
+                    <option key={depto._id} value={depto._id}>{depto.descripcion}</option>
                   ))
                 }
               </Form.Select>
@@ -167,7 +167,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
               Correo Electrónico:
             </Form.Label>
             <Col sm="8" className="my-auto">
-              <Form.Control id='correo' name='correo' type={'email'} value={values.correo} onChange={handleChange}/>
+              <Form.Control id='correo' name='correo' type={'email'} value={values.correo} autoComplete={'off'} onChange={handleChange}/>
             </Col>
           </Form.Group>
 

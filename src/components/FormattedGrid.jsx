@@ -13,6 +13,13 @@ export const FormattedGrid = ({
   pageSizeOptions=[],
   reviews=false,
   deleteds=false,
+  eventComponente='',
+  eventCrear=false, 
+  eventCrearMEL=false, 
+  eventTerminar=false, 
+  eventDigitar=false, 
+  eventPresupuestar=false, 
+  eventConsolidar=false,
   refetchData,
   setRefetchData,
 }) => {
@@ -32,6 +39,13 @@ export const FormattedGrid = ({
     sort: '{}',
     reviews: reviews,
     deleteds: deleteds,
+    eventComponente: eventComponente,
+    eventCrear: eventCrear, 
+    eventCrearMEL: eventCrearMEL, 
+    eventTerminar: eventTerminar, 
+    eventDigitar: eventDigitar, 
+    eventPresupuestar: eventPresupuestar, 
+    eventConsolidar: eventConsolidar
   })
 
 
@@ -98,7 +112,6 @@ export const FormattedGrid = ({
 
   useEffect(() => {
     if(!isLoadingCount && dataCount){
-      
       setRowCount(dataCount.count)
     }
   }, [dataCount, isLoadingCount])

@@ -2,15 +2,13 @@ import { Chip } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import moment from 'moment/moment';
 
-export const HourChip = ({date, status, setStatus}) => {
-  const dateEvento = moment(date);
+export const HourChip = ({date, dateFinal, status}) => {
+  const dateEvento = moment.utc(date);
+  const dateFinalEvento = moment.utc(dateFinal);
   const dateToday = moment().startOf('day');
 
-  if(status === 'Pendiente' && dateEvento < dateToday){
-    setStatus('Retrasado')
-  }
   return (
-    <Chip icon={<AccessTimeIcon />} className='m-2' label={`${dateEvento.format('HH:mm A')} - ${dateEvento.format('HH:mm A')}`} variant="outlined"
+    <Chip icon={<AccessTimeIcon />} className='m-2' label={`${dateEvento.format('HH:mm A')} - ${dateFinalEvento.format('HH:mm A')}`} variant="outlined"
     style={{color: (dateEvento < dateToday && status === 'Retrasado') ? 'red' : 'black'}}/>
   )
 }

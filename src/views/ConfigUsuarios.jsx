@@ -283,7 +283,7 @@ export const ConfigUsuarios = () => {
         telefono: item.telefono,
         correo: item.correo,
         componente: item.componente?._id || '',
-        componenteName: `${item.componente?.nombre || ''}-${item.componente?._id || ''}`,
+        componenteName: `${item.componente?.descripcion || ''}-${item.componente?._id || ''}`,
         rol: item.rol?._id || '',
         rolName: `${item.rol?.nombre || ''}-${item.rol?._id || ''}`,
       }
