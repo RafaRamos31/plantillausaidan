@@ -357,7 +357,7 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
                 <h5>Participantes</h5>
               </Card.Header>
               <Card.Body className="p-4">
-                <h6>Por Género</h6>
+                <h6>Desagregado por Género</h6>
                 <Form.Group as={Row} className="mb-3">
                   <Col sm={6} className="my-2">
                     <InputGroup>
@@ -379,7 +379,7 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
                   </Col>
                 </Form.Group>
 
-                <h6>Por Sector</h6>
+                <h6>Desagregado por Tipo de Beneficiario</h6>
                 <Form.Group as={Row} className="mb-3">
                   <Col sm={6} className="my-2">
                     <InputGroup>
@@ -408,9 +408,9 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
                 <h5>Medios de Verificación</h5>
               </Card.Header>
               <Card.Body className="p-4">
-                <InputFile label={'Formulario de participantes (un solo archivo jpg o pdf)'} idEvento={values.idEvento} prefix={'Formulario'} setValues={(url) => setValues({...values, enlaceFormulario: url})} edit={initialValues} enlace={initialValues.enlaceFormulario}/>
+                <InputFile label={'Formulario de participantes (un solo archivo jpg o pdf)'} idEvento={values.idEvento} prefix={'Formulario'} setValues={(url) => setValues({...values, enlaceFormulario: url})} edit={initialValues} enlace={initialValues?.enlaceFormulario}/>
                 <div className="my-5"></div>
-                <InputFile label={'Evidencias fotográficas (un solo archivo jpg, rar o pdf)'} idEvento={values.idEvento} prefix={'Fotografias'} setValues={(url) => setValues({...values, enlaceFotografias: url})} edit={initialValues} enlace={initialValues.enlaceFotografias}/>
+                <InputFile label={'Evidencias fotográficas (un solo archivo jpg, rar o pdf)'} idEvento={values.idEvento} prefix={'Fotografias'} setValues={(url) => setValues({...values, enlaceFotografias: url})} edit={initialValues} enlace={initialValues?.enlaceFotografias}/>
               </Card.Body>
             </Card>
           <p style={{color: 'red'}}>{errorMessage}</p>

@@ -306,7 +306,7 @@ export const PlanTareas = () => {
         year: item.year?.nombre,
         quarter: item.trimestre?.nombre,
         lugar: item.lugar,
-        unidadMedida: item.unidadMedida,
+        unidadMedida: item.unidadMedida?.nombre,
         cantidadProgramada: item.cantidadProgramada,
         cantidadRealizada: item.cantidadRealizada,
         gastosEstimados: item.gastosEstimados.toLocaleString('en-US', currencyFormat)

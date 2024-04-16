@@ -259,7 +259,7 @@ export const ReviewTarea = () => {
                 original={original?.resultado.nombre} originalTooltip={original?.resultado.descripcion}
                 compare={compare}/>
                 <CompareValue  title={'Lugar:'} value={dataRevision.lugar} original={original?.lugar} compare={compare}/>
-                <CompareValue  title={'Unidad de Medida:'} value={dataRevision.unidadMedida} original={original?.unidadMedida} compare={compare}/>
+                <CompareValue  title={'Unidad de Medida:'} value={dataRevision.unidadMedida?.nombre} original={original?.unidadMedida.nombre} compare={compare}/>
                 <CompareValue  title={'Cantidad programada:'} value={dataRevision.cantidadProgramada} original={original?.cantidadProgramada} compare={compare}/>
                 <CompareValue  title={'Gastos estimados:'} value={dataRevision.gastosEstimados.toLocaleString('en-US', currencyFormat)} original={original?.gastosEstimados.toLocaleString('en-US', currencyFormat)} compare={compare}/>
               </Col>

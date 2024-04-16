@@ -6,6 +6,8 @@ import { useFetchGet, useFetchGetBody, useFetchPostBody } from "../../hooks/useF
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearTipoEvento } from "./CrearTipoEvento.jsx";
 
 
 export const CrearTarea = ({handleClose, setRefetch}) => {
@@ -50,6 +52,31 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
       setYears(yearsData)
     } 
   }, [yearsData, isLoadingYears, errorYears])
+
+
+  //Tipos Eventos
+  const findParamsTipos = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [tiposEventos, setTiposEventos] = useState([])
+  const { data: tiposEventosData, isLoading: isLoadingTiposEventos, error: errorTiposEventos, setRefetch: setRefetchTiposEventos } = useFetchGetBody('list/tiposEventos', findParamsTipos);
+
+  useEffect(() => {
+    if(tiposEventosData && !isLoadingTiposEventos){
+      setTiposEventos(tiposEventosData)
+      setUpdatingTipoEvento(false)
+    } 
+  }, [tiposEventosData, isLoadingTiposEventos, errorTiposEventos])
+
+  //Indicador actualizando con boton departamento
+  const [updatingTipoEvento, setUpdatingTipoEvento] = useState(false);
+
+  //Accion Update manual
+  const handleUpdateTipoEvento = () => {
+    setUpdatingTipoEvento(true);
+    setRefetchTiposEventos(true);
+  }
 
   //Trimestres
   const [findParamsQuarters, setFindParamsQuarters] = useState({
@@ -300,26 +327,36 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
           </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className="mb-3 my-auto">
-          <Form.Label className="my-auto" column sm="4">
-            Unidad de Medida:
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4" className="my-auto">
+            Tipo de Evento:
           </Form.Label>
-          <Col sm="8">
-            <InputGroup>
-              <FormControl className="w-100">
-                <Select
-                  id="unidadMedida"
-                  name="unidadMedida"
-                  onChange={handleChange}
+          <Col sm="8" className="my-auto">
+              <InputGroup>
+                <InputAutocomplete 
+                  valueList={tiposEventos} 
                   value={values.unidadMedida}
-                >
-                  {['Talleres/Capacitación', 'Asistencia Técnica', 'Reunión de Gestión', 'Día de Campo', 'Foro'].map((item) => (
-                    <MenuItem key={item} value={item}>
-                      <ListItemText primary={item} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  name={'unidadMedida'}
+                  setValues={setValues}
+                  setRefetch={setRefetchTiposEventos}
+                  ModalCreate={CrearTipoEvento}
+                />
+              {
+                !updatingTipoEvento ? 
+                <Button variant="light" onClick={handleUpdateTipoEvento}>
+                  <i className="bi bi-arrow-clockwise"></i>
+                </Button>
+                : <Button variant="light">
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span className="visually-hidden">Cargando...</span>
+                </Button>
+              }
             </InputGroup>
           </Col>
         </Form.Group>
@@ -339,7 +376,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
           </Form.Label>
           <Col sm="8">
             <InputGroup className="mb-3">
-              <InputGroup.Text>$</InputGroup.Text>
+              <InputGroup.Text>US $</InputGroup.Text>
               <Form.Control id='gastosEstimados' name='gastosEstimados' type="number" min={0} value={values.gastosEstimados} onChange={handleChange}/>
               <InputGroup.Text>.00</InputGroup.Text>
             </InputGroup>
@@ -350,7 +387,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        true
+        user.userPermisos?.acciones['Tareas']['Revisar']
         ?
         <Form.Group>
           <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
