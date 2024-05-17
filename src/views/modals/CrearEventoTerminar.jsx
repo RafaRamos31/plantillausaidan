@@ -17,7 +17,6 @@ import {
 } from "../../hooks/useFetch.js";
 import { InputFile } from "../../components/InputFile.jsx";
 import { Box, Chip, FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
-import { getArrayNivelesOrganizacion } from "../../services/staticCollections.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearTipoEvento } from "./CrearTipoEvento.jsx";
@@ -35,11 +34,11 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
     idEvento: eventValues.id,
     nombre: eventValues.nombre,
     numeroFormulario: initialValues ? initialValues.numeroFormulario : '',
-    idTipoEvento: initialValues ? initialValues.tipoEvento[0]?._id : '',
+    tipoEventoId: initialValues ? initialValues.tipoEvento[0]?.id : '',
     totalDias: initialValues ? initialValues.totalDias : 0,
     totalHoras: initialValues ? initialValues.totalHoras : 0,
-    sectores: initialValues ? initialValues.sectores.map(s => s._id) : [],
-    niveles: initialValues ? initialValues.niveles : [],
+    sectores: initialValues ? initialValues.sectores.map(s => s.id) : [],
+    niveles: initialValues ? initialValues.niveles.map(s => s.id) : [],
     logros: initialValues ? initialValues.logros : "",
     compromisos: initialValues ? initialValues.compromisos : "",
     participantesHombres: initialValues ? initialValues.participantesHombres : 0,
@@ -51,18 +50,13 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
     aprobar: false
   });
 
-  const handleToggleAprobar = () => {
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
-
-
   //Tipos Eventos
   const findParamsTipos = {
     sort: '{}',
     filter: '{}'
   }
   const [tiposEventos, setTiposEventos] = useState([])
-  const { data: tiposEventosData, isLoading: isLoadingTiposEventos, error: errorTiposEventos, setRefetch: setRefetchTiposEventos } = useFetchGetBody('list/tiposEventos', findParamsTipos);
+  const { data: tiposEventosData, isLoading: isLoadingTiposEventos, error: errorTiposEventos, setRefetch: setRefetchTiposEventos } = useFetchGetBody('tiposEventos/list', findParamsTipos);
 
   useEffect(() => {
     if(tiposEventosData && !isLoadingTiposEventos){
@@ -87,13 +81,28 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
     filter: '{}'
   }
   const [sectores, setSectores] = useState([])
-  const { data: sectoresData, isLoading: isLoadingSectores, error: errorSectores } = useFetchGetBody('list/sectores', findParams);
+  const { data: sectoresData, isLoading: isLoadingSectores, error: errorSectores } = useFetchGetBody('sectores/list', findParams);
 
   useEffect(() => {
     if(sectoresData && !isLoadingSectores){
       setSectores(sectoresData)
     } 
   }, [sectoresData, isLoadingSectores, errorSectores])
+
+
+  //Niveles
+  const findParamsNiveles = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [niveles, setNiveles] = useState([])
+  const { data: nivelesData, isLoading: isLoadingNiveles, error: errorNiveles } = useFetchGetBody('niveles/list', findParamsNiveles);
+
+  useEffect(() => {
+    if(nivelesData && !isLoadingNiveles){
+      setNiveles(nivelesData)
+    } 
+  }, [nivelesData, isLoadingNiveles, errorNiveles])
 
 
   //Envio asincrono de formulario
@@ -108,8 +117,8 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
 
   const handleCreate = (e) => {
     e.preventDefault();
-    if(values.enlaceFormulario.length === 0 || values.enlaceFotografias.length === 0){
-      setErrorMessage('Medios de verificación incompletos.')
+    if(values.enlaceFormulario.length === 0){
+      setErrorMessage('Enlace de formulario requerido.')
     }
     else if((Number(values.participantesHombres) + Number(values.participantesMujeres))  !==  (Number(values.participantesComunitarios) + Number(values.participantesInstitucionales))){
       setErrorMessage('No coincide el total de participantes.')
@@ -125,7 +134,7 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
 
   //Accion al completar correctamente
   const handleSuccess = () => {
-    handleClose();
+    handleClose({id: 0, success: true});
     setRefetch(true);
     setShowToast(true);
     actualizarTitulo("Evento Finalizado");
@@ -154,7 +163,7 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
         style={{ backgroundColor: "var(--main-green)", color: "white" }}
       >
         <h4 className="my-1">Finalizar Evento</h4>
-        <CloseButton onClick={handleClose} />
+        <CloseButton onClick={() => handleClose({id: eventValues.id})} />
       </Card.Header>
       <Card.Body>
             <Form onSubmit={handleCreate}>
@@ -222,11 +231,12 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
                     <InputGroup>
                       <InputAutocomplete 
                         valueList={tiposEventos} 
-                        value={values.idTipoEvento}
-                        name={'idTipoEvento'}
+                        value={values.tipoEventoId}
+                        name={'tipoEventoId'}
                         setValues={setValues}
                         setRefetch={setRefetchTiposEventos}
                         ModalCreate={CrearTipoEvento}
+                        insert={user.userPermisos?.acciones['Tipos de Eventos']['Crear']}
                       />
                     {
                       !updatingTipoEvento ? 
@@ -264,13 +274,13 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
                         renderValue={(selected) => (
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {selected.map((value) => (
-                              <Chip key={value} label={sectores.find(sector => sector._id === value)?.nombre} />
+                              <Chip key={value} label={sectores.find(sector => sector.id === value)?.nombre} />
                             ))}
                           </Box>
                         )}
                       >
                         {sectores && sectores.map((item) => (
-                          <MenuItem key={item._id} value={item._id}>
+                          <MenuItem key={item.id} value={item.id}>
                             <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                               <ListItemText primary={item.nombre} />
                             </Tooltip>
@@ -298,14 +308,14 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
                         renderValue={(selected) => (
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {selected.map((value) => (
-                              <Chip key={value} label={value} />
+                              <Chip key={value} label={niveles.find(nivel => nivel.id === value)?.nombre} />
                             ))}
                           </Box>
                         )}
                       >
-                        {getArrayNivelesOrganizacion().map((item) => (
-                          <MenuItem key={item} value={item}>
-                            <ListItemText primary={item} />
+                        {niveles && niveles.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            <ListItemText primary={item.nombre} />
                           </MenuItem>
                         ))}
                       </Select>
@@ -417,12 +427,6 @@ export const CrearEventoTerminar = ({ handleClose, setRefetch, eventValues, init
       </Card.Body>
       <Card.Footer className="d-flex justify-content-between align-items-center">
         {
-          user.userPermisos?.acciones['Eventos']['Aprobar Finalizar']
-          ?
-          <Form.Group>
-            <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-          </Form.Group>
-          :
           <div></div>
         }
         {!charging ? (

@@ -3,16 +3,17 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { CrearDepartamento } from "./CrearDepartamento.jsx";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearMunicipio } from "./CrearMunicipio.jsx";
 import { CrearAldea } from "./CrearAldea.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
+
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -20,17 +21,12 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
-    idDepartamento: '',
-    idMunicipio: '',
-    idAldea: '',
+    departamentoId: '',
+    municipioId: '',
+    aldeaId: '',
     geocode: '',
     aprobar: modal ? true : aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
   
   //Departamento
   const findParams = {
@@ -38,7 +34,7 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParams);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -75,24 +71,24 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios');
+      setQueryMunicipios('municipios/list');
       setRefetchMuni(true)
       setValues({ ...values, geocode: '' });
     }
@@ -100,7 +96,7 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Aldea
   const [findParamsAldea, setFindParamsAldea] = useState({
@@ -112,24 +108,24 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
   const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
   
   useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.idMunicipio){
+    if(aldeasData && !isLoadingAldeas && values.municipioId){
       setAldeas(aldeasData)
       setUpdatingAldeas(false)
     } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.idMunicipio])
+  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
 
   //Editar Lista de Aldeas en Formulario
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
+    if(values.municipioId && values.municipioId.length !== 0){
       setFindParamsAldea({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'municipio',
-          value: values.idMunicipio
+          field: 'municipioId',
+          value: values.municipioId
         })
       })
-      setQueryAldeas('list/aldeas')
+      setQueryAldeas('aldeas/list')
       setRefetchAldeas(true)
       setValues({ ...values, geocode: '' });
     }
@@ -137,7 +133,7 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
       setAldeas([])
     }
     // eslint-disable-next-line
-  }, [values.idMunicipio, setValues, setRefetchAldeas])
+  }, [values.municipioId, setValues, setRefetchAldeas])
 
   //Indicador actualizando con boton departamento
   const [updatingAldeas, setUpdatingAldeas] = useState(false);
@@ -152,8 +148,9 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
   const [geo, setGeo] = useState('000000')
 
   useEffect(() => {
-    if(values.idAldea && values.idAldea.length > 0){
-      setGeo(aldeas.find(aldea => aldea._id === values.idAldea)?.geocode || '000000')
+    if(values.aldeaId && values.aldeaId.length !== 0){
+      // eslint-disable-next-line
+      setGeo(aldeas.find(aldea => aldea.id == values.aldeaId)?.geocode || '000000')
     }
     else{
       setGeo('000000')
@@ -221,7 +218,7 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
             Caserio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -233,11 +230,12 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
             <InputGroup>
               <InputAutocomplete 
                 valueList={deptos} 
-                value={values.idDepartamento}
-                name={'idDepartamento'}
+                value={values.departamentoId}
+                name={'departamentoId'}
                 setValues={setValues}
                 setRefetch={setRefetchDeptos}
                 ModalCreate={CrearDepartamento}
+                insert={user.userPermisos?.acciones['Departamentos']['Crear']}
               />
               {
                 !updatingDepto ? 
@@ -267,11 +265,12 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
             <InputGroup>
               <InputAutocomplete 
                 valueList={municipios} 
-                value={values.idMunicipio}
-                name={'idMunicipio'}
+                value={values.municipioId}
+                name={'municipioId'}
                 setValues={setValues}
                 setRefetch={setRefetchMuni}
                 ModalCreate={CrearMunicipio}
+                insert={municipios.length > 0 && user.userPermisos?.acciones['Municipios']['Crear']}
               />
               {
                 !updatingMunicipios ? 
@@ -301,11 +300,12 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
             <InputGroup>
               <InputAutocomplete 
                 valueList={aldeas} 
-                value={values.idAldea}
-                name={'idAldea'}
+                value={values.aldeaId}
+                name={'aldeaId'}
                 setValues={setValues}
                 setRefetch={setRefetchAldeas}
                 ModalCreate={CrearAldea}
+                insert={aldeas.length > 0 && user.userPermisos?.acciones['Aldeas']['Crear']}
               />
               {
                 !updatingAldeas ? 
@@ -343,12 +343,6 @@ export const CrearCaserio = ({handleClose, setRefetch, modalRefetch, modal=false
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Caserios']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

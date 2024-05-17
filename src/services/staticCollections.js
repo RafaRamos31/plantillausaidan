@@ -1,4 +1,4 @@
-const arrayNivelesOrganizacion = ['Nacional', 'Departamental', 'Municipal', 'Comunitario']
+const arrayNivelesOrganizacion = ['Nacional', 'Regional/Departamental', 'Municipal', 'Comunitario']
 
 export function getArrayNivelesOrganizacion() {
   return arrayNivelesOrganizacion

@@ -4,28 +4,21 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditComponente = ({handleClose, setRefetchData, componente, fixing=false}) => {
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange } = useForm({
     idComponente: componente.id,
     nombre: componente.nombre,
     descripcion: componente.descripcion,
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
@@ -103,7 +96,7 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
 
         <Form.Group as={Row} className="mb-4">
           <Form.Label column sm="4">
-            Nombre:
+            Nombre del Componente:
           </Form.Label>
           <Col sm="8">
             <Form.Control id='descripcion' name='descripcion' value={values.descripcion} maxLength={50} onChange={handleChange}/>
@@ -112,7 +105,7 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
 
         <Form.Group as={Row}>
           <Form.Label column sm="4">
-            Nombre Abreviado:
+            Siglas:
           </Form.Label>
           <Col sm="8">
             <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
@@ -124,12 +117,6 @@ export const EditComponente = ({handleClose, setRefetchData, componente, fixing=
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Componentes']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       

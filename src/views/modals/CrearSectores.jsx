@@ -3,27 +3,20 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearSectores = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext); 
+  const { aprove } = useContext(AproveContext); 
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange } = useForm({
     nombre: '',
     aprobar: modal ? true : aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('sectores', values) 
@@ -87,12 +80,6 @@ export const CrearSectores = ({handleClose, setRefetch, modalRefetch, modal=fals
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Sectores']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

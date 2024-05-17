@@ -25,13 +25,13 @@ export const IndMonitoreo = () => {
     deleteds: false,
   }
 
-  const { data, isLoading } = useFetchGetPaged(`paged/indicadores`, tableState);
+  const { data, isLoading } = useFetchGetPaged(`indicadores/paged`, tableState);
 
   useEffect(() => {
     if(data && !isLoading){
-      setIndicadores(data)
+      setIndicadores(data.rows)
 
-      const suma = data.reduce((acum, indicador) => {
+      const suma = data.rows.reduce((acum, indicador) => {
         if(indicador.metas[year][trimestre] === 0){
           return acum + 100
         }
@@ -39,7 +39,7 @@ export const IndMonitoreo = () => {
         return acum + (progreso / indicador.metas[year][trimestre] * 100)
       }, 0)
 
-      setGlobalPercent(data.length > 0 ? Number.parseInt(suma/data.length) : 0)
+      setGlobalPercent(data.rows.length > 0 ? Number.parseInt(suma/data.rows.length) : 0)
     }
     // eslint-disable-next-line
   }, [data, isLoading])

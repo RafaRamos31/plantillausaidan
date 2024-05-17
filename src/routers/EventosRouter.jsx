@@ -11,6 +11,8 @@ import { EventosDigitar } from '../views/EventosDigitar'
 import { EventosDigitarForm } from '../views/EventoDigitarForm'
 import { EventosConsolidado } from '../views/EventosConsolidado'
 import { EventosPresupuesto } from '../views/EventosPresupuesto'
+import { EventosConsolidarForm } from '../views/EventoConsolidarForm'
+import { RefetchContextProvider } from '../contexts/RefetchContext'
 
 export const EventosRouter = () => {
 
@@ -31,7 +33,14 @@ export const EventosRouter = () => {
       {
         user.userPermisos?.vistas['Eventos']['Tablero']
         &&
-        <Route path="/tablero" element={<EventosTablero />}></Route>
+        <Route path="/tablero" 
+        element=
+        {
+          <RefetchContextProvider>
+            <EventosTablero />
+          </RefetchContextProvider>
+        }
+        ></Route>
       }
 
 
@@ -42,6 +51,8 @@ export const EventosRouter = () => {
       <Route path="/digitar/:idEvento" element={<EventosDigitarForm />}></Route>
       <Route path="/consolidado" element={<EventosConsolidado />}></Route>
       <Route path="/verificacion" element={<EventosPresupuesto />}></Route>
+      <Route path="/consolidado" element={<EventosConsolidado />}></Route>
+      <Route path="/consolidado/:idEvento" element={<EventosConsolidarForm />}></Route>
 
 
       <Route path="/*" element={<Navigate to="/" />} />

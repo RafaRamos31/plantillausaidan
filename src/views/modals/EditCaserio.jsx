@@ -4,28 +4,28 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { CrearMunicipio } from "./CrearMunicipio.jsx";
+import { CrearAldea } from "./CrearAldea.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}) => {
+
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
     idCaserio: caserio.id,
     nombre: caserio.nombre,
-    idDepartamento: caserio.idDepartamento || caserio.departamento._id,
-    idMunicipio: caserio.idMunicipio || caserio.municipio._id,
-    idAldea: caserio.idAldea || caserio.aldea._id,
+    departamentoId: caserio.departamentoId,
+    municipioId: caserio.municipioId,
+    aldeaId: caserio.aldeaId,
     geocode: caserio.geocode.substring(6),
     aprobar: aprove
   });
-  
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -36,7 +36,7 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParams);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -73,24 +73,24 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios')
+      setQueryMunicipios('municipios/list')
       setRefetchMuni(true)
       setValues({ ...values });
     }
@@ -98,7 +98,7 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Aldea
   const [findParamsAldea, setFindParamsAldea] = useState({
@@ -110,24 +110,24 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
   const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
   
   useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.idMunicipio){
+    if(aldeasData && !isLoadingAldeas && values.municipioId){
       setAldeas(aldeasData)
       setUpdatingAldeas(false)
     } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.idMunicipio])
+  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
 
   //Editar Lista de Aldeas en Formulario
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
+    if(values.municipioId && values.municipioId.length !== 0){
       setFindParamsAldea({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'municipio',
-          value: values.idMunicipio
+          field: 'municipioId',
+          value: values.municipioId
         })
       })
-      setQueryAldeas('list/aldeas')
+      setQueryAldeas('aldeas/list')
       setRefetchAldeas(true)
       setValues({ ...values});
     }
@@ -135,7 +135,7 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
       setAldeas([])
     }
     // eslint-disable-next-line
-  }, [values.idMunicipio, setValues, setRefetchAldeas])
+  }, [values.municipioId, setValues, setRefetchAldeas])
 
   //Indicador actualizando con boton departamento
   const [updatingAldeas, setUpdatingAldeas] = useState(false);
@@ -150,8 +150,9 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
   const [geo, setGeo] = useState('000000')
 
   useEffect(() => {
-    if(values.idAldea && values.idAldea.length > 0){
-      setGeo(aldeas.find(aldea => aldea._id === values.idAldea)?.geocode || '000000')
+    if(values.aldeaId && values.aldeaId.length !== 0){
+      // eslint-disable-next-line
+      setGeo(aldeas.find(aldea => aldea.id == values.aldeaId)?.geocode || '000000')
     }
     else{
       setGeo('000000')
@@ -243,25 +244,25 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
             Caserio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Departamento:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                <option value="">Seleccionar Departamento</option>
-                {
-                  deptos &&
-                  deptos.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={deptos} 
+                value={values.departamentoId}
+                name={'departamentoId'}
+                setValues={setValues}
+                setRefetch={setRefetchDeptos}
+                ModalCreate={CrearDepartamento}
+                insert={user.userPermisos?.acciones['Departamentos']['Crear']}
+              />
               {
                 !updatingDepto ? 
                 <Button variant="light" onClick={handleUpdateDepto}>
@@ -283,20 +284,20 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Municipio:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
-                <option value="">Seleccionar Municipio</option>
-                {
-                  municipios &&
-                  municipios.map((muni) => (
-                    <option key={muni._id} value={muni._id}>{muni.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={municipios} 
+                value={values.municipioId}
+                name={'municipioId'}
+                setValues={setValues}
+                setRefetch={setRefetchMuni}
+                ModalCreate={CrearMunicipio}
+                insert={municipios.length > 0 && user.userPermisos?.acciones['Municipios']['Crear']}
+              />
               {
                 !updatingMunicipios ? 
                 <Button variant="light" onClick={handleUpdateMunicipios}>
@@ -318,20 +319,20 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Aldea:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idAldea' name='idAldea' value={values.idAldea} onChange={handleChange}>
-                <option value="">Seleccionar Aldea</option>
-                {
-                  aldeas &&
-                  aldeas.map((aldea) => (
-                    <option key={aldea._id} value={aldea._id}>{aldea.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={aldeas} 
+                value={values.aldeaId}
+                name={'aldeaId'}
+                setValues={setValues}
+                setRefetch={setRefetchAldeas}
+                ModalCreate={CrearAldea}
+                insert={aldeas.length > 0 && user.userPermisos?.acciones['Aldeas']['Crear']}
+              />
               {
                 !updatingAldeas ? 
                 <Button variant="light" onClick={handleUpdateAldeas}>
@@ -368,12 +369,6 @@ export const EditCaserio = ({handleClose, setRefetchData, caserio, fixing=false}
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Caserios']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

@@ -28,7 +28,7 @@ export const ReviewEventoDigitalizar = () => {
 
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/participantes/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/participantes/${idRevision}`);
 
 
   //Formulario Componente
@@ -39,7 +39,7 @@ export const ReviewEventoDigitalizar = () => {
   });
   
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/eventos/digitalizar', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('eventos/digitalizar', values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -102,7 +102,7 @@ export const ReviewEventoDigitalizar = () => {
         {link: '/', nombre: 'Inicio'},
         {link: '/eventos', nombre: 'Eventos'},
         {link: '/eventos/digitar', nombre: 'Digitación'},
-        {link: `/reviews/eventos/digitalizar/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+        {link: `/reviews/eventos/digitalizar/${idRevision}`, nombre: dataRevision?.numeroFormulario || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
@@ -125,7 +125,7 @@ export const ReviewEventoDigitalizar = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Digitalizador:</p>
                   {
                     dataRevision.responsableDigitacion ?
-                    <AvatarChip name={dataRevision.responsableDigitacion.nombre} id={dataRevision.responsableDigitacion._id}/>
+                    <AvatarChip name={dataRevision.responsableDigitacion.nombre} id={dataRevision.responsableDigitacion.id}/>
                     :
                     <p>--</p>
                   }
@@ -150,7 +150,7 @@ export const ReviewEventoDigitalizar = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisorDigitacion ?
-                    <AvatarChip name={dataRevision.revisorDigitacion.nombre} id={dataRevision.revisorDigitacion._id}/>
+                    <AvatarChip name={dataRevision.revisorDigitacion.nombre} id={dataRevision.revisorDigitacion.id}/>
                     :
                     <p>--</p>
                   }
@@ -208,6 +208,30 @@ export const ReviewEventoDigitalizar = () => {
                     <Form.Control id='participantesMujeres' name='participantesMujeres' disabled type="number" min={0} value={dataRevision.participantesMujeres} />
                   </InputGroup>
                 </Col>
+                <InputGroup className="my-2">
+                  <InputGroup.Text>{'Total por Género'}</InputGroup.Text>
+                  <Form.Control id='totalGenero' name='totalGenero' type="number" value={Number(dataRevision.participantesHombres) + Number(dataRevision.participantesMujeres)} readOnly/>
+                </InputGroup>
+              </Form.Group>
+
+              <h6>Por Tipo de Beneficiario</h6>
+              <Form.Group as={Row} className="mb-3">
+                <Col sm={6} className="my-2">
+                  <InputGroup>
+                    <InputGroup.Text>{'Comunitarios'}</InputGroup.Text>
+                    <Form.Control id='participantesComunitarios' name='participantesComunitarios' disabled type={"number"} min={0} value={dataRevision.participantesComunitarios} />
+                  </InputGroup>
+                </Col>
+                <Col sm={6} className="my-2">
+                  <InputGroup>
+                    <InputGroup.Text>{'Institucionales'}</InputGroup.Text>
+                    <Form.Control id='participantesInstitucionales' name='participantesInstitucionales' disabled type="number" min={0} value={dataRevision.participantesInstitucionales} />
+                  </InputGroup>
+                </Col>
+                <InputGroup className="my-2">
+                  <InputGroup.Text>{'Total por Tipo'}</InputGroup.Text>
+                  <Form.Control id='totalTipo' name='totalTipo' type="number" value={Number(dataRevision.participantesComunitarios) + Number(dataRevision.participantesInstitucionales)} readOnly/>
+                </InputGroup>
               </Form.Group>
             </Card.Body>
           </Card>
@@ -232,6 +256,30 @@ export const ReviewEventoDigitalizar = () => {
                     <Form.Control id='participantesMujeres' name='participantesMujeres' disabled type="number" min={0} value={dataRevision.registradosMujeres} />
                   </InputGroup>
                 </Col>
+                <InputGroup className="my-2">
+                  <InputGroup.Text>{'Total por Género'}</InputGroup.Text>
+                  <Form.Control id='totalGenero' name='totalGenero' type="number" value={Number(dataRevision.registradosHombres) + Number(dataRevision.registradosMujeres)} readOnly/>
+                </InputGroup>
+              </Form.Group>
+
+              <h6>Por Tipo de Beneficiario</h6>
+              <Form.Group as={Row} className="mb-3">
+                <Col sm={6} className="my-2">
+                  <InputGroup>
+                    <InputGroup.Text>{'Comunitarios'}</InputGroup.Text>
+                    <Form.Control id='participantesComunitarios' name='participantesComunitarios' disabled type={"number"} min={0} value={dataRevision.registradosComunitarios} />
+                  </InputGroup>
+                </Col>
+                <Col sm={6} className="my-2">
+                  <InputGroup>
+                    <InputGroup.Text>{'Institucionales'}</InputGroup.Text>
+                    <Form.Control id='participantesInstitucionales' name='participantesInstitucionales' disabled type="number" min={0} value={dataRevision.registradosInstitucionales} />
+                  </InputGroup>
+                </Col>
+                <InputGroup className="my-2">
+                  <InputGroup.Text>{'Total por Tipo'}</InputGroup.Text>
+                  <Form.Control id='totalTipo' name='totalTipo' type="number" value={Number(dataRevision.registradosComunitarios) + Number(dataRevision.registradosInstitucionales)} readOnly/>
+                </InputGroup>
               </Form.Group>
             </Card.Body>
           </Card>
@@ -240,7 +288,7 @@ export const ReviewEventoDigitalizar = () => {
 
           <div className='d-flex align-items-center justify-content-between'>
             <h4>Participantes del Evento</h4>
-            <Button className="px-3" href={dataRevision.enlaceFormulario} target="_blank" style={{fontWeight: 'bold'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
+            <Button variant='info' className="px-3" href={dataRevision.enlaceFormulario} target="_blank" style={{fontWeight: 'bold'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
           </div>
           <Container style={{border: '1px solid lightgray', padding: '1.5rem', borderRadius: '10px', marginTop: '1rem'}}>
             <ParticipantesGridReview participantes={dataRevision?.participantes}/>
@@ -262,7 +310,7 @@ export const ReviewEventoDigitalizar = () => {
             {
               (dataRevision && dataRevision.estadoRevisionDigitacion === 'Rechazado'  && user?.userPermisos.acciones['Eventos']['Digitalizar']) &&
               <div className="d-grid w-100">
-                <a href={`/eventos/digitar/${dataRevision._id}`} className="d-grid w-100">
+                <a href={`/eventos/digitar/${dataRevision.id}`} className="d-grid w-100">
                   <Button variant="primary"><i className="bi bi-tools"></i>{' '}Corregir</Button>
                 </a>
               </div>

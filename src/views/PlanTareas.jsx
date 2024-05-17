@@ -1,7 +1,6 @@
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
-import { EditMunicipio } from "./modals/EditMunicipio.jsx";
 import { UserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
@@ -13,6 +12,7 @@ import { CrearTarea } from "./modals/CrearTarea.jsx";
 import { useFetchGet } from "../hooks/useFetch.js";
 import { Tooltip as MuiTooltip } from "@mui/material";
 import { InfoLink } from "../components/InfoLink.jsx";
+import { EditTarea } from "./modals/EditTarea.jsx";
 
 export const PlanTareas = () => {
   const endpoint = 'tarea'
@@ -34,6 +34,15 @@ export const PlanTareas = () => {
 
   //General config
   const { data: dataConfig } = useFetchGet('config');
+
+  const [enableEdit, setEnableEdit] = useState(false);
+
+  useEffect(() => {
+    if(dataConfig){
+      setEnableEdit(Number(dataConfig.find(el => el.attributeKey === 'enableSubirPlanificacion')?.attributeValue))
+    }
+  }, [dataConfig])
+  
 
   //Indicador solicitud de recarga de datos en la vista
   const [refetchData, setRefetchData] = useState(false);
@@ -76,14 +85,14 @@ export const PlanTareas = () => {
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
   const handleCloseEdit = () => setShowEdit(false);
-  const handleShowEdit = () => setShowEdit(true);
+  //const handleShowEdit = () => setShowEdit(true);
 
   //Valor para Modal Modificar
-  const [currentData, setCurrentData] = useState({});
+  const [currentData] = useState({});
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false },
-    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.', 
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.', 
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
@@ -107,16 +116,7 @@ export const PlanTareas = () => {
         (operator) => operator.value === 'contains',
       )
     },
-    { field: 'subactividad', headerName: 'Sub Actividad', width: 150, filterable: false,
-    renderCell: (params) => {
-      const subactividad = JSON.parse(params.formattedValue)
-      return (
-        <MuiTooltip title={subactividad.descripcion} placement="top" arrow followCursor>
-          <p style={{cursor: 'help'}}>{subactividad.nombre}</p>
-        </MuiTooltip>
-      );
-    }},
-    { field: 'actividad', headerName: 'Actividad', width: 150, filterable: false,
+    { field: 'componenteId', headerName: 'Componente', width: 120, filterable: false,
     renderCell: (params) => {
       const actividad = JSON.parse(params.formattedValue)
       return (
@@ -125,7 +125,25 @@ export const PlanTareas = () => {
         </MuiTooltip>
       );
     }},
-    { field: 'subresultado', headerName: 'Sub Resultado', width: 150, filterable: false,
+    { field: 'subactividadId', headerName: 'Sub Actividad', width: 150, filterable: false,
+    renderCell: (params) => {
+      const subactividad = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={subactividad.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{subactividad.nombre}</p>
+        </MuiTooltip>
+      );
+    }},
+    { field: 'actividadId', headerName: 'Actividad', width: 150, filterable: false,
+    renderCell: (params) => {
+      const actividad = JSON.parse(params.formattedValue)
+      return (
+        <MuiTooltip title={actividad.descripcion} placement="top" arrow followCursor>
+          <p style={{cursor: 'help'}}>{actividad.nombre}</p>
+        </MuiTooltip>
+      );
+    }},
+    { field: 'subresultadoId', headerName: 'Sub Resultado', width: 150, filterable: false,
     renderCell: (params) => {
       const subresultado = JSON.parse(params.formattedValue)
       return (
@@ -134,7 +152,7 @@ export const PlanTareas = () => {
         </MuiTooltip>
       );
     }},
-    { field: 'resultado', headerName: 'Resultado', width: 150, filterable: false,
+    { field: 'resultadoId', headerName: 'Resultado', width: 150, filterable: false,
     renderCell: (params) => {
       const resultado = JSON.parse(params.formattedValue)
       return (
@@ -143,21 +161,49 @@ export const PlanTareas = () => {
         </MuiTooltip>
       );
     }},
-    { field: 'year', headerName: 'Año Fiscal', width: 150, filterable: false },
-    { field: 'quarter', headerName: 'Trimestre', width: 150, filterable: false },
+    { field: 'yearId', headerName: 'Año Fiscal', width: 100, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'years'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'quarterId', headerName: 'Trimestre', width: 100, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'quarters'} 
+            id={params.value.split('*')[1]}
+            nombre={params.value.split('*')[0]}
+          />
+        );
+      }
+    },
     { field: 'lugar', headerName: 'Lugar', width: 300, filterable: false },
-    { field: 'unidadMedida', headerName: 'Unidad de Medida', width: 180, filterable: false },
-    { field: 'cantidadProgramada', headerName: 'Eventos Programados', width: 180, filterable: false },
-    { field: 'cantidadRealizada', headerName: 'Eventos Realizados', width: 150, filterable: false },
+    { field: 'tipoEventoId', headerName: 'Unidad de Medida', width: 180, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'tiposeventos'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'gastosEstimados', headerName: 'Gastos Estimados', width: 180, filterable: false },
+    { field: 'gastosRealizados', headerName: 'Gastos Realizados', width: 180, filterable: false },
+    { field: 'eventosEstimados', headerName: 'Eventos Estimados', width: 150, filterable: false },
+    { field: 'eventosRealizados', headerName: 'Eventos Realizados', width: 150, filterable: false },
     { field: 'version', headerName: 'Versión', width: 100, filterable: false },
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-      { field: 'editor', headerName: 'uuid Editor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
+    { field: 'editorId', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -170,11 +216,7 @@ export const PlanTareas = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -187,24 +229,13 @@ export const PlanTareas = () => {
     { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
+    { field: 'eliminadorId', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
             id={params.formattedValue.split('-')[1]}
             name={params.formattedValue.split('-')[0]} 
           />
-        );
-      } 
-    },
-    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
-      renderCell: (params) => {
-        return (
-          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
@@ -232,7 +263,7 @@ export const PlanTareas = () => {
               </a>
             </OverlayTrigger>
             {
-              user.userPermisos?.acciones['Tareas']['Modificar'] 
+              /*user.userPermisos?.acciones['Tareas']['Modificar'] 
               &&
               <>
               {
@@ -249,9 +280,17 @@ export const PlanTareas = () => {
                   <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
                     setCurrentData({
                       id: params.row._id,
+                      componenteId: JSON.parse(params.row.componenteId)?.id,
+                      subactividadId: JSON.parse(params.row.subactividadId)?.id,
                       nombre: params.row.nombre,
-                      idDepartamento: params.row.departamento,
-                      geocode: params.row.geocode
+                      titulo: params.row.titulo,
+                      descripcion: params.row.titulo,
+                      yearId: params.row.yearId.split('-')[1],
+                      quarterId: params.row.quarterId.split('*')[1],
+                      lugar: params.row.lugar,
+                      tipoEventoId: params.row.tipoEventoId.split('-')[1],
+                      gastosEstimados: Number(params.row.gastosEstimados.slice(1, -2)),
+                      eventosEstimados: params.row.eventosEstimados,
                     })
                     handleShowEdit()
                   }}>
@@ -259,18 +298,7 @@ export const PlanTareas = () => {
                   </Button>
                 </OverlayTrigger>
               }
-              </>
-            }
-            {
-              user.userPermisos?.acciones['Tareas']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
+              </>*/
             }
           </>
         );
@@ -283,33 +311,31 @@ export const PlanTareas = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        _id: item._id, 
+        _id: item.id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor?._id || '',
-        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
+        editorId: `${item.editor?.nombre || ''}-${item.editor?.id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor?._id || '',
-        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
+        revisorId: `${item.revisor?.nombre || ''}-${item.revisor?.id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: item.eliminador?._id || '',
-        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
-        editing: item.pendientes.includes(user.userId),
+        eliminadorId: `${item.eliminador?.nombre || ''}-${item.eliminador?.id || ''}`,
         estado: item.estado,
         nombre: item.nombre,
         titulo: item.titulo,
         descripcion: item.descripcion,
-        subactividad: JSON.stringify(item.subactividad),
-        actividad: JSON.stringify(item.actividad),
-        subresultado: JSON.stringify(item.subresultado),
-        resultado: JSON.stringify(item.resultado),
-        year: item.year?.nombre,
-        quarter: item.trimestre?.nombre,
+        componenteId: JSON.stringify(item.componente),
+        subactividadId: JSON.stringify(item.subactividad),
+        actividadId: JSON.stringify(item.actividad),
+        subresultadoId: JSON.stringify(item.subresultado),
+        resultadoId: JSON.stringify(item.resultado),
+        yearId: `${item.year?.nombre || ''}-${item.year?.id || ''}`,
+        quarterId: `${item.quarter?.nombre || ''}*${item.quarter?.id || ''}`,
         lugar: item.lugar,
-        unidadMedida: item.unidadMedida?.nombre,
-        cantidadProgramada: item.cantidadProgramada,
-        cantidadRealizada: item.cantidadRealizada,
-        gastosEstimados: item.gastosEstimados.toLocaleString('en-US', currencyFormat)
+        tipoEventoId: `${item.tipoEvento?.nombre || ''}-${item.tipoEvento?.id || ''}`,
+        gastosEstimados: item.gastosEstimados.toLocaleString('en-US', currencyFormat),
+        gastosRealizados: item.gastosRealizados.toLocaleString('en-US', currencyFormat),
+        eventosEstimados: item.eventosEstimados,
+        eventosRealizados: item.eventosRealizados,
       }
     ))
   )
@@ -317,21 +343,18 @@ export const PlanTareas = () => {
   const hiddenColumns = {
     _id: false,
     descripcion: false,
-    year: false,
-    actividad: false,
-    subresultado: false,
-    resultado: false,
+    componenteId: false,
+    yearId: false,
+    actividadId: false,
+    subresultadoId: false,
+    resultadoId: false,
     version: false,
     fechaEdicion: false,
-    editor: false,
-    editorName: false,
+    editorId: false,
     fechaRevision: false,
-    revisor: false,
-    revisorName: false,
+    revisorId: false,
     fechaEliminacion: false,
-    eliminador: false,
-    eliminadorName: false,
-    editing: false,
+    eliminadorId: false,
     estado: false
   }
 
@@ -367,9 +390,9 @@ export const PlanTareas = () => {
       {
         user.userPermisos?.acciones['Tareas']['Crear']
         &&
-        <MuiTooltip title={dataConfig?.enableSubirPlanificacion ?  '' : 'La opción de modificar la planificación esta actualmente deshabilidada' } placement="top" arrow followCursor>
+        <MuiTooltip title={enableEdit ?  '' : 'La opción de modificar la planificación esta actualmente deshabilidada' } placement="top" arrow followCursor>
           <div style={{display: 'inline'}}>
-            <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate} disabled={!dataConfig?.enableSubirPlanificacion}>
+            <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate} disabled={!enableEdit}>
               <i className="bi bi-file-earmark-plus"></i>{' '}
               {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
             </Button>
@@ -418,12 +441,13 @@ export const PlanTareas = () => {
         refetchData={refetchData}
         setRefetchData={setRefetchData} 
         deleteds={deleteds}
+        componenteId={user.userComponente.id}
       />
 
     </Layout>
 
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditMunicipio handleClose={handleCloseEdit} setRefetchData={setRefetchData} municipio={currentData}/>
+      <EditTarea handleClose={handleCloseEdit} setRefetchData={setRefetchData} tarea={currentData}/>
     </Modal>
     <Modal show={showCreate} onHide={handleCloseCreate} backdrop="static">
       <CrearTarea handleClose={handleCloseCreate} setRefetch={handleUpdate}/>

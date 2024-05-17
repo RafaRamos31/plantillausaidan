@@ -4,13 +4,11 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}) => {
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
@@ -18,15 +16,10 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
     nombre: usuario.nombre,
     dni: usuario.dni,
     telefono: usuario.telefono,
-    idComponente: usuario.idComponente,
-    idRol: usuario.idRol,
+    componenteId: usuario.componenteId,
+    rolId: usuario.rolId,
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Componente
   const findParams = {
@@ -34,7 +27,7 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
     filter: '{}'
   }
   const [componentes, setComponentes] = useState([])
-  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes, setRefetch: setRefetchComponentes } = useFetchGetBody('list/componentes', findParams);
+  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes, setRefetch: setRefetchComponentes } = useFetchGetBody('componentes/list', findParams);
   
   useEffect(() => {
     if(componentesData && !isLoadingComponentes){
@@ -58,7 +51,7 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
     filter: '{}'
   }
   const [roles, setRoles] = useState([])
-  const { data: rolesData, isLoading: isLoadingRoles, error: errorRoles, setRefetch: setRefetchRoles } = useFetchGetBody('list/roles', findParamsRol);
+  const { data: rolesData, isLoading: isLoadingRoles, error: errorRoles, setRefetch: setRefetchRoles } = useFetchGetBody('roles/list', findParamsRol);
   
   useEffect(() => {
     if(rolesData && !isLoadingRoles){
@@ -177,12 +170,12 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
             </Form.Label>
             <Col sm="8">
               <InputGroup>
-                <Form.Select id='idComponente' name='idComponente' value={values.idComponente} onChange={handleChange}>
+                <Form.Select id='componenteId' name='componenteId' value={values.componenteId} onChange={handleChange}>
                   <option value="">Seleccionar Componente</option>
                   {
                     componentes &&
                     componentes.map((componente) => (
-                      <option key={componente._id} value={componente._id}>{componente.nombre}</option>
+                      <option key={componente.id} value={componente.id}>{componente.descripcion}</option>
                     ))
                   }
                 </Form.Select>
@@ -212,12 +205,12 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
             </Form.Label>
             <Col sm="8">
               <InputGroup>
-                <Form.Select id='idRol' name='idRol' value={values.idRol} onChange={handleChange}>
+                <Form.Select id='rolId' name='rolId' value={values.rolId} onChange={handleChange}>
                   <option value="">Seleccionar Rol</option>
                   {
                     roles &&
                     roles.map((rol) => (
-                      <option key={rol._id} value={rol._id}>{rol.nombre}</option>
+                      <option key={rol.id} value={rol.id}>{rol.nombre}</option>
                     ))
                   }
                 </Form.Select>
@@ -246,12 +239,6 @@ export const EditUsuario = ({handleClose, setRefetchData, usuario, fixing=false}
       </Card.Body>
       <Card.Footer className="d-flex justify-content-between align-items-center">
         {
-          user.userPermisos?.acciones['Usuarios']['Revisar']
-          ?
-          <Form.Group>
-            <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-          </Form.Group>
-          :
           <div></div>
         }
         {

@@ -54,7 +54,7 @@ export const useFindTicket = (idTicket) => {
     const fetchData = async () => {
       try {
 
-        const response = await fetch(process.env.REACT_APP_API_URL + 'ticket/' + idTicket , {
+        const response = await fetch(process.env.REACT_APP_API_URL + 'tickets/' + idTicket , {
           method: 'GET'
         });
         let jsonData = '';
@@ -97,7 +97,7 @@ export const useConsumeTicket = (idTicket) => {
   const [code, setCode] = useState(200);
 
   const form = new FormData();
-  form.append('idTicket', idTicket);
+  form.append('code', idTicket);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -40,14 +40,14 @@ export const EventosDigitar = () => {
   }, [refetchData, setUpdating])
 
   const columns = [
-    { field: 'id', headerName: '#', width: 50 },
-    { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'id', headerName: '#', width: 50, filterable: false },
+    { field: 'uuid', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.', filterable: false },
     { field: 'nombre', headerName: 'Nombre', width: 400 },
     { field: 'numeroFormulario', headerName: 'Formulario', width: 120 },
-    { field: 'fechaInicio', headerName: 'Fecha del evento', width: 170, 
+    { field: 'fechaInicio', headerName: 'Fecha del evento', filterable: false, width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'organizador', headerName: 'Organizador', width: 170,
+    { field: 'responsableFinalizacionId', headerName: 'Resp. Envío', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -57,10 +57,20 @@ export const EventosDigitar = () => {
         );
       } 
     },
-    { field: 'fechaCreacion', headerName: 'Fecha de Creación', width: 170, 
+    { field: 'organizadorId', headerName: 'Organizador', width: 170, filterable: false,
+      renderCell: (params) => {
+        return (
+          <AvatarChip
+            id={params.formattedValue.split('-')[1]}
+            name={params.formattedValue.split('-')[0]} 
+          />
+        );
+      } 
+    },
+    { field: 'fechaCreacion', headerName: 'Fecha de Creación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'responsableCreacion', headerName: 'Creador del Evento', width: 170,
+    { field: 'responsableCreacionId', headerName: 'Creador del Evento', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -79,10 +89,10 @@ export const EventosDigitar = () => {
         );
       }
     },
-    { field: 'fechaDigitacion', headerName: 'Fecha de Digitación', width: 170, 
+    { field: 'fechaDigitacion', headerName: 'Fecha de Digitación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'responsableDigitacion', headerName: 'Resp. Digitación', width: 170,
+    { field: 'responsableDigitacionId', headerName: 'Resp. Digitación', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -101,10 +111,10 @@ export const EventosDigitar = () => {
         );
       }
     },
-    { field: 'fechaRevisionDigitacion', headerName: 'Fecha de Revisión', width: 170, 
+    { field: 'fechaRevisionDigitacion', headerName: 'Fecha de Revisión', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'revisorDigitacion', headerName: 'Revisor', width: 170,
+    { field: 'revisorDigitacionId', headerName: 'Revisor', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -118,12 +128,13 @@ export const EventosDigitar = () => {
       field: " ",
       headerName: " ",
       width: 150,
+      filterable: false,
       sortable: false,
       renderCell: (params) => {
         return (
           <>
           {
-            (user && user.userPermisos?.acciones['Eventos']['Finalizar'] && params.row.estadoDigitacion !== 'Finalizado' ) &&
+            (user && user.userPermisos?.acciones['Eventos']['Digitalizar'] && params.row.estadoDigitacion !== 'Finalizado' ) &&
             <a href={`/eventos/digitar/${params.row.uuid}`} target="_blank" rel="noreferrer">
             <Button style={buttonStyle}>
               <i className="bi bi-pencil-fill"></i>{' '}
@@ -151,20 +162,21 @@ export const EventosDigitar = () => {
     data.map((departamento, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
+        uuid: departamento.id, 
         original: departamento.original, 
         nombre: departamento.nombre,
         numeroFormulario: departamento.numeroFormulario,
         fechaInicio: departamento.fechaInicio ? departamento.fechaInicio : '',
-        organizador: `${departamento.organizador?.nombre || ''}-${departamento.organizador?._id || ''}`,
+        responsableFinalizacionId: `${departamento.responsableFinalizacion?.nombre || ''}-${departamento.responsableFinalizacion?.id || ''}`,
+        organizadorId: `${departamento.organizador?.nombre || ''}-${departamento.organizador?.id || ''}`,
         fechaCreacion: departamento.fechaCreacion ? departamento.fechaCreacion : '',
-        responsableCreacion: `${departamento.responsableCreacion?.nombre || ''}-${departamento.responsableCreacion?._id || ''}`,
+        responsableCreacionId: `${departamento.responsableCreacion?.nombre || ''}-${departamento.responsableCreacion?.id || ''}`,
         estadoDigitacion: departamento.estadoDigitacion,
         fechaDigitacion: departamento.fechaDigitacion ? departamento.fechaDigitacion : '',
-        responsableDigitacion: `${departamento.responsableDigitacion?.nombre || ''}-${departamento.responsableDigitacion?._id || ''}`,
+        responsableDigitacionId: `${departamento.responsableDigitacion?.nombre || ''}-${departamento.responsableDigitacion?.id || ''}`,
         estadoRevisionDigitacion: departamento.estadoRevisionDigitacion,
         fechaRevisionDigitacion: departamento.fechaRevisionDigitacion ? departamento.fechaRevisionDigitacion : '',
-        revisorDigitacion: `${departamento.revisorDigitacion?.nombre || ''}-${departamento.revisorDigitacion?._id || ''}`,
+        revisorDigitacionId: `${departamento.revisorDigitacion?.nombre || ''}-${departamento.revisorDigitacion?.id || ''}`,
       }
     ))
   )
@@ -173,11 +185,12 @@ export const EventosDigitar = () => {
     uuid: false,
     fechaCreacion: false,
     fechaInicio: false,
-    responsableCreacion: false,
+    responsableCreacionId: false,
     fechaDigitacion: false,
-    responsableDigitacion: false,
-    fechaRevisionDigitacion: false,
-    revisorDigitacion: false
+    organizadorId: false,
+    responsableDigitacionId: false,
+    fechaRevisionDigitacionId: false,
+    revisorDigitacionId: false
   }
 
   return(

@@ -7,10 +7,11 @@ import { useContext, useEffect, useState } from "react";
 import { FormControlLabel, Switch, Tooltip } from "@mui/material";
 import { ToastContext } from "../contexts/ToastContext.js";
 import HelpIcon from '@mui/icons-material/Help';
+import { InputAutocomplete } from "../components/InputAutocomplete.jsx";
 
 export const ConfigGenerales = () => {
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, setValues } = useForm({
     idCurrentYear: '',
     idCurrentQuarter: '',
     enableSubirPlanificacion: false,
@@ -32,8 +33,9 @@ export const ConfigGenerales = () => {
     if(dataConfig && !isLoadingConfig){
       setValues({
         ...values,
-        idCurrentYear: dataConfig.currentYear,
-        enableSubirPlanificacion: dataConfig.enableSubirPlanificacion,
+        idCurrentYear: dataConfig.find(el => el.attributeKey === 'idCurrentYear')?.attributeValue,
+        idCurrentQuarter: dataConfig.find(el => el.attributeKey === 'idCurrentQuarter')?.attributeValue,
+        enableSubirPlanificacion: Number(dataConfig.find(el => el.attributeKey === 'enableSubirPlanificacion')?.attributeValue),
       })
     } 
     // eslint-disable-next-line
@@ -46,7 +48,7 @@ export const ConfigGenerales = () => {
     filter: '{}'
   }
   const [years, setYears] = useState([])
-  const { data: dataYears, isLoading: isLoadingYears, error: errorYears } = useFetchGetBody('list/years', findParamsYears);
+  const { data: dataYears, isLoading: isLoadingYears, error: errorYears, setRefetch: setRefetchYears } = useFetchGetBody('years/list', findParamsYears);
 
   useEffect(() => {
     if(dataYears && !isLoadingYears){
@@ -54,10 +56,47 @@ export const ConfigGenerales = () => {
     } 
   }, [dataYears, isLoadingYears, errorYears])
 
+
+  //Quarters
+  const [findParamsQuarter, setFindParamsQuarter] = useState({
+    sort: '{}',
+    filter: '{}'
+  })
+  const [quarters, setQuarters] = useState([])
+  const [queryQuarters, setQueryQuarters] = useState('')
+  const { data: dataQuarters, isLoading: isLoadingQuarters, error: errorQuarters, setRefetch: setRefetchQuarters } = useFetchGetBody(queryQuarters, findParamsQuarter);
+  
+  useEffect(() => {
+    if(dataQuarters && !isLoadingQuarters && values.idCurrentYear){
+      setQuarters(dataQuarters)
+    } 
+  }, [dataQuarters, isLoadingQuarters, errorQuarters, values.idCurrentYear])
+
+  //Editar Lista de Municipios en Formulario
+  useEffect(() => {
+    if(values.idCurrentYear && values.idCurrentYear.length !== 0){
+      setFindParamsQuarter({
+        sort: '{}',
+        filter: JSON.stringify({
+          operator: 'is',
+          field: 'yearId',
+          value: values.idCurrentYear
+        })
+      })
+      setQueryQuarters('quarters/list');
+      setRefetchQuarters(true)
+    }
+    else{
+      setQuarters([])
+    }
+    // eslint-disable-next-line
+  }, [values.idCurrentYear, setValues, setRefetchQuarters])
+
+
   //Envio asincrono de formulario de Modificar
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('config', values) 
+  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('config', {values: JSON.stringify(values)}) 
 
   const handleUpdate = () => {
     setUpdating(true)
@@ -122,15 +161,28 @@ export const ConfigGenerales = () => {
               Año Fiscal Actual:
             </Form.Label>
             <InputGroup style={{maxWidth: '300px'}}>
-              <Form.Select id='idCurrentYear' name='idCurrentYear' value={values.idCurrentYear} onChange={handleChange}>
-                <option value="">Seleccionar Año</option>
-                {
-                  years &&
-                  years.map((year) => (
-                    <option key={year._id} value={year._id}>{year.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={years} 
+                value={values.idCurrentYear}
+                name={'idCurrentYear'}
+                setValues={setValues}
+                setRefetch={setRefetchYears}
+              />
+            </InputGroup>
+          </Form.Group>
+
+          <Form.Group className="my-4 d-flex align-items-center">
+            <Form.Label className="my-0" style={{marginRight: '1rem'}}>
+              Trimestre Actual:
+            </Form.Label>
+            <InputGroup style={{maxWidth: '300px'}}>
+              <InputAutocomplete 
+                valueList={quarters} 
+                value={values.idCurrentQuarter}
+                name={'idCurrentQuarter'}
+                setValues={setValues}
+                setRefetch={setRefetchQuarters}
+              />
             </InputGroup>
           </Form.Group>
           

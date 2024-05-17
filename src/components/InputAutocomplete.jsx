@@ -6,7 +6,7 @@ import { Modal } from 'react-bootstrap';
 
 const filter = createFilterOptions();
 
-export const InputAutocomplete = ({valueList, value, setValues, name, ModalCreate, setRefetch}) => {
+export const InputAutocomplete = ({valueList, value, setValues, name, ModalCreate, setRefetch, insert=false, disabled=false}) => {
   const [label, setLabel] = useState('');
   const [open, toggleOpen] = useState(false);
 
@@ -15,7 +15,8 @@ export const InputAutocomplete = ({valueList, value, setValues, name, ModalCreat
   };
 
   useEffect(() => {
-    setLabel(valueList.find(v => v._id === value)?.nombre)
+    // eslint-disable-next-line
+    setLabel(valueList.find(v => v.id == value)?.nombre)
   // eslint-disable-next-line
   }, [valueList])
   
@@ -24,6 +25,7 @@ export const InputAutocomplete = ({valueList, value, setValues, name, ModalCreat
     <>
       <Autocomplete
         value={label}
+        disabled={disabled}
         onChange={(event, newValue) => {
           if (typeof newValue === 'string') {
             setTimeout(() => {
@@ -32,14 +34,14 @@ export const InputAutocomplete = ({valueList, value, setValues, name, ModalCreat
           } else if (newValue && newValue.inputValue) {
             toggleOpen(true);
           } else {
-            setValues((v) => ({...v, [name]: newValue?._id}));
+            setValues((v) => ({...v, [name]: newValue?.id || ''}));
             setLabel(newValue?.nombre);
           }
         }}
         filterOptions={(options, params) => {
           const filtered = filter(options, params);
 
-          if (params.inputValue !== '') {
+          if (insert && params.inputValue !== '') {
             filtered.push({
               inputValue: params.inputValue,
               nombre: `Agregar nuevo`,
@@ -73,9 +75,11 @@ export const InputAutocomplete = ({valueList, value, setValues, name, ModalCreat
         renderBackdrop={renderBackdrop}
         centered
       >
-        <>
+        {
+          ModalCreate &&
           <ModalCreate handleClose={handleClose} modal={true} modalSetValues={setValues} modalRefetch={setRefetch}/>
-        </>
+        }
+        
       </Modal>
     </>
   );

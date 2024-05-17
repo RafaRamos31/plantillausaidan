@@ -3,11 +3,17 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPutBody } from "../../hooks/useFetch.js";
-import { getArrayNivelesOrganizacion } from "../../services/staticCollections.js";
-import { MapInput } from "../../components/MapInput.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearSectores } from "./CrearSectores.jsx";
+import { CrearOrgtype } from "./CrearOrgtype.jsx";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { CrearMunicipio } from "./CrearMunicipio.jsx";
+import { CrearAldea } from "./CrearAldea.jsx";
+import { CrearCaserio } from "./CrearCaserio.jsx";
+import { CrearNivel } from "./CrearNivel.jsx";
 
 export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fixing=false}) => {
   const { user } = useContext(UserContext);
@@ -18,25 +24,20 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
   const { values, setValues, handleChange } = useForm({
     idOrganizacion: organizacion.id,
     nombre: organizacion.nombre,
-    codigoOrganizacion: organizacion.codigoOrganizacion,
-    idSector: organizacion.idSector || organizacion.sector._id,
-    idTipoOrganizacion: organizacion.idTipoOrganizacion || organizacion.tipoOrganizacion._id,
-    nivelOrganizacion: organizacion.nivelOrganizacion,
-    idDepartamento: organizacion.idDepartamento || organizacion.departamento._id,
-    idMunicipio: organizacion.idMunicipio || organizacion.municipio._id,
-    idAldea: organizacion.idAldea || organizacion.aldea._id,
-    idCaserio: organizacion.idCaserio || organizacion.caserio._id,
-    geolocacion: organizacion.geolocacion,
-    telefonoOrganizacion: organizacion.telefonoOrganizacion,
-    nombreContacto: organizacion.nombreContacto,
-    telefonoContacto: organizacion.telefonoContacto,
-    correoContacto: organizacion.correoContacto,
+    codigo: organizacion.codigo || '',
+    sectorId: organizacion.sectorId || '',
+    tipoOrganizacionId: organizacion.tipoOrganizacionId || '',
+    nivelId: organizacion.nivelId || '',
+    departamentoId: organizacion.departamentoId || '',
+    municipioId: organizacion.municipioId || '',
+    aldeaId: organizacion.aldeaId || '',
+    caserioId: organizacion.caserioId || '',
+    telefono: organizacion.telefono || '',
+    nombreContacto: organizacion.nombreContacto || '',
+    telefonoContacto: organizacion.telefonoContacto || '',
+    correoContacto: organizacion.correoContacto || '',
     aprobar: aprove
   });
-
-  const changeLocation = (location) => {
-    setValues({ ...values, 'geolocacion': location });
-  }
 
   const handleToggleAprobar = () => {
     setAprove(!aprove);
@@ -49,7 +50,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
     filter: '{}'
   }
   const [sectores, setSectores] = useState([])
-  const { data: sectorData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('list/sectores', findParams);
+  const { data: sectorData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('sectores/list', findParams);
   
   //Indicador actualizando con boton
   const [updatingSectores, setUpdatingSectores] = useState(false);
@@ -66,6 +67,31 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
       setUpdatingSectores(false)
     } 
   }, [sectorData, isLoadingSectores, errorSectores])
+
+
+  //Niveles
+  const findParamsNiveles = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [niveles, setNiveles] = useState([])
+  const { data: nivelesData, isLoading: isLoadingNiveles, error: errorNiveles, setRefetch: setRefetchNiveles } = useFetchGetBody('niveles/list', findParamsNiveles);
+  
+  //Indicador actualizando con boton
+  const [updatingNiveles, setUpdatingNiveles] = useState(false);
+
+  //Accion Update manual sectores
+  const handleUpdateNiveles = () => {
+    setUpdatingNiveles(true);
+    setRefetchNiveles(true);
+  }
+  
+  useEffect(() => {
+    if(nivelesData && !isLoadingNiveles){
+      setNiveles(nivelesData)
+      setUpdatingNiveles(false)
+    } 
+  }, [nivelesData, isLoadingNiveles, errorNiveles])
 
 
   //Tipo Organizacion
@@ -96,23 +122,23 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
 
   //Editar Lista de Orgtypes en Formulario
   useEffect(() => {
-    if(values.idSector && values.idSector.length > 0){
+    if(values.sectorId && values.sectorId.length !== 0){
       setFindParamsOrgtypes({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'sector',
-          value: values.idSector
+          field: 'sectorId',
+          value: values.sectorId
         })
       })
-      setQueryOrgtypes('list/tipoOrganizaciones');
+      setQueryOrgtypes('tiposorganizaciones/list');
       setRefetchOrgtypes(true)
     }
     else{
       setOrgtypes([])
     }
     // eslint-disable-next-line
-  }, [values.idSector, setValues, setRefetchOrgtypes])
+  }, [values.sectorId, setValues, setRefetchOrgtypes])
 
   //Departamento
   const findParamsDepto = {
@@ -120,7 +146,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParamsDepto);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParamsDepto);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -157,32 +183,31 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios');
+      setQueryMunicipios('municipios/list');
       setRefetchMuni(true)
-      setValues({ ...values, geocode: '' });
     }
     else{
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Aldea
   const [findParamsAldea, setFindParamsAldea] = useState({
@@ -194,32 +219,31 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
   const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
   
   useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.idMunicipio){
+    if(aldeasData && !isLoadingAldeas && values.municipioId){
       setAldeas(aldeasData)
       setUpdatingAldeas(false)
     } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.idMunicipio])
+  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
 
   //Editar Lista de Aldeas en Formulario
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
+    if(values.municipioId && values.municipioId.length !== 0){
       setFindParamsAldea({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'municipio',
-          value: values.idMunicipio
+          field: 'municipioId',
+          value: values.municipioId
         })
       })
-      setQueryAldeas('list/aldeas')
+      setQueryAldeas('aldeas/list')
       setRefetchAldeas(true)
-      setValues({ ...values, geocode: '' });
     }
     else{
       setAldeas([])
     }
     // eslint-disable-next-line
-  }, [values.idMunicipio, setValues, setRefetchAldeas])
+  }, [values.municipioId, setValues, setRefetchAldeas])
 
   //Indicador actualizando con boton departamento
   const [updatingAldeas, setUpdatingAldeas] = useState(false);
@@ -240,31 +264,31 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
   const { data: caseriosData, isLoading: isLoadingCaserios, error: errorCaserios, setRefetch: setRefetchCaserios } = useFetchGetBody(queryCaserios, findParamsCaserios);
   
   useEffect(() => {
-    if(caseriosData && !isLoadingCaserios && values.idAldea){
+    if(caseriosData && !isLoadingCaserios && values.aldeaId){
       setCaserios(caseriosData)
       setUpdatingCaserios(false)
     } 
-  }, [caseriosData, isLoadingCaserios, errorCaserios, values.idAldea])
+  }, [caseriosData, isLoadingCaserios, errorCaserios, values.aldeaId])
 
   //Editar Lista de Caserios en Formulario
   useEffect(() => {
-    if(values.idAldea && values.idAldea.length > 0){
+    if(values.aldeaId && values.aldeaId.length !== 0){
       setFindParamsCaserios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'aldea',
-          value: values.idAldea
+          field: 'aldeaId',
+          value: values.aldeaId
         })
       })
-      setQueryCaserios('list/caserios')
+      setQueryCaserios('caserios/list')
       setRefetchCaserios(true)
     }
     else{
       setCaserios([])
     }
     // eslint-disable-next-line
-  }, [values.idAldea, setRefetchCaserios])
+  }, [values.aldeaId, setRefetchCaserios])
 
   //Indicador actualizando con boton departamento
   const [updatingCaserios, setUpdatingCaserios] = useState(false);
@@ -293,7 +317,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
   //Accion al completar correctamente
   const handleSuccess = () => {
     if(fixing){
-      navigate('/reviews/organizaciones/'+data._id)
+      navigate('/reviews/organizaciones/'+data.id)
       navigate(0)
     }
     else{
@@ -343,25 +367,25 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Código de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='codigoOrganizacion' name='codigoOrganizacion' value={values.codigoOrganizacion} maxLength={30} onChange={handleChange}/>
+            <Form.Control id='codigo' name='codigo' value={values.codigo} maxLength={30} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Sector:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idSector' name='idSector' value={values.idSector} onChange={handleChange}>
-                <option value="">Seleccionar Sector</option>
-                {
-                  sectores &&
-                  sectores.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={sectores} 
+                value={values.sectorId}
+                name={'sectorId'}
+                setValues={setValues}
+                setRefetch={setRefetchSectores}
+                ModalCreate={CrearSectores}
+                insert={user.userPermisos?.acciones['Sectores']['Crear']}
+              />
               {
                 !updatingSectores ? 
                 <Button variant="light" onClick={handleUpdate}>
@@ -388,15 +412,15 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
           </Form.Label>
           <Col sm="8" className="my-auto">
             <InputGroup>
-              <Form.Select id='idTipoOrganizacion' name='idTipoOrganizacion' value={values.idTipoOrganizacion} onChange={handleChange}>
-                <option value="">Seleccionar Tipo de Organización</option>
-                {
-                  orgtypes &&
-                  orgtypes.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={orgtypes} 
+                value={values.tipoOrganizacionId}
+                name={'tipoOrganizacionId'}
+                setValues={setValues}
+                setRefetch={setRefetchOrgtypes}
+                ModalCreate={CrearOrgtype}
+                insert={user.userPermisos?.acciones['Tipos de Organizaciones']['Crear']}
+              />
               {
                 !updatingOrgtypes ? 
                 <Button variant="light" onClick={handleUpdateOrgtypes}>
@@ -419,17 +443,35 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Nivel de Organización:
+            Nivel:
           </Form.Label>
           <Col sm="8" className="my-auto">
-          <Form.Select id='nivelOrganizacion' name='nivelOrganizacion' value={values.nivelOrganizacion} onChange={handleChange}>
-            <option value="">Seleccionar Nivel</option>
-            {
-              getArrayNivelesOrganizacion().map((nivel, index) => (
-                <option key={index} value={nivel}>{nivel}</option>
-              ))
-            }
-          </Form.Select>
+            <InputGroup>
+              <InputAutocomplete 
+                valueList={niveles} 
+                value={values.nivelId}
+                name={'nivelId'}
+                setValues={setValues}
+                setRefetch={setRefetchNiveles}
+                ModalCreate={CrearNivel}
+              />
+              {
+                !updatingNiveles ? 
+                <Button variant="light" onClick={handleUpdateNiveles}>
+                  <i className="bi bi-arrow-clockwise"></i>
+                </Button>
+                : <Button variant="light">
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span className="visually-hidden">Cargando...</span>
+                </Button>
+              }
+            </InputGroup>
           </Col>
         </Form.Group>
 
@@ -438,7 +480,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Teléfono de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefonoOrganizacion' name='telefonoOrganizacion' value={values.telefonoOrganizacion} maxLength={20} onChange={handleChange}/>
+            <Form.Control id='telefono' name='telefono' value={values.telefono} autoComplete="none"  maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
         
@@ -448,20 +490,19 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
           </Card.Header>
           <Card.Body className='p-4'>
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Departamento:
               </Form.Label>
               <Col sm="8" className="my-auto">
                 <InputGroup>
-                  <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                    <option value="">Seleccionar Departamento</option>
-                    {
-                      deptos &&
-                      deptos.map((depto) => (
-                        <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                    <InputAutocomplete 
+                      valueList={deptos} 
+                      value={values.departamentoId}
+                      name={'departamentoId'}
+                      setValues={setValues}
+                      setRefetch={setRefetchDeptos}
+                      ModalCreate={CrearDepartamento}
+                    />
                   {
                     !updatingDepto ? 
                     <Button variant="light" onClick={handleUpdateDepto}>
@@ -483,20 +524,19 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             </Form.Group>
 
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Municipio:
               </Form.Label>
               <Col sm="8">
                 <InputGroup>
-                  <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
-                    <option value="">Seleccionar Municipio</option>
-                    {
-                      municipios &&
-                      municipios.map((muni) => (
-                        <option key={muni._id} value={muni._id}>{muni.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete 
+                    valueList={municipios} 
+                    value={values.municipioId}
+                    name={'municipioId'}
+                    setValues={setValues}
+                    setRefetch={setRefetchMuni}
+                    ModalCreate={CrearMunicipio}
+                  />
                   {
                     !updatingMunicipios ? 
                     <Button variant="light" onClick={handleUpdateMunicipios}>
@@ -518,20 +558,19 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             </Form.Group>
 
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Aldea:
               </Form.Label>
               <Col sm="8">
                 <InputGroup>
-                  <Form.Select id='idAldea' name='idAldea' value={values.idAldea} onChange={handleChange}>
-                    <option value="">Seleccionar Aldea</option>
-                    {
-                      aldeas &&
-                      aldeas.map((aldea) => (
-                        <option key={aldea._id} value={aldea._id}>{aldea.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete 
+                    valueList={aldeas} 
+                    value={values.aldeaId}
+                    name={'aldeaId'}
+                    setValues={setValues}
+                    setRefetch={setRefetchAldeas}
+                    ModalCreate={CrearAldea}
+                  />
                   {
                     !updatingAldeas ? 
                     <Button variant="light" onClick={handleUpdateAldeas}>
@@ -553,20 +592,19 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             </Form.Group>
 
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
+              <Form.Label column sm="4" className="my-auto">
                 Caserio:
               </Form.Label>
               <Col sm="8">
                 <InputGroup>
-                  <Form.Select id='idCaserio' name='idCaserio' value={values.idCaserio} onChange={handleChange}>
-                    <option value="">Seleccionar Caserio</option>
-                    {
-                      caserios &&
-                      caserios.map((caserio) => (
-                        <option key={caserio._id} value={caserio._id}>{caserio.nombre}</option>
-                      ))
-                    }
-                  </Form.Select>
+                  <InputAutocomplete 
+                    valueList={caserios} 
+                    value={values.caserioId}
+                    name={'caserioId'}
+                    setValues={setValues}
+                    setRefetch={setRefetchCaserios}
+                    ModalCreate={CrearCaserio}
+                  />
                   {
                     !updatingCaserios ? 
                     <Button variant="light" onClick={handleUpdateCaserios}>
@@ -588,8 +626,6 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             </Form.Group>
           </Card.Body>
         </Card>
-
-        <MapInput changeLocation={changeLocation} initialLocation={values.geolocacion}/>
 
         <Card className='my-4'>
         <Card.Header>

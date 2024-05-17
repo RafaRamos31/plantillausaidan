@@ -4,8 +4,6 @@ import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { EditComponente } from "./modals/EditComponentes.jsx";
 import { InfoLink } from "../components/InfoLink.jsx";
-import { useNavigate } from "react-router-dom";
-import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
 import { StatusBadge } from "../components/StatusBadge.jsx";
@@ -50,12 +48,6 @@ export const ConfigComponentes = () => {
   }, [refetchData, setUpdating])
   
 
-  //Boton Cambios
-  const navigate = useNavigate();
-  const handleReview = () => {
-    navigate(`/reviews/${endpoint}s`)
-  }
-
   //Modal crear
   const [showCreate, setShowCreate] = useState(false);
   const handleCloseCreate = () => setShowCreate(false);
@@ -94,61 +86,12 @@ export const ConfigComponentes = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'uuid Editor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
-      renderCell: (params) => {
-        return (
-          <AvatarChip
-            id={params.formattedValue.split('-')[1]}
-            name={params.formattedValue.split('-')[0]} 
-          />
-        );
-      } 
-    },
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
-      renderCell: (params) => {
-        return (
-          <AvatarChip
-            id={params.formattedValue.split('-')[1]}
-            name={params.formattedValue.split('-')[0]} 
-          />
-        );
-      } 
-    },
     { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
-      renderCell: (params) => {
-        return (
-          <AvatarChip
-            id={params.formattedValue.split('-')[1]}
-            name={params.formattedValue.split('-')[0]} 
-          />
-        );
-      } 
-    },
-    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
-      renderCell: (params) => {
-        return (
-          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
-        );
-      } 
-    },
     { field: 'estado', headerName: 'Estado', width: 140, filterable: false,
       renderCell: (params) => {
         return (
@@ -201,17 +144,6 @@ export const ConfigComponentes = () => {
               }
               </>
             }
-            {
-              user.userPermisos?.acciones['Componentes']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
-            }
           </>
         );
       },
@@ -223,18 +155,11 @@ export const ConfigComponentes = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        _id: item._id, 
+        _id: item.id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor?._id || '',
-        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor?._id || '',
-        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: item.eliminador?._id || '',
-        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
-        editing: item.pendientes.includes(user.userId),
         estado: item.estado,
         nombre: item.nombre,
         descripcion: item.descripcion
@@ -246,15 +171,8 @@ export const ConfigComponentes = () => {
     _id: false,
     version: false,
     fechaEdicion: false,
-    editor: false,
-    editorName: false,
     fechaRevision: false,
-    revisor: false,
-    revisorName: false,
     fechaEliminacion: false,
-    eliminador: false,
-    eliminadorName: false,
-    editing: false,
     estado: false
   }
 
@@ -293,16 +211,6 @@ export const ConfigComponentes = () => {
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
           {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
-        </Button>
-      }
-
-      {/*Boton Cambios*/}
-      {
-        user.userPermisos?.acciones['Componentes']['Revisar']
-        &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
-          <i className="bi bi-pencil-square"></i>{' '}
-          Gestión de Cambios
         </Button>
       }
       

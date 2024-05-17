@@ -3,28 +3,23 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
-
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombreMuni: '',
-    idDepartamento: '',
+    departamentoId: '',
     geocodeMuni: '',
     aprobar: modal ? true : aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
+  
   
   //Departamento
   const findParams = {
@@ -32,7 +27,7 @@ export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=fal
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParams);
   
   //Indicador actualizando con boton
   const [updating, setUpdating] = useState(false);
@@ -58,8 +53,8 @@ export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=fal
   const [deptoGeo, setDeptoGeo] = useState('00')
 
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
-      setDeptoGeo(deptos.find(depto => depto._id === values.idDepartamento)?.geocode)
+    if(values.departamentoId && values.departamentoId.length !== 0){
+      setDeptoGeo(deptos.find(depto => depto.id === values.departamentoId)?.geocode)
     }
     else{
       setDeptoGeo('00')
@@ -132,7 +127,7 @@ export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=fal
             Municipio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombreMuni' name='nombreMuni' value={values.nombreMuni} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
+            <Form.Control id='nombreMuni' name='nombreMuni' value={values.nombreMuni.toUpperCase()} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -144,11 +139,12 @@ export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=fal
             <InputGroup>
               <InputAutocomplete 
                 valueList={deptos} 
-                value={values.idDepartamento}
-                name={'idDepartamento'}
+                value={values.departamentoId}
+                name={'departamentoId'}
                 setValues={setValues}
                 setRefetch={setRefetchDeptos}
                 ModalCreate={CrearDepartamento}
+                insert={user.userPermisos?.acciones['Departamentos']['Crear']}
               />
               {
                 !updating ? 
@@ -186,12 +182,6 @@ export const CrearMunicipio = ({handleClose, setRefetch, modalRefetch, modal=fal
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Municipios']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

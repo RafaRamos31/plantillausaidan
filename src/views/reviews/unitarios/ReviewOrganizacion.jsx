@@ -22,7 +22,7 @@ export const ReviewOrganizacion = () => {
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}es/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -37,8 +37,8 @@ export const ReviewOrganizacion = () => {
 
   //Obtener datos de Original
   useEffect(() => {
-    if(dataRevision && dataRevision.original){
-      setQueryOriginal(`${endpoint}/${dataRevision.original}`)
+    if(dataRevision && dataRevision.originalId){
+      setQueryOriginal(`${endpoint}es/id/${dataRevision.originalId}`)
       setRefetchOriginal(true)
     }
     else{
@@ -69,7 +69,7 @@ export const ReviewOrganizacion = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/organizaciones', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('organizaciones/revisar', values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -146,13 +146,23 @@ export const ReviewOrganizacion = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Fecha de Edición:</p>
-                  <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                  {
+                    dataRevision.fechaEdicion ?
+                    <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  {
+                    dataRevision.editor ?
+                    <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
             </Row>
@@ -174,7 +184,7 @@ export const ReviewOrganizacion = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -201,7 +211,7 @@ export const ReviewOrganizacion = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }
@@ -213,7 +223,7 @@ export const ReviewOrganizacion = () => {
           <div className='mt-3 d-flex align-items-center'>
             <h4>Información del Registro</h4>
             {
-              (original && original._id !== dataRevision._id) &&
+              (original && original.id !== dataRevision.id) &&
               <Button className='my-2 mx-3' variant="light" onClick={handleCompare}>
                 <i className="bi bi-arrow-left-right"></i>{' '}
                 Comparar con Publicado
@@ -230,22 +240,57 @@ export const ReviewOrganizacion = () => {
                   </div>
                 }
                 <CompareValue  title={'Nombre:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
-                <CompareValue  title={'Código:'} value={dataRevision.codigoOrganizacion} original={original?.codigoOrganizacion} compare={compare}/>
-                <CompareValue  title={'Teléfono Organización:'} value={dataRevision.telefonoOrganizacion} original={original?.telefonoOrganizacion} compare={compare}/>
+                {
+                  dataRevision.codigo &&
+                  <CompareValue  title={'Código:'} value={dataRevision.codigo} original={original?.codigo} compare={compare}/>
+                }
+                {
+                  dataRevision.telefono &&
+                  <CompareValue  title={'Teléfono Organización:'} value={dataRevision.telefono} original={original?.telefono} compare={compare}/>
+                }
                 <hr />
-                <CompareValue  title={'Sector:'} value={dataRevision.sector.nombre} original={original?.sector.nombre} compare={compare}/>
-                <CompareValue  title={'Tipo de Organización:'} value={dataRevision.tipoOrganizacion.nombre} original={original?.tipoOrganizacion.nombre} compare={compare}/>
-                <CompareValue  title={'Nivel de la Organización:'} value={dataRevision.nivelOrganizacion} original={original?.nivelOrganizacion} compare={compare}/>
+                {
+                  dataRevision.sector &&
+                  <CompareValue  title={'Sector:'} value={dataRevision.sector?.nombre} original={original?.sector?.nombre} compare={compare}/>
+                }
+                {
+                  dataRevision.tipoOrganizacion &&
+                  <CompareValue  title={'Tipo de Organización:'} value={dataRevision.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={compare}/>
+                }
+                {
+                  dataRevision.nivel &&
+                  <CompareValue  title={'Nivel de la Organización:'} value={dataRevision.nivel?.nombre} original={original?.nivel?.nombre} compare={compare}/>
+                }
                 <hr />
-                <CompareValue  title={'Departamento:'} value={dataRevision.departamento.nombre} original={original?.departamento.nombre} compare={compare}/>
-                <CompareValue  title={'Municipio:'} value={dataRevision.municipio.nombre} original={original?.municipio.nombre} compare={compare}/>
-                <CompareValue  title={'Aldea:'} value={dataRevision.aldea.nombre} original={original?.aldea.nombre} compare={compare}/>
-                <CompareValue  title={'Caserio:'} value={dataRevision.caserio.nombre} original={original?.caserio.nombre} compare={compare}/>
-                <CompareValue  title={'Geolocacion:'} value={dataRevision.geolocacion} original={original?.geolocacion} compare={compare}/>
+                {
+                  dataRevision.departamento &&
+                  <CompareValue  title={'Departamento:'} value={dataRevision.departamento?.nombre} original={original?.departamento?.nombre} compare={compare}/>
+                }
+                {
+                  dataRevision.municipio &&
+                  <CompareValue  title={'Municipio:'} value={dataRevision.municipio?.nombre} original={original?.municipio?.nombre} compare={compare}/>
+                }
+                {
+                  dataRevision.aldea &&
+                  <CompareValue  title={'Aldea:'} value={dataRevision.aldea?.nombre} original={original?.aldea?.nombre} compare={compare}/>
+                }
+                {
+                  dataRevision.caserio &&
+                  <CompareValue  title={'Caserio:'} value={dataRevision.caserio?.nombre} original={original?.caserio?.nombre} compare={compare}/>
+                }
                 <hr />
-                <CompareValue  title={'Nombre Contacto:'} value={dataRevision.nombreContacto} original={original?.nombreContacto} compare={compare}/>
-                <CompareValue  title={'Teléfono Contacto:'} value={dataRevision.telefonoContacto} original={original?.telefonoContacto} compare={compare}/>
-                <CompareValue  title={'Correo Contacto:'} value={dataRevision.correoContacto} original={original?.correoContacto} compare={compare}/>
+                {
+                  dataRevision.nombreContacto &&
+                  <CompareValue  title={'Nombre Contacto:'} value={dataRevision.nombreContacto} original={original?.nombreContacto} compare={compare}/>
+                }
+                {
+                  dataRevision.telefonoContacto &&
+                  <CompareValue  title={'Teléfono Contacto:'} value={dataRevision.telefonoContacto} original={original?.telefonoContacto} compare={compare}/>
+                }
+                {
+                  dataRevision.correoContacto &&
+                  <CompareValue  title={'Correo Contacto:'} value={dataRevision.correoContacto} original={original?.correoContacto} compare={compare}/>
+                }
               </Col>
               {
                 compare &&
@@ -254,22 +299,57 @@ export const ReviewOrganizacion = () => {
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + original.version}</h5>
                   </div>
                   <CompareValue  title={'Nombre:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Código:'} value={dataRevision.codigoOrganizacion} original={original?.codigoOrganizacion} compare={compare} hidden/>
-                  <CompareValue  title={'Teléfono Organización:'} value={dataRevision.telefonoOrganizacion} original={original?.telefonoOrganizacion} compare={compare} hidden/>
-                  <hr />
-                  <CompareValue  title={'Sector:'} value={dataRevision.sector.nombre} original={original?.sector.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Tipo de Organización:'} value={dataRevision.tipoOrganizacion.nombre} original={original?.tipoOrganizacion.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Nivel de la Organización:'} value={dataRevision.nivelOrganizacion} original={original?.nivelOrganizacion} compare={compare} hidden/>
-                  <hr />
-                  <CompareValue  title={'Departamento:'} value={dataRevision.departamento.nombre} original={original?.departamento.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Municipio:'} value={dataRevision.municipio.nombre} original={original?.municipio.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Aldea:'} value={dataRevision.aldea.nombre} original={original?.aldea.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Caserio:'} value={dataRevision.caserio.nombre} original={original?.caserio.nombre} compare={compare} hidden/>
-                  <CompareValue  title={'Geolocacion:'} value={dataRevision.geolocacion} original={original?.geolocacion} compare={compare} hidden/>
-                  <hr />
+                {
+                  original?.codigo &&
+                  <CompareValue  title={'Código:'} value={dataRevision.codigo} original={original?.codigo} compare={compare} hidden/>
+                }
+                {
+                  original?.telefono &&
+                  <CompareValue  title={'Teléfono Organización:'} value={dataRevision.telefono} original={original?.telefono} compare={compare} hidden/>
+                }
+                <hr />
+                {
+                  original?.sector &&
+                  <CompareValue  title={'Sector:'} value={dataRevision.sector?.nombre} original={original?.sector?.nombre} compare={compare} hidden/>
+                }
+                {
+                  original?.tipoOrganizacion &&
+                  <CompareValue  title={'Tipo de Organización:'} value={dataRevision.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={compare} hidden/>
+                }
+                {
+                  original?.nivel &&
+                  <CompareValue  title={'Nivel de la Organización:'} value={dataRevision.nivel?.nombre} original={original?.nivel?.nombre} compare={compare} hidden/>
+                }
+                <hr />
+                {
+                  original?.departamento &&
+                  <CompareValue  title={'Departamento:'} value={dataRevision.departamento?.nombre} original={original?.departamento?.nombre} compare={compare} hidden/>
+                }
+                {
+                  original?.municipio &&
+                  <CompareValue  title={'Municipio:'} value={dataRevision.municipio?.nombre} original={original?.municipio?.nombre} compare={compare} hidden/>
+                }
+                {
+                  original?.aldea &&
+                  <CompareValue  title={'Aldea:'} value={dataRevision.aldea?.nombre} original={original?.aldea?.nombre} compare={compare} hidden/>
+                }
+                {
+                  original?.caserio &&
+                  <CompareValue  title={'Caserio:'} value={dataRevision.caserio?.nombre} original={original?.caserio?.nombre} compare={compare} hidden/>
+                }
+                <hr />
+                {
+                  original?.nombreContacto &&
                   <CompareValue  title={'Nombre Contacto:'} value={dataRevision.nombreContacto} original={original?.nombreContacto} compare={compare} hidden/>
+                }
+                {
+                  original?.telefonoContacto &&
                   <CompareValue  title={'Teléfono Contacto:'} value={dataRevision.telefonoContacto} original={original?.telefonoContacto} compare={compare} hidden/>
+                }
+                {
+                  original?.correoContacto &&
                   <CompareValue  title={'Correo Contacto:'} value={dataRevision.correoContacto} original={original?.correoContacto} compare={compare} hidden/>
+                }
                 </Col>
               }
             </Row>
@@ -313,7 +393,7 @@ export const ReviewOrganizacion = () => {
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditOrganizacion handleClose={handleCloseEdit} setRefetchData={()=>{}} organizacion={{...dataRevision, id: original?._id}} fixing/>
+      <EditOrganizacion handleClose={handleCloseEdit} setRefetchData={()=>{}} organizacion={{...dataRevision, id: original?.id}} fixing/>
     </Modal>
     </>
   )

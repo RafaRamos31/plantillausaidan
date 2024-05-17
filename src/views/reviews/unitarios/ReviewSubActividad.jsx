@@ -24,7 +24,7 @@ export const ReviewSubActividad = () => {
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}es/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -40,7 +40,7 @@ export const ReviewSubActividad = () => {
   //Obtener datos de Original
   useEffect(() => {
     if(dataRevision && dataRevision.original){
-      setQueryOriginal(`${endpoint}/${dataRevision.original}`)
+      setQueryOriginal(`${endpoint}es/id/${dataRevision.original}`)
       setRefetchOriginal(true)
     }
     else{
@@ -131,8 +131,7 @@ export const ReviewSubActividad = () => {
     <Layout pagina={`Revisión Sub Actividad`} SiteNavBar={PlanNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
         {link: '/planificacion', nombre: 'Planificación'},
-        {link: '/planificacion/subactividad', nombre: 'Sub Actividades'},
-        {link: '/reviews/subactividad', nombre: 'Revisiones'},
+        {link: '/planificacion/subactividades', nombre: 'Sub Actividades'},
         {link: `/reviews/subactividad/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
@@ -154,7 +153,7 @@ export const ReviewSubActividad = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
                 </div>
               </Col>
             </Row>
@@ -176,7 +175,7 @@ export const ReviewSubActividad = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -203,7 +202,7 @@ export const ReviewSubActividad = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }
@@ -247,16 +246,16 @@ export const ReviewSubActividad = () => {
                   compare={compare} />
                 <p  className='mb-1' style={{fontWeight: 'bold'}}>{'Componentes:'}</p>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {dataRevision.componentes.map((componente) => (
-                    <Tooltip key={componente._id} title={componente.descripcion} placement="top" arrow followCursor>
+                  {dataRevision.componentes?.map((componente) => (
+                    <Tooltip key={componente.id} title={componente.descripcion} placement="top" arrow followCursor>
                       <Chip label={componente.nombre} style={{cursor: 'help'}}/>
                     </Tooltip>
                   ))}
                 </Box>
                 <p  className='my-1' style={{fontWeight: 'bold'}}>{'Áreas Temáticas:'}</p>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {dataRevision.areasTematicas.map((areas) => (
-                    <Tooltip key={areas._id} title={areas.descripcion} placement="top" arrow followCursor>
+                  {dataRevision.areasTematicas?.map((areas) => (
+                    <Tooltip key={areas.id} title={areas.descripcion} placement="top" arrow followCursor>
                       <Chip label={areas.nombre} style={{cursor: 'help'}}/>
                     </Tooltip>
                   ))}

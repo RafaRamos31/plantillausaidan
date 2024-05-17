@@ -3,28 +3,22 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearDepartamento = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange } = useForm({
     deptNombre: '',
     deptGeocode: '',
     aprobar: modal ? true : aprove
   });
 
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('departamentos', {
@@ -84,7 +78,7 @@ export const CrearDepartamento = ({handleClose, setRefetch, modalRefetch, modal=
             Departamento:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='deptNombre' name='deptNombre' value={values.deptNombre} maxLength={40} autoComplete={'off'} onChange={handleChange}/>
+            <Form.Control id='deptNombre' name='deptNombre' value={values.deptNombre.toUpperCase()}  maxLength={40} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -102,12 +96,6 @@ export const CrearDepartamento = ({handleClose, setRefetch, modalRefetch, modal=
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Departamentos']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

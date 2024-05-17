@@ -40,12 +40,12 @@ export const ReviewsBeneficiarios = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50 },
-    { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'original', headerName: 'Original', width: 250,
+    { field: 'uuid', headerName: 'uuid', width: 100, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'original', headerName: 'Original', width: 100,
       renderCell: (params) => {
         return (
           <InfoLink
-            type={'caserios'}
+            type={'beneficiarios'}
             id={params.formattedValue}
             nombre={params.formattedValue}
           />
@@ -57,7 +57,7 @@ export const ReviewsBeneficiarios = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'Editado por', width: 170,
+    { field: 'editorId', headerName: 'Editado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -70,7 +70,7 @@ export const ReviewsBeneficiarios = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'revisor', headerName: 'Revisado por', width: 170,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -111,14 +111,14 @@ export const ReviewsBeneficiarios = () => {
     data.map((departamento, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
-        original: departamento.original, 
+        uuid: departamento.id, 
+        original: departamento.originalId, 
         nombre: departamento.nombre,
         version: departamento.version,
         fechaEdicion: departamento.fechaEdicion ? departamento.fechaEdicion : '',
-        editor: `${departamento.editor?.nombre || ''}-${departamento.editor?._id || ''}`,
+        editorId: `${departamento.editor?.nombre || ''}-${departamento.editor?.id || ''}`,
         fechaRevision: departamento.fechaRevision ? departamento.fechaRevision : '',
-        revisor: `${departamento.revisor?.nombre || ''}-${departamento.revisor?._id || ''}`,
+        revisorId: `${departamento.revisor?.nombre || ''}-${departamento.revisor?.id || ''}`,
         estado: departamento.estado
       }
     ))
@@ -127,8 +127,6 @@ export const ReviewsBeneficiarios = () => {
   const hiddenColumns = {
     uuid: false,
     original: false,
-    fechaRevision: false,
-    revisor: false
   }
 
   return(
@@ -140,7 +138,7 @@ export const ReviewsBeneficiarios = () => {
         {link: '/reviews/beneficiarios', nombre: 'Revisiones'}
     ]}>
       <div className="d-flex align-items-center">
-        <h4><i className="bi bi-geo-alt-fill"></i>{`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h4>
+        <h4><i className="bi bi-people-fill"></i>{` Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h4>
         {/*Boton Actualizar*/}
         {
           !updating ? 

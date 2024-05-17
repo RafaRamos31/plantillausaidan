@@ -4,8 +4,9 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { Layout } from "./Layout.jsx";
-import { MELNavBar } from "../components/navBars/MELNavBar.jsx";
 import { UserContext } from "../contexts/UserContext.js";
+import { EventosNavBar } from "../components/navBars/EventosNavBar.jsx";
+import { InfoLink } from "../components/InfoLink.jsx";
 
 export const EventosConsolidado = () => {
   const endpoint = 'evento'
@@ -41,69 +42,23 @@ export const EventosConsolidado = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50 },
-    { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'uuid', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
     { field: 'nombre', headerName: 'Nombre', width: 400 },
+    { field: 'quarterId', headerName: 'Trimestre', width: 100, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'quarters'} 
+            id={params.value.split('*')[1]}
+            nombre={params.value.split('*')[0]}
+          />
+        );
+      }
+    },
     { field: 'fechaInicio', headerName: 'Fecha del evento', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'organizador', headerName: 'Organizador', width: 170,
-      renderCell: (params) => {
-        return (
-          <AvatarChip
-            id={params.formattedValue.split('-')[1]}
-            name={params.formattedValue.split('-')[0]} 
-          />
-        );
-      } 
-    },
-    { field: 'fechaCreacion', headerName: 'Fecha de Creación', width: 170, 
-      type: 'dateTime',
-      valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'responsableCreacion', headerName: 'Creador del Evento', width: 170,
-      renderCell: (params) => {
-        return (
-          <AvatarChip
-            id={params.formattedValue.split('-')[1]}
-            name={params.formattedValue.split('-')[0]} 
-          />
-        );
-      } 
-    },
-    { field: 'estadoRevisionDigitacion', headerName: 'Estado Digitación', width: 150,  
-      type: 'singleSelect',
-      valueOptions: ['Pendiente', 'Finalizado', 'Rechazado'],
-      renderCell: (params) => {
-        return (
-          <StatusBadge status={params.formattedValue} />
-        );
-      }
-    },
-    { field: 'fechaRevisionDigitacion', headerName: 'Fecha de Digitación', width: 170, 
-      type: 'dateTime',
-      valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'revisorDigitacion', headerName: 'Resp. Digitación', width: 170,
-      renderCell: (params) => {
-        return (
-          <AvatarChip
-            id={params.formattedValue.split('-')[1]}
-            name={params.formattedValue.split('-')[0]} 
-          />
-        );
-      } 
-    },
-    { field: 'estadoPresupuesto', headerName: 'Estado Presupuesto', width: 150,  
-      type: 'singleSelect',
-      valueOptions: ['Pendiente', 'Finalizado'],
-      renderCell: (params) => {
-        return (
-          <StatusBadge status={params.formattedValue} />
-        );
-      }
-    },
-    { field: 'fechaPresupuesto', headerName: 'Fecha de Presupuesto', width: 170, 
-      type: 'dateTime',
-      valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'responsablePresupuesto', headerName: 'Revisor', width: 170,
+    { field: 'organizadorId', headerName: 'Organizador', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -125,7 +80,7 @@ export const EventosConsolidado = () => {
     { field: 'fechaConsolidado', headerName: 'Fecha de Consolidado', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'responsableConsolidado', headerName: 'Resp. Consolidado', width: 170,
+    { field: 'responsableConsolidadoId', headerName: 'Resp. Consolidado', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -145,7 +100,7 @@ export const EventosConsolidado = () => {
           <>
           {
             (user && user.userPermisos?.acciones['Eventos']['Consolidar'] && params.row.estadoConsolidado !== 'Finalizado' ) &&
-            <a href={`/monitoreo/consolidado/${params.row.uuid}`} target="_blank" rel="noreferrer">
+            <a href={`/eventos/consolidado/${params.row.uuid}`} target="_blank" rel="noreferrer">
             <Button style={buttonStyle}>
               <i className="bi bi-pencil-fill"></i>{' '}
               Consolidar
@@ -172,45 +127,32 @@ export const EventosConsolidado = () => {
     data.map((departamento, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
+        uuid: departamento.id, 
         original: departamento.original, 
         nombre: departamento.nombre,
         version: departamento.version,
         fechaInicio: departamento.fechaInicio ? departamento.fechaInicio : '',
-        organizador: `${departamento.organizador?.nombre || ''}-${departamento.organizador?._id || ''}`,
-        fechaCreacion: departamento.fechaCreacion ? departamento.fechaCreacion : '',
-        responsableCreacion: `${departamento.responsableCreacion?.nombre || ''}-${departamento.responsableCreacion?._id || ''}`,
-        estadoRevisionDigitacion: departamento.estadoRevisionDigitacion,
-        fechaRevisionDigitacion: departamento.fechaRevisionDigitacion ? departamento.fechaRevisionDigitacion : '',
-        revisorDigitacion: `${departamento.revisorDigitacion?.nombre || ''}-${departamento.revisorDigitacion?._id || ''}`,
-        estadoPresupuesto: departamento.estadoPresupuesto,
-        fechaPresupuesto: departamento.fechaPresupuesto ? departamento.fechaPresupuesto : '',
-        responsablePresupuesto: `${departamento.responsablePresupuesto?.nombre || ''}-${departamento.responsablePresupuesto?._id || ''}`,
+        organizadorId: `${departamento.organizador?.nombre || ''}-${departamento.organizador?.id || ''}`,
+        quarterId: `${departamento.quarter?.nombre || ''}*${departamento.quarter?.id || ''}`,
         estadoConsolidado: departamento.estadoConsolidado,
         fechaConsolidado: departamento.fechaConsolidado ? departamento.fechaConsolidado : '',
-        responsableConsolidado: `${departamento.responsableConsolidado?.nombre || ''}-${departamento.responsableConsolidado?._id || ''}`,
+        responsableConsolidadoId: `${departamento.responsableConsolidado?.nombre || ''}-${departamento.responsableConsolidado?.id || ''}`,
       }
     ))
   )
   
   const hiddenColumns = {
     uuid: false,
-    fechaCreacion: false,
-    responsableCreacion: false,
-    fechaRevisionDigitacion: false,
-    revisorDigitacion: false,
-    fechaPresupuesto: false,
-    responsablePresupuesto: false,
     fechaConsolidado: false,
-    responsableConsolidado: false,
+    responsableConsolidadoId: false,
   }
 
   return(
     <>
-    <Layout pagina={`Consolidar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={MELNavBar} breadcrumbs={[
+    <Layout pagina={`Consolidar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={EventosNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
-        {link: '/monitoreo', nombre: 'Monitoreo'},
-        {link: '/monitoreo/consolidar', nombre: 'Consolidar Eventos'},
+        {link: '/eventos', nombre: 'Eventos'},
+        {link: '/eventos/consolidar', nombre: 'Consolidar Eventos'},
     ]}>
       <div className="d-flex align-items-center">
         <h4><i className="bi bi-graph-up-arrow"></i>{` Consolidado de ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`}</h4>

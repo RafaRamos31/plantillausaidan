@@ -3,15 +3,16 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearDepartamento } from "./CrearDepartamento.jsx";
 import { CrearMunicipio } from "./CrearMunicipio.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
+
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -19,16 +20,12 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
-    idDepartamento: '',
-    idMunicipio: '',
+    departamentoId: '',
+    municipioId: '',
     geocode: '',
     aprobar: modal ? true : aprove
   });
 
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
   
   //Departamento
   const findParams = {
@@ -36,7 +33,7 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParams);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -73,24 +70,24 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios');
+      setQueryMunicipios('municipios/list');
       setRefetchMuni(true);
       setValues({ ...values, geocode: '' });
     }
@@ -98,14 +95,14 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Editar Municipio en Formulario
   const [geo, setGeo] = useState('0000')
 
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
-      setGeo(municipios.find(muni => muni._id === values.idMunicipio)?.geocode || '0000')
+    if(values.municipioId && values.municipioId.length !== 0){
+      setGeo(municipios.find(muni => muni.id === values.municipioId)?.geocode || '0000')
     }
     else{
       setGeo('0000')
@@ -173,7 +170,7 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
             Aldea:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} autoComplete={'off'} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} autoComplete={'off'} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -185,11 +182,12 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
             <InputGroup>
               <InputAutocomplete 
                 valueList={deptos} 
-                value={values.idDepartamento}
-                name={'idDepartamento'}
+                value={values.departamentoId}
+                name={'departamentoId'}
                 setValues={setValues}
                 setRefetch={setRefetchDeptos}
                 ModalCreate={CrearDepartamento}
+                insert={user.userPermisos?.acciones['Departamentos']['Crear']}
               />
               {
                 !updatingDepto ? 
@@ -212,18 +210,19 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Municipio:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
               <InputAutocomplete 
                 valueList={municipios} 
-                value={values.idMunicipio}
-                name={'idMunicipio'}
+                value={values.municipioId}
+                name={'municipioId'}
                 setValues={setValues}
                 setRefetch={setRefetchMuni}
                 ModalCreate={CrearMunicipio}
+                insert={municipios.length > 0 && user.userPermisos?.acciones['Municipios']['Crear']}
               />
               {
                 !updatingMunicipios ? 
@@ -261,12 +260,6 @@ export const CrearAldea = ({handleClose, setRefetch, modalRefetch, modal=false})
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Aldeas']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

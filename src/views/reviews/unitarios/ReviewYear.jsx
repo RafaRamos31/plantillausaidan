@@ -22,7 +22,7 @@ export const ReviewYear = () => {
   const endpoint = 'year';
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -38,7 +38,7 @@ export const ReviewYear = () => {
   //Obtener datos de Original
   useEffect(() => {
     if(dataRevision && dataRevision.original){
-      setQueryOriginal(`${endpoint}/${dataRevision.original}`)
+      setQueryOriginal(`${endpoint}s/id/${dataRevision.original}`)
       setRefetchOriginal(true)
     }
     else{
@@ -130,7 +130,6 @@ export const ReviewYear = () => {
         {link: '/', nombre: 'Inicio'},
         {link: '/indicadores', nombre: 'Indicadores'},
         {link: '/indicadores/years', nombre: 'Años Fiscales'},
-        {link: '/reviews/years', nombre: 'Revisiones'},
         {link: `/reviews/years/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
@@ -152,7 +151,7 @@ export const ReviewYear = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
                 </div>
               </Col>
             </Row>
@@ -174,7 +173,7 @@ export const ReviewYear = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -201,7 +200,7 @@ export const ReviewYear = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }

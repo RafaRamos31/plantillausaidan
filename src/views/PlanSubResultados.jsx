@@ -3,7 +3,6 @@ import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { InfoLink } from "../components/InfoLink.jsx";
-import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
@@ -51,12 +50,6 @@ export const PlanSubResultados = () => {
   }, [refetchData, setUpdating])
   
 
-  //Boton Cambios
-  const navigate = useNavigate();
-  const handleReview = () => {
-    navigate(`/reviews/${endpoint}s`)
-  }
-
   //Modal crear
   const [showCreate, setShowCreate] = useState(false);
   const handleCloseCreate = () => setShowCreate(false);
@@ -94,7 +87,7 @@ export const PlanSubResultados = () => {
       filterOperators: getGridStringOperators().filter(
       (operator) => operator.value === 'contains',
       )},
-    { field: 'resultado', headerName: 'Resultado', width: 150, filterable: false,
+    { field: 'resultadoId', headerName: 'Resultado', width: 150, filterable: false,
     renderCell: (params) => {
       const resultado = JSON.parse(params.formattedValue)
       return (
@@ -108,11 +101,7 @@ export const PlanSubResultados = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'uuid Editor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
+    { field: 'editorId', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -125,11 +114,7 @@ export const PlanSubResultados = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -142,24 +127,13 @@ export const PlanSubResultados = () => {
     { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
+    { field: 'eliminadorId', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
             id={params.formattedValue.split('-')[1]}
             name={params.formattedValue.split('-')[0]} 
           />
-        );
-      } 
-    },
-    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
-      renderCell: (params) => {
-        return (
-          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
@@ -206,7 +180,7 @@ export const PlanSubResultados = () => {
                       id: params.row._id,
                       nombre: params.row.nombre,
                       descripcion: params.row.descripcion,
-                      idResultado: JSON.parse(params.row.resultado)?._id
+                      resultadoId: JSON.parse(params.row.resultadoId)?.id
                     })
                     handleShowEdit()
                   }}>
@@ -215,17 +189,6 @@ export const PlanSubResultados = () => {
                 </OverlayTrigger>
               }
               </>
-            }
-            {
-              user.userPermisos?.acciones['Sub Resultados']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
             }
           </>
         );
@@ -238,22 +201,18 @@ export const PlanSubResultados = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        _id: item._id, 
+        _id: item.id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor?._id || '',
-        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
+        editorId: `${item.editor?.nombre || ''}-${item.editor?.id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor?._id || '',
-        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
+        revisorId: `${item.revisor?.nombre || ''}-${item.revisor?.id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: item.eliminador?._id || '',
-        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
-        editing: item.pendientes.includes(user.userId),
+        eliminadorId: `${item.eliminador?.nombre || ''}-${item.eliminador?.id || ''}`,
         estado: item.estado,
         nombre: item.nombre,
         descripcion: item.descripcion,
-        resultado: JSON.stringify(item.resultado)
+        resultadoId: JSON.stringify(item.resultado)
       }
     ))
   )
@@ -262,15 +221,11 @@ export const PlanSubResultados = () => {
     _id: false,
     version: false,
     fechaEdicion: false,
-    editor: false,
-    editorName: false,
+    editorId: false,
     fechaRevision: false,
-    revisor: false,
-    revisorName: false,
+    revisorId: false,
     fechaEliminacion: false,
-    eliminador: false,
-    eliminadorName: false,
-    editing: false,
+    eliminadorId: false,
     estado: false
   }
 
@@ -309,16 +264,6 @@ export const PlanSubResultados = () => {
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
           {`Agregar Sub Resultado`}
-        </Button>
-      }
-
-      {/*Boton Cambios*/}
-      {
-        user.userPermisos?.acciones['Sub Resultados']['Revisar']
-        &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
-          <i className="bi bi-pencil-square"></i>{' '}
-          Gestión de Cambios
         </Button>
       }
       

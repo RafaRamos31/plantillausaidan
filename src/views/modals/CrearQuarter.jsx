@@ -3,7 +3,6 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -12,29 +11,23 @@ import { FormControl, ListItemText, MenuItem, Select } from "@mui/material";
 
 export const CrearQuarter = ({handleClose, setRefetch}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
-  const [minDate, setMinDate] = useState(moment())
-  const [maxDate, setMaxDate] = useState(moment())
+  const [minDate, setMinDate] = useState()
+  const [maxDate, setMaxDate] = useState()
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
     nombre: '',
-    idYear: '',
-    fechaInicio: moment(),
-    fechaFinal: moment(),
+    yearId: '',
+    fechaInicio: null,
+    fechaFinal: null,
     timezone: '',
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   const handleToggleDate = (value, param) => {
     const timezone = moment(values.fechaInicio).format('Z');
@@ -52,7 +45,7 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [years, setYears] = useState([])
-  const { data: yearsData, isLoading: isLoadingYears} = useFetchGetBody('list/years', findParams);
+  const { data: yearsData, isLoading: isLoadingYears} = useFetchGetBody('years/list', findParams);
 
   useEffect(() => {
     if(yearsData && !isLoadingYears){
@@ -64,11 +57,11 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
   const [codigo, setCodigo] = useState('AF00-T')
 
   useEffect(() => {
-    if(values.idYear && values.idYear.length > 0){
-      const year = years.find(year => year._id === values.idYear);
+    if(values.yearId && values.yearId.length !== 0){
+      const year = years.find(year => year.id === values.yearId);
       setCodigo(`${year?.nombre}-T`);
-      setMinDate(moment(year?.fechaInicio));
-      setMaxDate(moment(year?.fechaFinal));
+      setMinDate(moment(year?.fechaInicio).add(6, 'h'));
+      setMaxDate(moment.utc(year?.fechaFinal));
     }
     else{
       setCodigo('AF00-T')
@@ -132,13 +125,13 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idYear"
-                  name="idYear"
+                  id="yearId"
+                  name="yearId"
                   onChange={handleChange}
-                  value={values.idYear}
+                  value={values.yearId}
                 >
                   {years && years.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <ListItemText primary={item.nombre} />
                     </MenuItem>
                   ))}
@@ -155,7 +148,7 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
           <Col sm="4">
             <InputGroup>
               <InputGroup.Text placeholder="AF">{codigo}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} maxLength={2} min={1} onChange={handleChange}/>
+              <Form.Control id='nombre' name='nombre' type="number" value={values.nombre} autoComplete="off" maxLength={2} min={1} onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>
@@ -171,7 +164,7 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
               format="DD/MM/YYYY"
               id='fechaInicio'
               name='fechaInicio'
-              value={moment(values.fechaInicio)}
+              value={moment.utc(values.fechaInicio)}
               minDate={minDate}
               maxDate={maxDate}
               onChange={(value) => handleToggleDate(value, 'fechaInicio')}
@@ -190,7 +183,7 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
               name='fechaFinal'
               minDate={minDate}
               maxDate={maxDate}
-              value={moment(values.fechaFinal)}
+              value={moment.utc(values.fechaFinal)}
               onChange={(value) => handleToggleDate(value, 'fechaFinal')}
               />
             </Col>
@@ -203,12 +196,6 @@ export const CrearQuarter = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Años Fiscales']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

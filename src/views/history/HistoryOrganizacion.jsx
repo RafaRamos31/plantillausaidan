@@ -14,11 +14,11 @@ export const HistoryOrganizacion = () => {
   const endpoint = 'organizacion'
 
   //Peticio de datos a la API
-  const { data, isLoading } = useFetchGet(`revisiones/${endpoint}/${id}`);
+  const { data, isLoading } = useFetchGet(`${endpoint}es/revisiones/${id}`);
 
   //Original
   const [original, setOriginal] = useState(null)
-  const { data: originalData, isLoading: isLoadingOriginal, error: errorOriginal } = useFetchGet(`${endpoint}/${id}`);
+  const { data: originalData, isLoading: isLoadingOriginal, error: errorOriginal } = useFetchGet(`${endpoint}es/id/${id}`);
   
   useEffect(() => {
     if(originalData && !isLoadingOriginal){
@@ -49,8 +49,8 @@ export const HistoryOrganizacion = () => {
             }
             {
               data && data.map((rev) => (
-                <div key={rev._id}>
-                <Accordion.Item id={rev._id} key={rev._id} eventKey={rev._id}>
+                <div key={rev.id}>
+                <Accordion.Item id={rev.id} key={rev.id} eventKey={rev.id}>
                   <Accordion.Header>
                     <p style={{fontSize: '1.5rem', marginRight: '0.3rem'}}>v.{rev.version}</p>
                     <StatusBadge status={rev.estado}/>
@@ -68,7 +68,7 @@ export const HistoryOrganizacion = () => {
                         <Col>
                           <div className='d-flex align-items-center'>
                             <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                            <AvatarChip name={rev.editor.nombre} id={rev.editor._id}/>
+                            <AvatarChip name={rev.editor?.nombre} id={rev.editor?.id}/>
                           </div>
                         </Col>
                       </Row>
@@ -90,7 +90,7 @@ export const HistoryOrganizacion = () => {
                           <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                             {
                               rev.revisor ?
-                              <AvatarChip name={rev.revisor.nombre} id={rev.revisor._id}/>
+                              <AvatarChip name={rev.revisor?.nombre} id={rev.revisor?.id}/>
                               :
                               <p>--</p>
                             }
@@ -105,22 +105,57 @@ export const HistoryOrganizacion = () => {
                       <Row>
                         <Col md={6}>
                           <CompareValue  title={'Nombre:'} value={rev.nombre} original={original?.nombre} compare={false}/>
-                          <CompareValue  title={'Código:'} value={rev.codigoOrganizacion} original={original?.codigoOrganizacion} compare={false}/>
-                          <CompareValue  title={'Teléfono Organización:'} value={rev.telefonoOrganizacion} original={original?.telefonoOrganizacion} compare={false}/>
+                          {
+                            rev.codigo &&
+                            <CompareValue  title={'Código:'} value={rev.codigo} original={original?.codigoOrganizacion} compare={false}/>
+                          }
+                          {
+                            rev.telefono &&
+                            <CompareValue  title={'Teléfono Organización:'} value={rev.telefono} original={original?.telefono} compare={false}/>
+                          }
                           <hr />
-                          <CompareValue  title={'Sector:'} value={rev.sector.nombre} original={original?.sector.nombre} compare={false}/>
-                          <CompareValue  title={'Tipo de Organización:'} value={rev.tipoOrganizacion.nombre} original={original?.tipoOrganizacion.nombre} compare={false}/>
-                          <CompareValue  title={'Nivel de la Organización:'} value={rev.nivelOrganizacion} original={original?.nivelOrganizacion} compare={false}/>
+                          {
+                            rev.sector &&
+                            <CompareValue  title={'Sector:'} value={rev.sector?.nombre} original={original?.sector?.nombre} compare={false}/>
+                          }
+                          {
+                            rev.tipoOrganizacion &&
+                            <CompareValue  title={'Tipo de Organización:'} value={rev.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={false}/>
+                          }
+                          {
+                            rev.nivel &&
+                            <CompareValue  title={'Nivel de la Organización:'} value={rev.nivel?.nombre} original={original?.nivel?.nombre} compare={false}/>
+                          }
                           <hr />
-                          <CompareValue  title={'Departamento:'} value={rev.departamento.nombre} original={original?.departamento.nombre} compare={false}/>
-                          <CompareValue  title={'Municipio:'} value={rev.municipio.nombre} original={original?.municipio.nombre} compare={false}/>
-                          <CompareValue  title={'Aldea:'} value={rev.aldea.nombre} original={original?.aldea.nombre} compare={false}/>
-                          <CompareValue  title={'Caserio:'} value={rev.caserio.nombre} original={original?.caserio.nombre} compare={false}/>
-                          <CompareValue  title={'Geolocacion:'} value={rev.geolocacion} original={original?.geolocacion} compare={false}/>
+                          {
+                            rev.departamento &&
+                            <CompareValue  title={'Departamento:'} value={rev.departamento?.nombre} original={original?.departamento?.nombre} compare={false}/>
+                          }
+                          {
+                            rev.municipio &&
+                            <CompareValue  title={'Municipio:'} value={rev.municipio?.nombre} original={original?.municipio?.nombre} compare={false}/>
+                          }
+                          {
+                            rev.aldea &&
+                            <CompareValue  title={'Aldea:'} value={rev.aldea?.nombre} original={original?.aldea?.nombre} compare={false}/>
+                          }
+                          {
+                            rev.caserio &&
+                            <CompareValue  title={'Caserio:'} value={rev.caserio?.nombre} original={original?.caserio?.nombre} compare={false}/>
+                          }
                           <hr />
-                          <CompareValue  title={'Nombre Contacto:'} value={rev.nombreContacto} original={original?.nombreContacto} compare={false}/>
-                          <CompareValue  title={'Teléfono Contacto:'} value={rev.telefonoContacto} original={original?.telefonoContacto} compare={false}/>
-                          <CompareValue  title={'Correo Contacto:'} value={rev.correoContacto} original={original?.correoContacto} compare={false}/>
+                          {
+                            rev.nombreContacto &&
+                            <CompareValue  title={'Nombre Contacto:'} value={rev.nombreContacto} original={original?.nombreContacto} compare={false}/>
+                          }
+                          {
+                            rev.telefonoContacto &&
+                            <CompareValue  title={'Teléfono Contacto:'} value={rev.telefonoContacto} original={original?.telefonoContacto} compare={false}/>
+                          }
+                          {
+                            rev.correoContacto &&
+                            <CompareValue  title={'Correo Contacto:'} value={rev.correoContacto} original={original?.correoContacto} compare={false}/>
+                          }
                         </Col>
                       </Row>
                     </Container>
@@ -156,12 +191,22 @@ export const HistoryOrganizacion = () => {
                     <Container>
                       <div>
                         <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Fecha de Edición:</p>
-                        <p>{new Date(original.fechaEdicion).toLocaleString()}</p>
+                        {
+                          original.fechaEdicion ?
+                          <p>{new Date(original.fechaEdicion).toLocaleString()}</p>
+                          :
+                          <p>--</p>
+                        }
                       </div>
 
                       <div className='my-2'>
                         <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                        <AvatarChip name={original.editor.nombre} id={original.editor._id}/>
+                        {
+                          original.editor ?
+                          <AvatarChip name={original.editor.nombre} id={original.revisor.id}/>
+                          :
+                          <p>--</p>
+                        }
                       </div>
 
                       <div>
@@ -178,7 +223,7 @@ export const HistoryOrganizacion = () => {
                         <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                         {
                           original.revisor ?
-                          <AvatarChip name={original.revisor.nombre} id={original.revisor._id}/>
+                          <AvatarChip name={original.revisor.nombre} id={original.revisor.id}/>
                           :
                           <p>--</p>
                         }
@@ -200,7 +245,7 @@ export const HistoryOrganizacion = () => {
                           <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                             {
                               original.eliminador ?
-                              <AvatarChip name={original.eliminador.nombre} id={original.eliminador._id}/>
+                              <AvatarChip name={original.eliminador.nombre} id={original.eliminador.id}/>
                               :
                               <p>--</p>
                             }
@@ -217,23 +262,58 @@ export const HistoryOrganizacion = () => {
                   <Accordion.Body className='px-0 py-0'>
                     <Container  className='mx-0 my-0' style={{padding: '1.5rem'}}>
                       <CompareValue  title={'Nombre:'} value={original.nombre} original={original?.nombre} compare={false}/>
-                      <CompareValue  title={'Código:'} value={original.codigoOrganizacion} original={original?.codigoOrganizacion} compare={false}/>
-                      <CompareValue  title={'Teléfono Organización:'} value={original.telefonoOrganizacion} original={original?.telefonoOrganizacion} compare={false}/>
+                      {
+                        original.codigo &&
+                        <CompareValue  title={'Código:'} value={original.codigo} original={original?.codigo} compare={false}/>
+                      }
+                      {
+                        original.telefono &&
+                        <CompareValue  title={'Teléfono Organización:'} value={original.telefono} original={original?.telefono} compare={false}/>
+                      }
                       <hr />
-                      <CompareValue  title={'Sector:'} value={original.sector.nombre} original={original?.sector.nombre} compare={false}/>
-                      <CompareValue  title={'Tipo de Organización:'} value={original.tipoOrganizacion.nombre} original={original?.tipoOrganizacion.nombre} compare={false}/>
-                      <CompareValue  title={'Nivel de la Organización:'} value={original.nivelOrganizacion} original={original?.nivelOrganizacion} compare={false}/>
+                      {
+                        original.sector &&
+                        <CompareValue  title={'Sector:'} value={original.sector?.nombre} original={original?.sector?.nombre} compare={false}/>
+                      }
+                      {
+                        original.tipoOrganizacion &&
+                        <CompareValue  title={'Tipo de Organización:'} value={original.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={false}/>
+                      }
+                      {
+                        original.nivel &&
+                        <CompareValue  title={'Nivel de la Organización:'} value={original.nivel?.nombre} original={original?.nivelOrganizacion?.nombre} compare={false}/>
+                      }
                       <hr />
-                      <CompareValue  title={'Departamento:'} value={original.departamento.nombre} original={original?.departamento.nombre} compare={false}/>
-                      <CompareValue  title={'Municipio:'} value={original.municipio.nombre} original={original?.municipio.nombre} compare={false}/>
-                      <CompareValue  title={'Aldea:'} value={original.aldea.nombre} original={original?.aldea.nombre} compare={false}/>
-                      <CompareValue  title={'Caserio:'} value={original.caserio.nombre} original={original?.caserio.nombre} compare={false}/>
-                      <CompareValue  title={'Geolocacion:'} value={original.geolocacion} original={original?.geolocacion} compare={false}/>
+                      {
+                        original.departamento &&
+                        <CompareValue  title={'Departamento:'} value={original.departamento?.nombre} original={original?.departamento?.nombre} compare={false}/>
+                      }
+                      {
+                        original.municipio &&
+                        <CompareValue  title={'Municipio:'} value={original.municipio?.nombre} original={original?.municipio?.nombre} compare={false}/>
+                      }
+                      {
+                        original.aldea &&
+                        <CompareValue  title={'Aldea:'} value={original.aldea?.nombre} original={original?.aldea?.nombre} compare={false}/>
+                      }
+                      {
+                        original.caserio &&
+                        <CompareValue  title={'Caserio:'} value={original.caserio?.nombre} original={original?.caserio?.nombre} compare={false}/>
+                      }
                       <hr />
-                      <CompareValue  title={'Nombre Contacto:'} value={original.nombreContacto} original={original?.nombreContacto} compare={false}/>
-                      <CompareValue  title={'Teléfono Contacto:'} value={original.telefonoContacto} original={original?.telefonoContacto} compare={false}/>
-                      <CompareValue  title={'Correo Contacto:'} value={original.correoContacto} original={original?.correoContacto} compare={false}/>
-                    </Container>
+                      {
+                        original.nombreContacto &&
+                        <CompareValue  title={'Nombre Contacto:'} value={original.nombreContacto} original={original?.nombreContacto} compare={false}/>
+                      }
+                      {
+                        original.telefonoContacto &&
+                        <CompareValue  title={'Teléfono Contacto:'} value={original.telefonoContacto} original={original?.telefonoContacto} compare={false}/>
+                      }
+                      {
+                        original.correoContacto &&
+                        <CompareValue  title={'Correo Contacto:'} value={original.correoContacto} original={original?.correoContacto} compare={false}/>
+                      }
+                      </Container>
                   </Accordion.Body>
                 </Accordion.Item>
               </Accordion>

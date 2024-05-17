@@ -34,8 +34,8 @@ export const ResponsablesChip = ({colaboradores}) => {
   return (
     <AvatarGroup max={8} style={{cursor: 'pointer'}}>
       {
-        colaboradores.map(colaborador => (
-          <Tooltip title={colaborador.nombre} placement="top" arrow>
+        colaboradores.map((colaborador) => (
+          <Tooltip key={colaborador.id} title={colaborador.nombre} placement="top" arrow>
             <Avatar {...stringAvatar(colaborador.nombre)} />
           </Tooltip>
         ))

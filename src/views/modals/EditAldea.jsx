@@ -4,27 +4,26 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { CrearMunicipio } from "./CrearMunicipio.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) => {
+
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
     idAldea: aldea.id,
     nombre: aldea.nombre,
-    idDepartamento: aldea.idDepartamento || aldea.departamento._id,
-    idMunicipio: aldea.idMunicipio || aldea.municipio._id,
+    departamentoId: aldea.departamentoId,
+    municipioId: aldea.municipioId,
     geocode: aldea.geocode.substring(4),
     aprobar: aprove
   });
-  
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -35,7 +34,7 @@ export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) =>
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParams);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -72,24 +71,24 @@ export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) =>
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios')
+      setQueryMunicipios('municipios/list')
       setRefetchMuni(true)
       setValues({ ...values });
     }
@@ -97,14 +96,15 @@ export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) =>
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Editar Municipio en Formulario
   const [geo, setGeo] = useState('0000')
 
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
-      setGeo(municipios.find(muni => muni._id === values.idMunicipio)?.geocode || '0000')
+    if(values.municipioId && values.municipioId.length !== 0){
+      // eslint-disable-next-line
+      setGeo(municipios.find(muni => muni.id == values.municipioId)?.geocode || '0000')
     }
     else{
       setGeo('0000')
@@ -196,25 +196,25 @@ export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) =>
             Aldea:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Departamento:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                <option value="">Seleccionar Departamento</option>
-                {
-                  deptos &&
-                  deptos.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={deptos} 
+                value={values.departamentoId}
+                name={'departamentoId'}
+                setValues={setValues}
+                setRefetch={setRefetchDeptos}
+                ModalCreate={CrearDepartamento}
+                insert={user.userPermisos?.acciones['Departamentos']['Crear']}
+              />
               {
                 !updatingDepto ? 
                 <Button variant="light" onClick={handleUpdateDepto}>
@@ -236,20 +236,20 @@ export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) =>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Municipio:
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idMunicipio' name='idMunicipio' value={values.idMunicipio} onChange={handleChange}>
-                <option value="">Seleccionar Municipio</option>
-                {
-                  municipios &&
-                  municipios.map((muni) => (
-                    <option key={muni._id} value={muni._id}>{muni.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={municipios} 
+                value={values.municipioId}
+                name={'municipioId'}
+                setValues={setValues}
+                setRefetch={setRefetchMuni}
+                ModalCreate={CrearMunicipio}
+                insert={municipios.length > 0 && user.userPermisos?.acciones['Municipios']['Crear']}
+              />
               {
                 !updatingMunicipios ? 
                 <Button variant="light" onClick={handleUpdateMunicipios}>
@@ -286,12 +286,6 @@ export const EditAldea = ({handleClose, setRefetchData, aldea, fixing=false}) =>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Aldeas']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

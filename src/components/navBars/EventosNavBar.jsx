@@ -25,34 +25,22 @@ export const EventosNavBar = () => {
   const page = 'Eventos';
   const [views] = useState([
     {
-      name: 'Planificación',
-      url: '/eventos/planificacion',
-      dir: 'planificacion',
-      icon: 'bi-bar-chart-steps'
-    },
-    {
       name: 'Tablero',
       url: '/eventos/tablero',
       dir: 'tablero',
       icon: 'bi-kanban'
     },
     {
-      name: 'Aprobación',
-      url: '/eventos/aprobacion',
-      dir: 'aprobacion',
-      icon: 'bi-calendar2-check'
-    },
-    {
-      name: 'Finalización',
-      url: '/eventos/terminar',
-      dir: 'terminar',
-      icon: 'bi-flag-fill'
-    },
-    {
       name: 'Digitación',
       url: '/eventos/digitar',
       dir: 'digitar',
       icon: 'bi-pencil-square'
+    },
+    {
+      name: 'Consolidar',
+      url: '/eventos/consolidado',
+      dir: 'consolidado',
+      icon: 'bi-graph-up-arrow'
     }
   ])
 

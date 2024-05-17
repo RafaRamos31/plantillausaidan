@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Button, Card, Spinner, Form, Col, Row, InputGroup, Modal, CloseButton } from "react-bootstrap";
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGet, useFetchPostBody } from "../../hooks/useFetch.js";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useForm from "../../hooks/useForm.js";
 import { ParticipantesGridIndicadores } from "../../components/ParticipantesGridIndicadores.jsx";
 import { ListItemText, Tooltip, Select, MenuItem, Alert } from "@mui/material";
@@ -12,7 +12,7 @@ export const CrearEventoConsolidado = () => {
   const { idEvento } = useParams();
 
   const [evento, setEvento] = useState({})
-  const { data: dataEvento, isLoading: isLoadingEvento, error: errorEvento } = useFetchGet(`evento/participantes/${idEvento}`);
+  const { data: dataEvento, isLoading: isLoadingEvento, error: errorEvento } = useFetchGet(`eventos/consolidar/${idEvento}`);
 
   const [indPersonas, setIndPersonas] = useState([])
 
@@ -36,34 +36,34 @@ export const CrearEventoConsolidado = () => {
   const [participantes, setParticipantes] = useState([])
 
   const handleChangeIndicador = (id, idIndicador) => {
-    setParticipantes(prev => prev.map(p => p._id === id ? {
+    setParticipantes(prev => prev.map(p => p.id === id ? {
       ...p,
       valueIndicador: idIndicador,
-      estadoIndicador: p.indicadores['AF24']?.includes(idIndicador) ? 'Warning' : 'Valid'
+      estadoIndicador: (p.indicadores[dataEvento.quarter.yearId] && p.indicadores[dataEvento.quarter.yearId].includes(idIndicador)) ? 'Warning' : 'Valid'
     } : p))
   }
 
   useEffect(() => {
     if(!isLoadingEvento && dataEvento && !errorEvento){
       setValues({
-        idEvento: dataEvento._id,
+        idEvento: dataEvento.id,
         nombre: dataEvento.nombre,
         totalPresupuesto: dataEvento.totalPresupuesto,
         enlacePresupuesto: dataEvento.enlacePresupuesto,
       }) 
 
       setEvento(dataEvento)
-      setIndPersonas(dataEvento.areaTematica?.indicadores.filter(i => i.medida === 'Personas'))
+      setIndPersonas(dataEvento.indicadores.filter(i => i.medida === 'Personas'))
     }
     // eslint-disable-next-line
   }, [dataEvento, isLoadingEvento, errorEvento])
 
   useEffect(() => {
-    if(indPersonas.length > 0){
+    if(indPersonas.length !== 0){
       setParticipantes(dataEvento.participantes.map(p => ({
         ...p,
-        valueIndicador: indPersonas[0]?._id,
-        estadoIndicador: p.indicadores['AF24']?.includes(indPersonas[0]?._id) ? 'Warning' : 'Valid'
+        valueIndicador: indPersonas[0]?.id,
+        estadoIndicador: (p.indicadores[dataEvento.quarter.yearId] && p.indicadores[dataEvento.quarter.yearId].includes(indPersonas[0]?.id)) ? 'Warning' : 'Valid'
       })))
     }
   // eslint-disable-next-line
@@ -100,9 +100,9 @@ export const CrearEventoConsolidado = () => {
       conteo: JSON.stringify(conteo),
       presupuesto: values.totalPresupuesto,
       indPresupuesto: values.idIndicadorPresupuesto,
-      indParticipantes: JSON.stringify({data: participantes.map(p => ({_id: p._id, valueIndicador: p.valueIndicador, estadoIndicador: p.estadoIndicador}))}),
-      idTrimestre: dataEvento?.tarea.trimestre._id,
-      nameTrimestre: dataEvento?.tarea.trimestre.nombre,
+      indParticipantes: JSON.stringify({data: participantes.map(p => ({id: p.id, valueIndicador: p.valueIndicador, estadoIndicador: p.estadoIndicador}))}),
+      idTrimestre: dataEvento?.quarter.id,
+      nameTrimestre: dataEvento?.quarter.nombre,
     });
 
 
@@ -126,12 +126,16 @@ export const CrearEventoConsolidado = () => {
   //Boton de carga
   const [charging, setCharging] = useState(false);
 
+  const navigate = useNavigate();
+
   //Accion al completar correctamente
   const handleSuccess = () => {
     setCharging(false)
     setShowToast(true);
-    actualizarTitulo("Participantes Digitalizados");
-    setContent("Participantes Digitalizados correctamente.");
+    navigate('/indicadores/monitoreo')
+    handleCloseEdit();
+    actualizarTitulo("Evento Consolidado");
+    setContent("Evento Consolidado correctamente.");
     setVariant("success");
   };
 
@@ -186,7 +190,7 @@ export const CrearEventoConsolidado = () => {
             <h5>Indicadores</h5>
             <Col sm="12">
               {
-                dataEvento?.areaTematica.indicadores.map((ind, index) => (
+                dataEvento?.indicadores.map((ind, index) => (
                   <Tooltip  key={index} title={ind.descripcion} placement="right" arrow followCursor>
                     <ListItemText primary={ind.nombre} />
                   </Tooltip>
@@ -196,7 +200,7 @@ export const CrearEventoConsolidado = () => {
             </Form.Group>
             <Form.Group className="mb-3">
             <h5>Trimestre</h5>
-            <ListItemText primary={dataEvento?.tarea.trimestre.nombre} />
+            <ListItemText primary={dataEvento?.quarter.nombre} />
             </Form.Group>
             </Col>
           
@@ -208,19 +212,19 @@ export const CrearEventoConsolidado = () => {
             <Card.Body className="p-4">
               <h6>Válidos</h6>
               {
-                evento.areaTematica?.indicadores.filter(i => i.medida === 'Personas').map((ind, index) => (
+                evento.indicadores?.filter(i => i.medida === 'Personas').map((ind, index) => (
                   <InputGroup key={index} className="my-2 p-2">
                     <InputGroup.Text>{ind.nombre}</InputGroup.Text>
-                    <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind._id]?.Valid || 0} min={0} readOnly disabled />
+                    <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind.id]?.Valid || 0} min={0} readOnly disabled />
                   </InputGroup>
                 ))
               }
               <h6>Nulos</h6>
               {
-                evento.areaTematica?.indicadores.filter(i => i.medida === 'Personas').map((ind, index) => (
+                evento.indicadores?.filter(i => i.medida === 'Personas').map((ind, index) => (
                   <InputGroup key={index} className="my-2 p-2">
                     <InputGroup.Text>{ind.nombre}</InputGroup.Text>
-                    <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind._id]?.Warning || 0} min={0} readOnly disabled />
+                    <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind.id]?.Warning || 0} min={0} readOnly disabled />
                   </InputGroup>
                 ))
               }
@@ -256,7 +260,7 @@ export const CrearEventoConsolidado = () => {
                 >
                   {
                     evento?.areaTematica?.indicadores.filter(i => i.medida === 'Monetario').map((ind, index) => (
-                      <MenuItem key={index} value={ind._id}>{ind.nombre}</MenuItem>
+                      <MenuItem key={index} value={ind.id}>{ind.nombre}</MenuItem>
                     ))
                   }
                 </Select>
@@ -273,8 +277,8 @@ export const CrearEventoConsolidado = () => {
         <hr />
 
         <h5>Participantes Registrados</h5>
-        <ParticipantesGridIndicadores participantes={participantes} indicadores={evento.areaTematica?.indicadores.filter(i => i.medida === 'Personas')} handleChangeIndicador={handleChangeIndicador}/>
-
+        <ParticipantesGridIndicadores participantes={participantes} indicadores={evento.indicadores?.filter(i => i.medida === 'Personas')} handleChangeIndicador={handleChangeIndicador}/>
+        
         <p style={{color: 'red'}}>{errorMessage}</p>
       </Card.Body>
       <Card.Footer className="d-flex justify-content-between align-items-center">
@@ -331,7 +335,7 @@ export const CrearEventoConsolidado = () => {
             <Form.Group className="mb-3">
               <InputGroup className="my-2 p-2">
                 <InputGroup.Text>{'Trimestre'}</InputGroup.Text>
-                <Form.Control value={dataEvento?.tarea.trimestre.nombre} readOnly disabled />
+                <Form.Control value={dataEvento?.quarter.nombre} readOnly disabled />
               </InputGroup>
             </Form.Group>
             <Card className="mb-4">
@@ -341,19 +345,19 @@ export const CrearEventoConsolidado = () => {
               <Card.Body className="p-4">
                 <h6>Válidos</h6>
                 {
-                  evento.areaTematica?.indicadores.filter(i => i.medida === 'Personas').map((ind, index) => (
+                  evento.indicadores?.filter(i => i.medida === 'Personas').map((ind, index) => (
                     <InputGroup key={index} className="my-2 p-2">
                       <InputGroup.Text>{ind.nombre}</InputGroup.Text>
-                      <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind._id]?.Valid || 0} min={0} readOnly disabled />
+                      <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind.id]?.Valid || 0} min={0} readOnly disabled />
                     </InputGroup>
                   ))
                 }
                 <h6>Nulos</h6>
                 {
-                  evento.areaTematica?.indicadores.filter(i => i.medida === 'Personas').map((ind, index) => (
+                  evento.indicadores?.filter(i => i.medida === 'Personas').map((ind, index) => (
                     <InputGroup key={index} className="my-2 p-2">
                       <InputGroup.Text>{ind.nombre}</InputGroup.Text>
-                      <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind._id]?.Warning || 0} min={0} readOnly disabled />
+                      <Form.Control id={ind.nombre} name={ind.nombre} type={"number"} value={conteo[ind.id]?.Warning || 0} min={0} readOnly disabled />
                     </InputGroup>
                   ))
                 }
@@ -386,8 +390,8 @@ export const CrearEventoConsolidado = () => {
                   disabled
                 >
                   {
-                    evento?.areaTematica?.indicadores.filter(i => i.medida === 'Monetario').map((ind, index) => (
-                      <MenuItem key={index} value={ind._id}>{ind.nombre}</MenuItem>
+                    evento?.indicadores.filter(i => i.medida === 'Monetario').map((ind, index) => (
+                      <MenuItem key={index} value={ind.id}>{ind.nombre}</MenuItem>
                     ))
                   }
                 </Select>

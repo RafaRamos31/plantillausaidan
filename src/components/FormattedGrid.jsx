@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TableToolbar } from './TableToolbar'
 import { DataGrid } from '@mui/x-data-grid'
-import { useFetchGetBody, useFetchGetPaged } from '../hooks/useFetch';
+import { useFetchGetPaged } from '../hooks/useFetch';
 import { darken, lighten, styled } from '@mui/material';
 
 export const FormattedGrid = ({
@@ -13,7 +13,7 @@ export const FormattedGrid = ({
   pageSizeOptions=[],
   reviews=false,
   deleteds=false,
-  eventComponente='',
+  componenteId='',
   eventCrear=false, 
   eventCrearMEL=false, 
   eventTerminar=false, 
@@ -39,7 +39,7 @@ export const FormattedGrid = ({
     sort: '{}',
     reviews: reviews,
     deleteds: deleteds,
-    eventComponente: eventComponente,
+    componenteId: componenteId,
     eventCrear: eventCrear, 
     eventCrearMEL: eventCrearMEL, 
     eventTerminar: eventTerminar, 
@@ -103,26 +103,26 @@ export const FormattedGrid = ({
   
 
   //Filas y columnas para tabla
-  const [rows, setRows] = useState([])
-
+  
   //Peticion de datos a la API
-  //Total Rows
-  const [rowCount, setRowCount] = useState(0)
-  const { data: dataCount, isLoading: isLoadingCount, setRefetch: setRefetchCount } = useFetchGetBody(`count/${model}`, tableState);
-
-  useEffect(() => {
-    if(!isLoadingCount && dataCount){
-      setRowCount(dataCount.count)
-    }
-  }, [dataCount, isLoadingCount])
-
   //Rows Data
-  const { data, isLoading, setRefetch } = useFetchGetPaged(`paged/${model}`, tableState);
+  const [rows, setRows] = useState([])
+  const [rowCount, setRowCount] = useState(0)
+
+  let append = ''
+  if(eventDigitar){
+    append = '/digitar'
+  }
+
+  if(eventConsolidar){
+    append = '/consolidar'
+  }
+
+  const { data, isLoading, setRefetch } = useFetchGetPaged(`${model}/paged`+append, tableState);
 
   useEffect(() => {
     setRefetch(true);
-    setRefetchCount(true);
-  }, [paginationModel, deleteds, setRefetch, setRefetchCount])
+  }, [paginationModel, deleteds, setRefetch])
   
 
   //Enviar datos a las filas
@@ -130,8 +130,9 @@ export const FormattedGrid = ({
     if(!isLoading){
       if(data){
         setRows(
-          populateRows(data, paginationModel.page, paginationModel.pageSize)
+          populateRows(data?.rows, paginationModel.page, paginationModel.pageSize)
         );
+        setRowCount(data?.count)
       }
       setRefetchData(false);
     }
@@ -142,10 +143,9 @@ export const FormattedGrid = ({
   //Solicitud de refetch externo
   useEffect(() => {
     if(refetchData){
-      setRefetchCount(true);
       setRefetch(true);
     }
-  }, [refetchData, setRefetch, setRefetchCount])
+  }, [refetchData, setRefetch])
   
   //Dibujar tabla estilizada
   const StyledDataGrid = styled(DataGrid)(({ theme }) => ({

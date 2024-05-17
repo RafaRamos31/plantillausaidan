@@ -17,7 +17,7 @@ export const DeleteButton = ({dataRevision, type}) => {
           <Button variant="primary" onClick={handleShowEliminar}><i className="bi bi-eye-fill"></i>{' '}Restaurar</Button>
         </div>
         <Modal show={showEliminar} onHide={handleCloseEliminar}>
-          <RestoreModal handleClose={handleCloseEliminar} id={dataRevision._id} type={type}/>
+          <RestoreModal handleClose={handleCloseEliminar} id={dataRevision.id} type={type}/>
         </Modal>
       </>
     )
@@ -30,7 +30,7 @@ export const DeleteButton = ({dataRevision, type}) => {
           <Button variant="danger" onClick={handleShowEliminar}><i className="bi bi-eye-slash-fill"></i>{' '}Eliminar</Button>
         </div>
         <Modal show={showEliminar} onHide={handleCloseEliminar}>
-          <DeleteModal handleClose={handleCloseEliminar} id={dataRevision._id} type={type}/>
+          <DeleteModal handleClose={handleCloseEliminar} id={dataRevision.id} type={type}/>
         </Modal>
       </>
     )

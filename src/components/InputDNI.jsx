@@ -11,35 +11,54 @@ export const InputDNI = ({value='', setValues, disabled=false, search=false}) =>
 
   const [searching, setSearching] = useState(false)
   const [existent, setExistent] = useState(false)
+  const [free, setFree] = useState(false)
 
   //Accion buscar manual
   const handleSearch = () => {
-    setQueryOriginal('beneficiarioDNI/'+numeroIdentificacion)
+    setQueryOriginal('beneficiarios/dni/'+numeroIdentificacion)
     setSearching(true);
     setRefetchOriginal(true);
   }
   
   useEffect(() => {
     if(originalData && !isLoadingOriginal){
-      if(originalData.length > 0){
+      if(!originalData.error){
         setExistent(true)
+        setFree(false)
         setValues((values) => ({...values, 
-          nombre: originalData[0].nombre,
-          sexo: originalData[0].sexo,
-          telefono: originalData[0].telefono,
-          idSector: originalData[0]?.sector?._id,
-          idTipoOrganizacion: originalData[0]?.tipoOrganizacion?._id,
-          idOrganizacion: originalData[0].organizacion?._id,
-          idCargo: originalData[0].cargo?._id,
-          idDepartamento: originalData[0].departamento?._id,
-          idMunicipio: originalData[0].municipio?._id,
-          idAldea: originalData[0].aldea?._id,
-          idCaserio: originalData[0].caserio?._id,
-          geolocacion: originalData[0].geolocacion,
+          nombre: originalData.nombre,
+          sexo: originalData.sexo,
+          fechaNacimiento: originalData.fechaNacimiento,
+          telefono: originalData.telefono,
+          tipoBeneficiario: originalData.tipoBeneficiario,
+          sectorId: originalData.sector?.id,
+          tipoOrganizacionId: originalData.tipoOrganizacion?.id,
+          organizacionId: originalData.organizacion?.id,
+          cargoId: originalData.cargo?.id,
+          departamentoId: originalData.departamento?.id,
+          municipioId: originalData.municipio?.id,
+          aldeaId: originalData.aldea?.id,
+          caserioId: originalData.caserio?.id,
         }))
       }
       else{
         setExistent(false)
+        setFree(true)
+        setValues((values) => ({...values, 
+          nombre: '',
+          sexo: '',
+          fechaNacimiento: '',
+          telefono: '',
+          tipoBeneficiario: '',
+          sectorId: '',
+          tipoOrganizacionId: '',
+          organizacionId: '',
+          cargoId: '',
+          departamentoId: '',
+          municipioId: '',
+          aldeaId: '',
+          caserioId: '',
+        }))
       }
     } 
     setSearching(false);
@@ -104,7 +123,11 @@ export const InputDNI = ({value='', setValues, disabled=false, search=false}) =>
         </InputGroup>
         {
           existent &&
-          <p style={{color: 'red'}}>Datos existentes</p>
+          <p style={{color: 'red'}}>DNI ya registrado</p>
+        }
+        {
+          free &&
+          <p style={{color: 'green'}}>DNI sin registrar</p>
         }
       </Col>
     </Form.Group>

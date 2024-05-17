@@ -73,6 +73,12 @@ export const ConfigNavBar = () => {
       icon: 'bi-postcard-fill'
     },
     {
+      name: 'Niveles',
+      url: '/configuracion/niveles',
+      dir: 'niveles',
+      icon: 'bi-boxes'
+    },
+    {
       name: 'Ajustes Generales',
       url: '/configuracion/generales',
       dir: 'generales',

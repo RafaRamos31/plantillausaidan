@@ -4,7 +4,7 @@ import { Header } from "../components/Header";
 import useTitle from "../hooks/useTitle";
 import { UserContext } from "../contexts/UserContext";
 
-export const Layout = ({pagina, SiteNavBar, breadcrumbs, children, home=false}) => {
+export const Layout = ({pagina, SiteNavBar, breadcrumbs, children, home=false, footer=true}) => {
   useTitle(pagina);
 
   const {user} = useContext(UserContext);
@@ -25,7 +25,10 @@ export const Layout = ({pagina, SiteNavBar, breadcrumbs, children, home=false}) 
           <main className={home ? '' : "content"}>
             {children}
           </main>
-          <Footer className='footer'/>
+          {
+            footer &&
+            <Footer className='footer'/>
+          }
         </div>
       </div>
     </>

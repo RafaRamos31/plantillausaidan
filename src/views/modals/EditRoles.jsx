@@ -8,13 +8,11 @@ import { TreeBranch } from "../../components/TreeBranch.jsx";
 import { Accordion, AccordionDetails, AccordionSummary, FormLabel } from "@mui/material";
 import { GridExpandMoreIcon } from "@mui/x-data-grid";
 import { getPermisosActuales } from "../../services/permisos-service.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -36,12 +34,6 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
   useEffect(() => {
     setValues((prevValues) => ({...prevValues, permisos: {vistas: vistasValues, acciones: accionesValues}}))
   }, [vistasValues, accionesValues, setValues])
-
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
@@ -155,12 +147,6 @@ export const EditRoles = ({handleClose, setRefetchData, rol, fixing=false}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Roles']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       

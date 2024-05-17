@@ -23,7 +23,7 @@ export const ReviewSubResultado = () => {
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -38,8 +38,8 @@ export const ReviewSubResultado = () => {
 
   //Obtener datos de Original
   useEffect(() => {
-    if(dataRevision && dataRevision.original){
-      setQueryOriginal(`${endpoint}/${dataRevision.original}`)
+    if(dataRevision && dataRevision.originalId){
+      setQueryOriginal(`${endpoint}s/id/${dataRevision.originalId}`)
       setRefetchOriginal(true)
     }
     else{
@@ -131,7 +131,6 @@ export const ReviewSubResultado = () => {
         {link: '/', nombre: 'Inicio'},
         {link: '/planificacion', nombre: 'Planificación'},
         {link: '/planificacion/subresultados', nombre: 'Sub Resultados'},
-        {link: '/reviews/subresultados', nombre: 'Revisiones'},
         {link: `/reviews/subresultados/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
@@ -147,13 +146,23 @@ export const ReviewSubResultado = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Fecha de Edición:</p>
-                  <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                  {
+                    dataRevision.fechaEdicion ?
+                    <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  {
+                    dataRevision.editor ?
+                    <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
             </Row>
@@ -175,7 +184,7 @@ export const ReviewSubResultado = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -202,7 +211,7 @@ export const ReviewSubResultado = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }

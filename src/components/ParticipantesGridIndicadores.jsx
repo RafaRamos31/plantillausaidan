@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGrid, getGridStringOperators } from '@mui/x-data-grid'
 import { darken, lighten, styled, Select, MenuItem} from '@mui/material';
 import moment from 'moment';
 import { IndicadorIcon } from './IndicadorIcon';
+import { InfoLink } from './InfoLink';
 
-export const ParticipantesGridIndicadores = ({participantes, indicadores=[], handleChangeIndicador}) => {
+export const ParticipantesGridIndicadores = ({participantes, indicadores=[], handleChangeIndicador, review=false}) => {
 
   //Estilos para filas
   const getBackgroundColor = (color, mode) =>
@@ -49,6 +50,7 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
       renderCell: (params) => {
         return (
           <Select
+            disabled={review}
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             style={{width:'150px', height: '45px'}}
@@ -57,7 +59,7 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
           >
             {
               indicadores.map((ind, index) => (
-                <MenuItem key={index} value={ind._id}>{ind.nombre}</MenuItem>
+                <MenuItem key={index} value={ind.id}>{ind.nombre}</MenuItem>
               ))
             }
           </Select>
@@ -65,26 +67,132 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
       },
     },
     { field: 'uuid', headerName: 'uuid', width: 50, filterable: false},
-    { field: 'nombre', headerName: 'Nombre', width: 300},
-    { field: 'sexo', headerName: 'Sexo', width: 70},
-    { field: 'fechaNacimiento', headerName: 'Fecha de Nacimiento', width: 150},
-    { field: 'fechaNacimientoForm', headerName: 'Fecha de Nacimiento Form', width: 150},
-    { field: 'dni', headerName: 'DNI', width: 150},
-    { field: 'sector', headerName: 'ID Sector', width: 250},
-    { field: 'tipoOrganizacion', headerName: 'ID Tipo de Organización', width: 250},
-    { field: 'organizacion', headerName: 'ID Organización', width: 250},
-    { field: 'organizacionNombre', headerName: 'Organización', width: 250},
-    { field: 'cargo', headerName: 'ID Cargo', width: 200},
-    { field: 'cargoNombre', headerName: 'Cargo', width: 200},
-    { field: 'telefono', headerName: 'Teléfono', width: 120},
-    { field: 'departamento', headerName: 'ID Departamento', width: 200},
-    { field: 'departamentoNombre', headerName: 'Departamento', width: 200},
-    { field: 'municipio', headerName: 'ID Municipio', width: 200},
-    { field: 'municipioNombre', headerName: 'Municipio', width: 200},
-    { field: 'aldea', headerName: 'ID Aldea', width: 200},
-    { field: 'aldeaNombre', headerName: 'Aldea', width: 200},
-    { field: 'caserio', headerName: 'ID Caserio', width: 200},
-    { field: 'caserioNombre', headerName: 'Caserio', width: 200},
+    { field: 'nombre', headerName: 'Nombre', width: 250,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      ),
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'beneficiarios'} 
+            id={params.row.id}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
+    },
+    { field: 'dni', headerName: 'DNI', width: 150,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      )
+    },
+    { field: 'sexo', headerName: 'Sexo', width: 100,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      )
+    },
+    { field: 'fechaNacimiento', headerName: 'Fecha de Nacimiento', width: 170, filterable: false, 
+      renderCell: (params) => {
+        return (moment.utc(params.row.fechaNacimiento ).format("DD/MM/YYYY"))
+      }},
+    { field: 'telefono', headerName: 'Teléfono', width: 150,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      )
+    },
+    { field: 'tipoBeneficiario', headerName: 'Tipo de Beneficiario', width: 150,
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'contains',
+      )
+    },
+    { field: 'sectorId', headerName: 'Sector', width: 200, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'sectores'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'tipoOrganizacionId', headerName: 'Tipo de Organización', width: 240, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'tipoOrganizaciones'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'organizacionId', headerName: 'Organización', width: 240, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'organizaciones'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'cargoId', headerName: 'Cargo', width: 240, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'cargos'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'departamentoId', headerName: 'Departamento', width: 200, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'departamentos'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'municipioId', headerName: 'Municipio', width: 200, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'municipios'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'aldeas'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'caserioId', headerName: 'Caserio', width: 200, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'caserios'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
   ];
   
   const [rows, setRows] = useState([])
@@ -92,27 +200,21 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
   useEffect(() => {
     setRows(participantes.map((participante, index) => ({
       id: index + 1,
-      uuid: participante._id,
+      uuid: participante.id,
       nombre: participante.nombre,
-      sexo: participante.sexo,
-      fechaNacimiento: moment.utc(participante.fechaNacimiento ).format("DD/MM/YYYY"),
-      fechaNacimientoForm: moment.utc(participante.fechaNacimiento ).format("YYYY-MM-DD"),
       dni: participante.dni,
-      sector: participante.sector?._id,
-      tipoOrganizacion: participante.tipoOrganizacion?._id,
-      organizacion: participante.organizacion?._id,
-      organizacionNombre: participante.organizacion?.nombre,
-      cargo: participante.cargo?._id,
-      cargoNombre: participante.cargo?.nombre,
+      sexo: participante.sexo,
+      fechaNacimiento: participante.fechaNacimiento,
       telefono: participante.telefono,
-      departamento: participante.departamento?._id,
-      departamentoNombre: participante.departamento?.nombre,
-      municipio: participante.municipio?._id,
-      municipioNombre: participante.municipio?.nombre,
-      aldea: participante.aldea?._id,
-      aldeaNombre: participante.aldea?.nombre,
-      caserio: participante.caserio?._id,
-      caserioNombre: participante.caserio?.nombre,
+      tipoBeneficiario: participante.tipoBeneficiario,
+      sectorId: `${participante.sector?.nombre || ''}-${participante.sector?.id || ''}`,
+      tipoOrganizacionId: `${participante.tipoOrganizacion?.nombre || ''}-${participante.tipoOrganizacion?.id || ''}`,
+      organizacionId: `${participante.organizacion?.nombre || ''}-${participante.organizacion?.id || ''}`,
+      cargoId: `${participante.cargo?.nombre || ''}-${participante.cargo?.id || ''}`,
+      departamentoId: `${participante.departamento?.nombre || ''}-${participante.departamento?.id || ''}`,
+      municipioId: `${participante.municipio?.nombre || ''}-${participante.municipio?.id || ''}`,
+      aldeaId: `${participante.aldea?.nombre || ''}-${participante.aldea?.id || ''}`,
+      caserioId: `${participante.caserio?.nombre || ''}-${participante.caserio?.id || ''}`,
       indicadores: JSON.stringify(participante.indicadores),
       valueIndicador: participante.valueIndicador,
       estadoIndicador: participante.estadoIndicador,
@@ -124,16 +226,14 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
     uuid: false,
     valueIndicador: false,
     estadoIndicador: false,
-    fechaNacimientoForm: false,
-    sector: false,
-    tipoOrganizacion: false,
-    organizacion: false,
-    cargo: false,
-    departamento: false,
-    municipio: false,
-    aldea: false,
-    caserio: false,
+    sectorId: false,
+    tipoOrganizacionId: false,
   }
+
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 15
+  })
 
   return (
     <div style={{ width: '100%', margin: 0, padding: 0}}>
@@ -150,6 +250,10 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
             columnVisibilityModel: hiddenColumns
           },
         }}
+
+        pageSizeOptions={[15, 30, 50, 100]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
 
         style={{ minHeight: "160px", maxHeight: '100%'}}
 

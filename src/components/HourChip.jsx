@@ -8,7 +8,7 @@ export const HourChip = ({date, dateFinal, status}) => {
   const dateToday = moment().startOf('day');
 
   return (
-    <Chip icon={<AccessTimeIcon />} className='m-2' label={`${dateEvento.format('HH:mm A')} - ${dateFinalEvento.format('HH:mm A')}`} variant="outlined"
+    <Chip icon={<AccessTimeIcon />} className='m-2' label={`${dateEvento.format('hh:mm A')} - ${dateFinalEvento.format('hh:mm A')}`} variant="outlined"
     style={{color: (dateEvento < dateToday && status === 'Retrasado') ? 'red' : 'black'}}/>
   )
 }

@@ -16,7 +16,7 @@ export const useLogin = (email, password) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_API_URL + 'login', {
+        const response = await fetch(process.env.REACT_APP_API_URL + 'usuarios/login', {
           body: form,
           method: 'POST'
         });
@@ -73,7 +73,7 @@ export const useVerify = () => {
       };
 
       try {
-        const response = await fetch(process.env.REACT_APP_API_URL + 'verify', {
+        const response = await fetch(process.env.REACT_APP_API_URL + 'usuarios/verify', {
           method: 'GET',
           headers: headers
         });

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 
-export const CreateButton = ({title, ModalForm, modalSize='md', setRefetch}) => {
+export const CreateButton = ({title, ModalForm, modalSize='md', setRefetch, customStyle=null}) => {
   const [show, setShow] = useState(false);
 
   //Estilo de boton
@@ -13,7 +13,7 @@ export const CreateButton = ({title, ModalForm, modalSize='md', setRefetch}) => 
 
   return (
     <>
-      <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={() => setShow(true)}>
+      <Button style={customStyle || {...buttonStyle, marginRight:'0.4rem'}} className={!customStyle ? 'my-2' : null} onClick={() => setShow(true)}>
         <i className="bi bi-file-earmark-plus"></i>{' '}
         {`Agregar ${title}`}
       </Button>

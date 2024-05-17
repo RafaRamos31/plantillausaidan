@@ -3,31 +3,24 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
 
 export const CrearActividad = ({handleClose, setRefetch}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
-    idResultado: '',
-    idSubresultado: '',
+    resultadoId: '',
+    subresultadoId: '',
     nombre: '',
     descripcion: '',
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Resultados
   const findParams = {
@@ -35,7 +28,7 @@ export const CrearActividad = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [resultados, setResultados] = useState([])
-  const { data: resultadosData, isLoading: isLoadingResultados} = useFetchGetBody('list/resultados', findParams);
+  const { data: resultadosData, isLoading: isLoadingResultados} = useFetchGetBody('resultados/list', findParams);
 
   useEffect(() => {
     if(resultadosData && !isLoadingResultados){
@@ -54,23 +47,23 @@ export const CrearActividad = ({handleClose, setRefetch}) => {
 
   //Accion Update manual
   useEffect(() => {
-    if(subresultadosData && !isLoadingSubResultados && values.idResultado){
+    if(subresultadosData && !isLoadingSubResultados && values.resultadoId){
       setSubresultados(subresultadosData)
     } 
-  }, [subresultadosData, isLoadingSubResultados, values.idResultado])
+  }, [subresultadosData, isLoadingSubResultados, values.resultadoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idResultado && values.idResultado.length > 0){
+    if(values.resultadoId && values.resultadoId.length !== 0){
       setfindParamsSubResultados({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'resultado',
-          value: values.idResultado
+          field: 'resultadoId',
+          value: values.resultadoId
         })
       })
-      setquerySubresultados('list/subresultados');
+      setquerySubresultados('subresultados/list');
       setRefetchSubResultados(true);
       setValues({ ...values, nombre: '' });
     }
@@ -78,15 +71,15 @@ export const CrearActividad = ({handleClose, setRefetch}) => {
       setSubresultados([])
     }
     // eslint-disable-next-line
-  }, [values.idResultado, setValues, setRefetchSubResultados])
+  }, [values.resultadoId, setValues, setRefetchSubResultados])
 
    //Editar Codigo en Formulario
   const [codigo, setCodigo] = useState('--.--.')
 
   useEffect(() => {
 
-    if(values.idSubresultado && values.idSubresultado.length > 0){
-      setCodigo(`${subresultados.find(subresultado => subresultado._id === values.idSubresultado)?.nombre.split(' ')[2] || '--.--'}.`)
+    if(values.subresultadoId && values.subresultadoId.length !== 0){
+      setCodigo(`${subresultados.find(subresultado => subresultado.id === values.subresultadoId)?.nombre.split(' ')[2] || '--.--'}.`)
     }
     else{
       setCodigo('--.--.')
@@ -147,13 +140,13 @@ export const CrearActividad = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idResultado"
-                  name="idResultado"
+                  id="resultadoId"
+                  name="resultadoId"
                   onChange={handleChange}
-                  value={values.idResultado}
+                  value={values.resultadoId}
                 >
                   {resultados && resultados.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
@@ -173,13 +166,13 @@ export const CrearActividad = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idSubresultado"
-                  name="idSubresultado"
+                  id="subresultadoId"
+                  name="subresultadoId"
                   onChange={handleChange}
-                  value={values.idSubresultado}
+                  value={values.subresultadoId}
                 >
                   {subresultados && subresultados.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
@@ -217,12 +210,6 @@ export const CrearActividad = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Actividades']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

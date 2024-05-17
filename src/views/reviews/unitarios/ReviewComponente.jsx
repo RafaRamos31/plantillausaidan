@@ -7,7 +7,6 @@ import useForm from '../../../hooks/useForm';
 import { ToastContext } from '../../../contexts/ToastContext';
 import { useFetchGet, useFetchPutBody } from '../../../hooks/useFetch';
 import { Loading } from '../../Loading';
-import { AvatarChip } from '../../../components/AvatarChip';
 import { StatusBadge } from '../../../components/StatusBadge';
 import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
@@ -22,7 +21,7 @@ export const ReviewsComponente = () => {
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -130,8 +129,7 @@ export const ReviewsComponente = () => {
         {link: '/', nombre: 'Inicio'},
         {link: '/configuracion', nombre: 'Configuración'},
         {link: '/configuracion/componentes', nombre: 'Componentes'},
-        {link: '/reviews/componentes', nombre: 'Revisiones'},
-        {link: `/reviews/componentes/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+        {link: `/reviews/componentes/${idRevision}`, nombre: dataRevision?.descripcion || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
@@ -146,13 +144,12 @@ export const ReviewsComponente = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Fecha de Edición:</p>
-                  <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
-                </div>
-              </Col>
-              <Col>
-                <div className='d-flex align-items-center'>
-                  <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  {
+                    dataRevision.fechaEdicion ?
+                    <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
             </Row>
@@ -169,17 +166,6 @@ export const ReviewsComponente = () => {
                   }
                 </div>
               </Col>
-              <Col>
-                <div className='d-flex align-items-center'>
-                <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
-                  {
-                    dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
-                    :
-                    <p>--</p>
-                  }
-                </div>
-              </Col>
             </Row>
 
             {
@@ -191,17 +177,6 @@ export const ReviewsComponente = () => {
                     {
                       dataRevision.fechaEliminacion ?
                       <p>{new Date(dataRevision.fechaEliminacion).toLocaleString()}</p>
-                      :
-                      <p>--</p>
-                    }
-                  </div>
-                </Col>
-                <Col>
-                  <div className='d-flex align-items-center'>
-                  <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
-                    {
-                      dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
                       :
                       <p>--</p>
                     }
@@ -229,7 +204,8 @@ export const ReviewsComponente = () => {
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + dataRevision.version}</h5>
                   </div>
                 }
-                <CompareValue  title={'Nombre del Componente:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
+                <CompareValue  title={'Nombre del Componente:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare}/>
+                <CompareValue  title={'Siglas:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
               </Col>
               {
                 compare &&
@@ -237,7 +213,8 @@ export const ReviewsComponente = () => {
                   <div className="mb-3">
                     <h5 style={{fontWeight: 'bold'}}>{'Versión ' + original.version}</h5>
                   </div>
-                  <CompareValue  title={'Nombre del Componente:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
+                  <CompareValue  title={'Nombre del Componente:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare} hidden/>
+                  <CompareValue  title={'Siglas:'} value={dataRevision.nombre} original={original?.nombre} compare={compare} hidden/>
                 </Col>
               }
             </Row>

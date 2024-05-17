@@ -7,12 +7,10 @@ import { Accordion, AccordionDetails, AccordionSummary, FormLabel } from "@mui/m
 import { GridExpandMoreIcon } from "@mui/x-data-grid";
 import { TreeBranch } from "../../components/TreeBranch.jsx";
 import { permisos } from "../../services/permisos-service.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearRoles = ({handleClose, setRefetch}) => {
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
   
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
@@ -34,11 +32,6 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
     setValues((prevValues) => ({...prevValues, permisos: {vistas: vistasValues, acciones: accionesValues}}))
   }, [vistasValues, accionesValues, setValues])
   
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('roles', {...values, permisos: JSON.stringify(values.permisos)}) 
@@ -121,12 +114,6 @@ export const CrearRoles = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Roles']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

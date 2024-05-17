@@ -4,7 +4,6 @@ import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { InfoLink } from "../components/InfoLink.jsx";
 import { UserContext } from "../contexts/UserContext.js";
-import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { StatusBadge } from "../components/StatusBadge.jsx";
@@ -51,12 +50,6 @@ export const ConfigCaserios = () => {
   }, [refetchData, setUpdating])
   
 
-  //Boton Cambios
-  const navigate = useNavigate();
-  const handleReview = () => {
-    navigate(`/reviews/${endpoint}s`)
-  }
-
   //Modal modificar
   const [showEdit, setShowEdit] = useState(false);
   const handleCloseEdit = () => setShowEdit(false);
@@ -67,7 +60,7 @@ export const ConfigCaserios = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false},
-    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
     { field: 'nombre', headerName: 'Nombre del Caserio', width: 250,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -86,11 +79,7 @@ export const ConfigCaserios = () => {
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       )},
-    { field: 'departamento', headerName: 'uuid Departamento', width: 120, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
+    { field: 'departamentoId', headerName: 'Departamento', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -101,11 +90,7 @@ export const ConfigCaserios = () => {
         );
       }
     },
-    { field: 'municipio', headerName: 'uuid Municipio', width: 120, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'municipioName', headerName: 'Municipio', width: 200, filterable: false,
+    { field: 'municipioId', headerName: 'Municipio', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -116,11 +101,7 @@ export const ConfigCaserios = () => {
         );
       }
     },
-    { field: 'aldea', headerName: 'uuid Aldea', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'aldeaName', headerName: 'Aldea', width: 200, filterable: false,
+    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -135,11 +116,7 @@ export const ConfigCaserios = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'uuid Editor', width: 120, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
+    { field: 'editorId', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -152,11 +129,7 @@ export const ConfigCaserios = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'uuid Revisor', width: 120, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -169,24 +142,13 @@ export const ConfigCaserios = () => {
     { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'uuid Eliminador', width: 120, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
+    { field: 'eliminadorId', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
             id={params.formattedValue.split('-')[1]}
             name={params.formattedValue.split('-')[0]} 
           />
-        );
-      } 
-    },
-    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
-      renderCell: (params) => {
-        return (
-          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
@@ -232,9 +194,9 @@ export const ConfigCaserios = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      idDepartamento: params.row.departamento,
-                      idMunicipio: params.row.municipio,
-                      idAldea: params.row.aldea,
+                      departamentoId: params.row.departamentoId.split('-')[1],
+                      municipioId: params.row.municipioId.split('-')[1],
+                      aldeaId: params.row.aldeaId.split('-')[1],
                       geocode: params.row.geocode
                     })
                     handleShowEdit()
@@ -244,17 +206,6 @@ export const ConfigCaserios = () => {
                 </OverlayTrigger>
               }
               </>
-            }
-            {
-              user.userPermisos?.acciones['Caserios']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
             }
           </>
         );
@@ -267,27 +218,20 @@ export const ConfigCaserios = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        _id: item._id, 
+        _id: item.id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor?._id || '',
-        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
+        editorId: `${item.editor?.nombre || ''}-${item.editor?.id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor?._id || '',
-        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
+        revisorId: `${item.revisor?.nombre || ''}-${item.revisor?.id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: item.eliminador?._id || '',
-        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
-        editing: item.pendientes.includes(user.userId),
+        eliminadorId: `${item.eliminador?.nombre || ''}-${item.eliminador?.id || ''}`,
         estado: item.estado,
         nombre: item.nombre,
         geocode: item.geocode,
-        departamento: item.departamento._id,
-        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
-        municipio: item.municipio._id,
-        municipioName: `${item.municipio.nombre}-${item.municipio._id}`,
-        aldea: item.aldea._id,
-        aldeaName: `${item.aldea.nombre}-${item.aldea._id}`,
+        departamentoId: `${item.departamento.nombre}-${item.departamento.id}`,
+        municipioId: `${item.municipio.nombre}-${item.municipio.id}`,
+        aldeaId: `${item.aldea.nombre}-${item.aldea.id}`,
       }
     ))
   )
@@ -296,19 +240,13 @@ export const ConfigCaserios = () => {
     _id: false,
     version: false,
     fechaEdicion: false,
-    editor: false,
-    editorName: false,
+    editorId: false,
     fechaRevision: false,
-    revisor: false,
-    revisorName: false,
+    revisorId: false,
     fechaEliminacion: false,
-    eliminador: false,
-    eliminadorName: false,
+    eliminadorId: false,
     editing: false,
     estado: false,
-    departamento: false,
-    municipio: false,
-    aldea: false
   }
 
   return(
@@ -344,16 +282,6 @@ export const ConfigCaserios = () => {
         user.userPermisos?.acciones['Caserios']['Crear']
         &&
         <CreateButton title={endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} ModalForm={CrearCaserio} setRefetch={handleUpdate}/>
-      }
-
-      {/*Boton Cambios*/}
-      {
-        user.userPermisos?.acciones['Caserios']['Revisar']
-        &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
-          <i className="bi bi-pencil-square"></i>{' '}
-          Gestión de Cambios
-        </Button>
       }
       
       {/*Boton Deleteds*/}

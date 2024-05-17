@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Spinner, Button } from "react-bootstrap";
 import { Layout } from "../Layout.jsx";
 import { StatusBadge } from "../../components/StatusBadge.jsx";
@@ -6,9 +6,12 @@ import { AvatarChip } from "../../components/AvatarChip.jsx";
 import { FormattedGrid } from "../../components/FormattedGrid.jsx";
 import { InfoLink } from "../../components/InfoLink.jsx";
 import { PlanNavBar } from "../../components/navBars/PlanNavBar.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const ReviewsTareas = () => {
   const endpoint = 'tarea'
+
+  const { user } = useContext(UserContext);
 
   //Estilo de boton
   const buttonStyle = {
@@ -52,9 +55,20 @@ export const ReviewsTareas = () => {
         );
       } 
     },
-    { field: 'nombre', headerName: 'Nombre de la Tarea', width: 400 },
+    { field: 'nombre', headerName: 'Código', width: 100 },
+    { field: 'titulo', headerName: 'Nombre de la Tarea', width: 400 },
     { field: 'componente', headerName: 'Componente', width: 250 },
-    { field: 'trimestre', headerName: 'Trimestre', width: 150 },
+    { field: 'quarterId', headerName: 'Trimestre', width: 100, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'quarters'} 
+            id={params.value.split('*')[1]}
+            nombre={params.value.split('*')[0]}
+          />
+        );
+      }
+    },
     { field: 'version', headerName: 'Versión', width: 100 },
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, 
       type: 'dateTime',
@@ -113,16 +127,17 @@ export const ReviewsTareas = () => {
     data.map((departamento, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
+        uuid: departamento.id, 
         original: departamento.original, 
         nombre: departamento.nombre,
+        titulo: departamento.titulo,
         componente: departamento.componente?.descripcion,
-        trimestre: departamento.trimestre?.nombre,
+        quarterId: `${departamento.quarter?.nombre || ''}*${departamento.quarter?.id || ''}`,
         version: departamento.version,
         fechaEdicion: departamento.fechaEdicion ? departamento.fechaEdicion : '',
-        editor: `${departamento.editor?.nombre || ''}-${departamento.editor?._id || ''}`,
+        editor: `${departamento.editor?.nombre || ''}-${departamento.editor?.id || ''}`,
         fechaRevision: departamento.fechaRevision ? departamento.fechaRevision : '',
-        revisor: `${departamento.revisor?.nombre || ''}-${departamento.revisor?._id || ''}`,
+        revisor: `${departamento.revisor?.nombre || ''}-${departamento.revisor?.id || ''}`,
         estado: departamento.estado
       }
     ))
@@ -130,7 +145,9 @@ export const ReviewsTareas = () => {
   
   const hiddenColumns = {
     uuid: false,
+    version: false,
     original: false,
+    fechaEdicion: false,
     fechaRevision: false,
     revisor: false
   }
@@ -175,6 +192,7 @@ export const ReviewsTareas = () => {
         refetchData={refetchData}
         setRefetchData={setRefetchData} 
         reviews
+        componenteId={user.userComponente.id}
       />
 
     </Layout>

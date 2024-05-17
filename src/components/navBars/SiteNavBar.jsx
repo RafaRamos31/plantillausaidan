@@ -66,15 +66,6 @@ export const SiteNavBar = () => {
       })
     }
 
-    if(user.userPermisos?.vistas['Monitoreo'] && Object.values(user.userPermisos?.vistas['Monitoreo']).some(valor => valor === true)){
-      newValues = newValues.concat({
-        name: 'Monitoreo',
-        url: '/monitoreo',
-        dir: 'monitoreo',
-        icon: 'bi-clipboard-data-fill'
-      })
-    }
-
     if(user.userPermisos?.vistas['Inversiones'] && Object.values(user.userPermisos?.vistas['Inversiones']).some(valor => valor === true)){
       newValues = newValues.concat({
         name: 'Inversiones',

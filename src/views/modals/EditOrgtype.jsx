@@ -6,10 +6,12 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { CrearSectores } from "./CrearSectores.jsx";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 
 export const EditOrgtype = ({handleClose, setRefetchData, orgtype, fixing=false}) => {
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Departamento
   const findParams = {
@@ -17,7 +19,7 @@ export const EditOrgtype = ({handleClose, setRefetchData, orgtype, fixing=false}
     filter: '{}'
   }
   const [sectores, setSectores] = useState([])
-  const { data: sectoresData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('list/sectores', findParams);
+  const { data: sectoresData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('sectores/list', findParams);
 
   useEffect(() => {
     if(sectoresData && !isLoadingSectores){
@@ -41,15 +43,9 @@ export const EditOrgtype = ({handleClose, setRefetchData, orgtype, fixing=false}
   const { values, handleChange, setValues } = useForm({
     idTipoOrganizacion: orgtype.id,
     nombre: orgtype.nombre,
-    idSector: orgtype.idSector || orgtype.sector._id,
+    sectorId: orgtype.sectorId,
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
-
 
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
@@ -73,7 +69,7 @@ export const EditOrgtype = ({handleClose, setRefetchData, orgtype, fixing=false}
   const [chargingEdit, setChargingEdit] = useState(false);
   
   //Envio asincrono de formulario de Modificar
-  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('tipoOrganizaciones', values) 
+  const { setSend: setSendEdit, send: sendEdit, data: dataEdit, isLoading: isLoadingEdit, error: errorEdit, code: codeEdit } = useFetchPutBody('tiposorganizaciones', values) 
 
   const handleUpdate = () => {
     setChargingEdit(true)
@@ -135,20 +131,20 @@ export const EditOrgtype = ({handleClose, setRefetchData, orgtype, fixing=false}
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Sector:
           </Form.Label>
           <Col sm="8">
           <InputGroup>
-              <Form.Select id='idSector' name='idSector' value={values.idSector} onChange={handleChange}>
-                <option value="">Seleccionar Sector</option>
-                {
-                  sectores &&
-                  sectores.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={sectores} 
+                value={values.sectorId}
+                name={'sectorId'}
+                setValues={setValues}
+                setRefetch={setRefetchSectores}
+                ModalCreate={CrearSectores}
+                insert={user.userPermisos?.acciones['Sectores']['Crear']}
+              />
               {
                 !updating ? 
                 <Button variant="light" onClick={handleReload}>
@@ -173,12 +169,6 @@ export const EditOrgtype = ({handleClose, setRefetchData, orgtype, fixing=false}
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Tipos de Organizaciones']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {/*Boton Guardar*/}

@@ -21,7 +21,7 @@ export const ReviewAldea = () => {
   const endpoint = 'aldea';
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -129,7 +129,6 @@ export const ReviewAldea = () => {
         {link: '/', nombre: 'Inicio'},
         {link: '/configuracion', nombre: 'Configuración'},
         {link: '/configuracion/aldeas', nombre: 'Aldeas'},
-        {link: '/reviews/aldeas', nombre: 'Revisiones'},
         {link: `/reviews/aldeas/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
@@ -145,13 +144,23 @@ export const ReviewAldea = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Fecha de Edición:</p>
-                  <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                  {
+                    dataRevision.fechaEdicion ?
+                    <p>{new Date(dataRevision.fechaEdicion).toLocaleString()}</p>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  {
+                    dataRevision.editor ?
+                    <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
+                    :
+                    <p>--</p>
+                  }
                 </div>
               </Col>
             </Row>
@@ -173,7 +182,7 @@ export const ReviewAldea = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -200,7 +209,7 @@ export const ReviewAldea = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }

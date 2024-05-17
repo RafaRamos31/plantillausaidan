@@ -12,7 +12,7 @@ export const InputRol = ({setValues, disabled}) => {
     filter: '{}'
   }
   const [roles, setRoles] = useState([])
-  const { data, isLoading, error, setRefetch } = useFetchGetBody('list/roles', findParams);
+  const { data, isLoading, error, setRefetch } = useFetchGetBody('roles/list', findParams);
   
   //Indicador actualizando con boton
   const [updating, setUpdating] = useState(false);
@@ -32,19 +32,19 @@ export const InputRol = ({setValues, disabled}) => {
 
   const handleChange = (e) => {
     setValue(e.target.value)
-    setValues((values) => ({...values, idRol: e.target.value}))
+    setValues((values) => ({...values, rolId: e.target.value}))
   }
 
   return (
     <Form.Group as={Row} className="mb-3">
       <Col sm="12">
         <InputGroup>
-          <Form.Select id='idRol' name='idRol' value={value} onChange={handleChange} disabled={disabled}>
+          <Form.Select id='rolId' name='rolId' value={value} onChange={handleChange} disabled={disabled}>
             <option value="">Seleccionar Rol</option>
             {
               roles &&
               roles.map((rol) => (
-                <option key={rol._id} value={rol._id}>{rol.nombre}</option>
+                <option key={rol.id} value={rol.id}>{rol.nombre}</option>
               ))
             }
           </Form.Select>

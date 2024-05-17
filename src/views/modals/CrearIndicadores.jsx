@@ -3,13 +3,10 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const CrearIndicadores = ({handleClose, setRefetch}) => {
-
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   const currencyFormat = {
     style: 'currency',
@@ -74,11 +71,6 @@ export const CrearIndicadores = ({handleClose, setRefetch}) => {
     },
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   const handleToggleMetas = (year, trimestre, stringValue) => {
     let value = 0
@@ -153,7 +145,7 @@ export const CrearIndicadores = ({handleClose, setRefetch}) => {
             Código:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} autoComplete="off" maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -404,12 +396,6 @@ export const CrearIndicadores = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Indicadores']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

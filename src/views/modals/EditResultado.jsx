@@ -4,28 +4,21 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 
 export const EditResultado = ({handleClose, setRefetchData, resultado, fixing=false}) => {
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange } = useForm({
     idResultado: resultado.id,
     nombre: resultado.nombre.split(' ')[1],
     descripcion: resultado.descripcion,
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Efecto al enviar el formulario
   const [errorMessage, setErrorMessage] = useState('');
@@ -127,12 +120,6 @@ export const EditResultado = ({handleClose, setRefetchData, resultado, fixing=fa
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Resultados']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       

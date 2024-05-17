@@ -21,22 +21,30 @@ export const InputParticipanteDNI = ({participantes, setParticipantes, setRegist
       setExistent(true)
     }
     else{
-      setQueryOriginal('beneficiarioDNI/'+ numeroIdentificacion)
+      setQueryOriginal('beneficiarios/dni/'+ numeroIdentificacion)
       setSearching(true);
       setRefetchOriginal(true);
+      setExistent(false)
     }
   }
   
   useEffect(() => {
     if(originalData && !isLoadingOriginal){
-      if(originalData.length > 0){
+      if(!originalData.error){
         setParticipantes(p => p.concat(originalData))
         setRegistrados(r => {
-          if(originalData[0]?.sexo === 'M'){
+          if(originalData?.sexo === 'Masculino'){
             r = {...r, hombres: r.hombres + 1}
           }
           else{
             r = {...r, mujeres: r.mujeres + 1}
+          }
+
+          if(originalData?.tipoBeneficiario === 'Comunitario'){
+            r = {...r, comunitarios: r.comunitarios + 1}
+          }
+          else{
+            r = {...r, institucionales: r.institucionales + 1}
           }
           return r;
         })

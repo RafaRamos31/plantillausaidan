@@ -11,10 +11,10 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { CompareValue } from '../../../components/CompareValue';
 import { ReviewButton } from '../../../components/ReviewButton';
 import { DeleteButton } from '../../../components/DeleteButton';
-import { EditDepartamento } from '../../modals/EditDepartamento';
 import { UserContext } from '../../../contexts/UserContext';
 import { PlanNavBar } from '../../../components/navBars/PlanNavBar';
 import { CompareTooltip } from '../../../components/CompareTooltip';
+import { EditTarea } from '../../modals/EditTarea';
 
 export const ReviewTarea = () => {
   const { idRevision } = useParams();
@@ -30,7 +30,7 @@ export const ReviewTarea = () => {
   };
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -45,8 +45,8 @@ export const ReviewTarea = () => {
 
   //Obtener datos de Original
   useEffect(() => {
-    if(dataRevision && dataRevision.original){
-      setQueryOriginal(`${endpoint}/${dataRevision.original}`)
+    if(dataRevision && dataRevision.originalId){
+      setQueryOriginal(`${endpoint}s/id/${dataRevision.originalId}`)
       setRefetchOriginal(true)
     }
     else{
@@ -77,7 +77,7 @@ export const ReviewTarea = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/tareas', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('tareas/revisar', values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -160,7 +160,7 @@ export const ReviewTarea = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
                 </div>
               </Col>
             </Row>
@@ -182,7 +182,7 @@ export const ReviewTarea = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -209,7 +209,7 @@ export const ReviewTarea = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }
@@ -241,7 +241,7 @@ export const ReviewTarea = () => {
                 <CompareValue  title={'Código de la Tarea:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
                 <CompareValue  title={'Descripción:'} value={dataRevision.descripcion} original={original?.descripcion} compare={compare}/>
                 <CompareValue  title={'Componente:'} value={dataRevision.componente?.descripcion} original={original?.componente.descripcion} compare={compare}/>
-                <CompareValue  title={'Trimestre:'} value={dataRevision.trimestre?.nombre} original={original?.trimestre.nombre} compare={compare}/>
+                <CompareValue  title={'Trimestre:'} value={dataRevision.quarter?.nombre} original={original?.quarter.nombre} compare={compare}/>
                 <CompareTooltip title={'Sub Actividad:'} 
                 value={dataRevision.subactividad.nombre} valueTooltip={dataRevision.subactividad.descripcion}
                 original={original?.subactividad.nombre} originalTooltip={original?.subactividad.descripcion}
@@ -259,8 +259,8 @@ export const ReviewTarea = () => {
                 original={original?.resultado.nombre} originalTooltip={original?.resultado.descripcion}
                 compare={compare}/>
                 <CompareValue  title={'Lugar:'} value={dataRevision.lugar} original={original?.lugar} compare={compare}/>
-                <CompareValue  title={'Unidad de Medida:'} value={dataRevision.unidadMedida?.nombre} original={original?.unidadMedida.nombre} compare={compare}/>
-                <CompareValue  title={'Cantidad programada:'} value={dataRevision.cantidadProgramada} original={original?.cantidadProgramada} compare={compare}/>
+                <CompareValue  title={'Unidad de Medida:'} value={dataRevision.tipoEvento?.nombre} original={original?.tipoEvento.nombre} compare={compare}/>
+                <CompareValue  title={'Cantidad programada:'} value={dataRevision.eventosEstimados} original={original?.eventosEstimados} compare={compare}/>
                 <CompareValue  title={'Gastos estimados:'} value={dataRevision.gastosEstimados.toLocaleString('en-US', currencyFormat)} original={original?.gastosEstimados.toLocaleString('en-US', currencyFormat)} compare={compare}/>
               </Col>
               {
@@ -337,7 +337,7 @@ export const ReviewTarea = () => {
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <EditDepartamento handleClose={handleCloseEdit} setRefetchData={()=>{}} departamento={{...dataRevision, id: original?._id}} fixing/>
+      <EditTarea handleClose={handleCloseEdit} setRefetchData={()=>{}} tarea={{...dataRevision, id: dataRevision.id}} fixing/>
     </Modal>
     </>
   )

@@ -6,7 +6,7 @@ import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { useNavigate } from "react-router-dom";
 
-export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
+export const CrearUsuario = ({handleClose=null}) => {
 
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
     nombre: '',
     dni: '',
     telefono: '',
-    idComponente: '',
+    componenteId: '',
     correo: '',
     password: '',
     confirmPassword: '',
@@ -28,7 +28,7 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
     filter: '{}'
   }
   const [componentes, setComponentes] = useState([])
-  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes, setRefetch: setRefetchComponentes } = useFetchGetBody('list/componentes', findParams, true);
+  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes, setRefetch: setRefetchComponentes } = useFetchGetBody('componentes/list', findParams, true);
   
   useEffect(() => {
     if(componentesData && !isLoadingComponentes){
@@ -127,12 +127,12 @@ export const CrearUsuario = ({handleClose=null, setRefetch=null}) => {
           </Form.Label>
           <Col sm="8">
             <InputGroup>
-              <Form.Select id='idComponente' name='idComponente' value={values.idComponente} onChange={handleChange}>
+              <Form.Select id='componenteId' name='componenteId' value={values.componenteId} onChange={handleChange}>
                 <option value="">Seleccionar Componente</option>
                 {
                   componentes &&
                   componentes.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.descripcion}</option>
+                    <option key={depto.id} value={depto.id}>{depto.descripcion}</option>
                   ))
                 }
               </Form.Select>

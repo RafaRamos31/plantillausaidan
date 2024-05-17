@@ -26,7 +26,7 @@ export const TicketGenerator = ({ handleClose }) => {
   useEffect(() => {
     if(!isLoading){
       setError(errorTicket);
-      setTicket(data?._id)
+      setTicket(data?.code)
       setCharging(false)
     }
   }, [send, data, isLoading, errorTicket])
@@ -46,7 +46,7 @@ export const TicketGenerator = ({ handleClose }) => {
       <Card.Body>
       <Form onSubmit={handleGetTicket}>
           <Form.Group className="my-4 d-flex">
-            <Form.Control placeholder="000000000000000000000000" value={ticket} readOnly style={{fontSize: '26px', textAlign: 'center', backgroundColor: 'lightGray'}}/>
+            <Form.Control placeholder="00000000-0000-0000-0000-000000000000" value={ticket} readOnly style={{fontSize: '19px', textAlign: 'center', backgroundColor: 'lightGray'}}/>
             <Button className='my-2 mx-2' variant="light" onClick={requestClip}>
               <i className="bi bi-clipboard" style={{fontSize: '30px'}}></i>
             </Button>

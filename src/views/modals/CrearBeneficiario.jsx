@@ -3,7 +3,6 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { MapInput } from "../../components/MapInput.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
@@ -29,21 +28,17 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     sexo: '',
     fechaNacimiento: '',
     telefono: '',
-    idSector: '',
-    idTipoOrganizacion: '',
-    idOrganizacion: '',
-    idCargo: '',
-    idDepartamento: '',
-    idMunicipio: '',
-    idAldea: '',
-    idCaserio: '',
-    geolocacion: '',
+    tipoBeneficiario: '',
+    sectorId: '',
+    tipoOrganizacionId: '',
+    organizacionId: '',
+    cargoId: '',
+    departamentoId: '',
+    municipioId: '',
+    aldeaId: '',
+    caserioId: '',
     aprobar: modal ? true: aprove
   });
-
-  const changeLocation = (location) => {
-    setValues({ ...values, 'geolocacion': location });
-  }
 
   const handleToggleAprobar = () => {
     setAprove(!aprove);
@@ -56,7 +51,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     filter: '{}'
   }
   const [sectores, setSectores] = useState([])
-  const { data: sectorData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('list/sectores', findParams);
+  const { data: sectorData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('sectores/list', findParams);
   
   //Indicador actualizando con boton
   const [updatingSectores, setUpdatingSectores] = useState(false);
@@ -129,45 +124,45 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
 
   //Editar Lista de Cargos en Formulario
   useEffect(() => {
-    if(values.idSector && values.idSector.length > 0){
+    if(values.sectorId && values.sectorId.length !== 0){
       setFindParamsCargos({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'sector',
-          value: values.idSector
+          field: 'sectorId',
+          value: values.sectorId
         })
       })
-      setQueryCargos('list/cargos');
+      setQueryCargos('cargos/list');
       setRefetchCargos(true)
     }
     else{
       setCargos([])
     }
     // eslint-disable-next-line
-  }, [values.idSector, setValues, setRefetchCargos])
+  }, [values.sectorId, setValues, setRefetchCargos])
   
 
 
   //Editar Lista de Orgtypes en Formulario
   useEffect(() => {
-    if(values.idSector && values.idSector.length > 0){
+    if(values.sectorId && values.sectorId.length !== 0){
       setFindParamsOrgtypes({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'sector',
-          value: values.idSector
+          field: 'sectorId',
+          value: values.sectorId
         })
       })
-      setQueryOrgtypes('list/tipoOrganizaciones');
+      setQueryOrgtypes('tiposorganizaciones/list');
       setRefetchOrgtypes(true)
     }
     else{
       setOrgtypes([])
     }
     // eslint-disable-next-line
-  }, [values.idSector, setValues, setRefetchOrgtypes])
+  }, [values.sectorId, setValues, setRefetchOrgtypes])
 
 
   //Organizaciones
@@ -197,23 +192,23 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
 
   //Editar Lista de Organizaciones en Formulario
   useEffect(() => {
-    if(values.idTipoOrganizacion && values.idTipoOrganizacion.length > 0){
+    if(values.tipoOrganizacionId && values.tipoOrganizacionId.length !== 0){
       setFindParamsOrganizaciones({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'tipoOrganizacion',
-          value: values.idTipoOrganizacion
+          field: 'tipoOrganizacionId',
+          value: values.tipoOrganizacionId
         })
       })
-      setQueryOrganizaciones('list/organizaciones');
+      setQueryOrganizaciones('organizaciones/list');
       setRefetchOrganizaciones(true)
     }
     else{
       setOrganizaciones([])
     }
     // eslint-disable-next-line
-  }, [values.idTipoOrganizacion, setValues, setRefetchOrganizaciones])
+  }, [values.tipoOrganizacionId, setValues, setRefetchOrganizaciones])
 
 
   //Departamento
@@ -222,7 +217,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParamsDepto);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParamsDepto);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -259,32 +254,31 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios');
+      setQueryMunicipios('municipios/list');
       setRefetchMuni(true)
-      setValues({ ...values, geocode: '' });
     }
     else{
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Aldea
   const [findParamsAldea, setFindParamsAldea] = useState({
@@ -296,32 +290,31 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
   const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
   
   useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.idMunicipio){
+    if(aldeasData && !isLoadingAldeas && values.municipioId){
       setAldeas(aldeasData)
       setUpdatingAldeas(false)
     } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.idMunicipio])
+  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
 
   //Editar Lista de Aldeas en Formulario
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
+    if(values.municipioId && values.municipioId.length !== 0){
       setFindParamsAldea({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'municipio',
-          value: values.idMunicipio
+          field: 'municipioId',
+          value: values.municipioId
         })
       })
-      setQueryAldeas('list/aldeas')
+      setQueryAldeas('aldeas/list')
       setRefetchAldeas(true)
-      setValues({ ...values, geocode: '' });
     }
     else{
       setAldeas([])
     }
     // eslint-disable-next-line
-  }, [values.idMunicipio, setValues, setRefetchAldeas])
+  }, [values.municipioId, setValues, setRefetchAldeas])
 
   //Indicador actualizando con boton departamento
   const [updatingAldeas, setUpdatingAldeas] = useState(false);
@@ -342,31 +335,31 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
   const { data: caseriosData, isLoading: isLoadingCaserios, error: errorCaserios, setRefetch: setRefetchCaserios } = useFetchGetBody(queryCaserios, findParamsCaserios);
   
   useEffect(() => {
-    if(caseriosData && !isLoadingCaserios && values.idAldea){
+    if(caseriosData && !isLoadingCaserios && values.aldeaId){
       setCaserios(caseriosData)
       setUpdatingCaserios(false)
     } 
-  }, [caseriosData, isLoadingCaserios, errorCaserios, values.idAldea])
+  }, [caseriosData, isLoadingCaserios, errorCaserios, values.aldeaId])
 
   //Editar Lista de Caserios en Formulario
   useEffect(() => {
-    if(values.idAldea && values.idAldea.length > 0){
+    if(values.aldeaId && values.aldeaId.length !== 0){
       setFindParamsCaserios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'aldea',
-          value: values.idAldea
+          field: 'aldeaId',
+          value: values.aldeaId
         })
       })
-      setQueryCaserios('list/caserios')
+      setQueryCaserios('caserios/list')
       setRefetchCaserios(true)
     }
     else{
       setCaserios([])
     }
     // eslint-disable-next-line
-  }, [values.idAldea, setRefetchCaserios])
+  }, [values.aldeaId, setRefetchCaserios])
 
   //Indicador actualizando con boton departamento
   const [updatingCaserios, setUpdatingCaserios] = useState(false);
@@ -403,6 +396,13 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
         }
         else{
           r = {...r, mujeres: r.mujeres + 1}
+        }
+
+        if(data.tipoBeneficiario === 'Comunitario'){
+          r = {...r, comunitarios: r.comunitarios + 1}
+        }
+        else{
+          r = {...r, institucionales: r.institucionales + 1}
         }
         return r;
       })
@@ -447,7 +447,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             Nombre del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={50} autoComplete="off" onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -463,8 +463,8 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
                 value={values.sexo}
                 onChange={handleChange}
               >
-                <FormControlLabel value="M" control={<Radio />} label="Masculino" />
-                <FormControlLabel value="F" control={<Radio />} label="Femenino" />
+                <FormControlLabel value="Masculino" control={<Radio />} label="Masculino" />
+                <FormControlLabel value="Femenino" control={<Radio />} label="Femenino" />
               </RadioGroup>
             </Form.Group>
           </Col>
@@ -488,6 +488,25 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
           </Col>
         </Form.Group>
 
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="4">
+            Tipo de Beneficiario:
+          </Form.Label>
+          <Col sm="8" className="my-auto">
+            <Form.Group>
+              <RadioGroup
+                row
+                name="tipoBeneficiario"
+                value={values.tipoBeneficiario}
+                onChange={handleChange}
+              >
+                <FormControlLabel value="Comunitario" control={<Radio />} label="Comunitario" />
+                <FormControlLabel value="Institucional" control={<Radio />} label="Institucional" />
+              </RadioGroup>
+            </Form.Group>
+          </Col>
+        </Form.Group>
+
         <Card className="mb-4">
           <Card.Header>
             <h5>Organización</h5>
@@ -501,11 +520,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
               <InputGroup>
                   <InputAutocomplete
                     valueList={sectores} 
-                    value={values.idSector}
-                    name={'idSector'}
+                    value={values.sectorId}
+                    name={'sectorId'}
                     setValues={setValues}
                     setRefetch={setRefetchSectores}
                     ModalCreate={CrearSectores}
+                    insert={user.userPermisos?.acciones['Sectores']['Crear']}
                   />
                 {
                   !updatingSectores ? 
@@ -535,11 +555,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
               <InputGroup>
                   <InputAutocomplete
                     valueList={orgtypes} 
-                    value={values.idTipoOrganizacion}
-                    name={'idTipoOrganizacion'}
+                    value={values.tipoOrganizacionId}
+                    name={'tipoOrganizacionId'}
                     setValues={setValues}
                     setRefetch={setRefetchOrgtypes}
                     ModalCreate={CrearOrgtype}
+                    insert={sectores.length > 0 && user.userPermisos?.acciones['Tipos de Organizaciones']['Crear']}
                   />
                 {
                   !updatingOrgtypes ? 
@@ -569,11 +590,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
               <InputGroup>
                 <InputAutocomplete
                   valueList={organizaciones} 
-                  value={values.idOrganizacion}
-                  name={'idOrganizacion'}
+                  value={values.organizacionId}
+                  name={'organizacionId'}
                   setValues={setValues}
                   setRefetch={setRefetchOrganizaciones}
                   ModalCreate={CrearOrganizacion}
+                  insert={orgtypes.length > 0 && user.userPermisos?.acciones['Organizaciones']['Crear']}
                 />
                 {
                   !updatingOrganizaciones ? 
@@ -603,11 +625,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
               <InputGroup>
                 <InputAutocomplete
                   valueList={cargos} 
-                  value={values.idCargo}
-                  name={'idCargo'}
+                  value={values.cargoId}
+                  name={'cargoId'}
                   setValues={setValues}
                   setRefetch={setRefetchCargos}
                   ModalCreate={CrearCargo}
+                  insert={sectores.length > 0 && user.userPermisos?.acciones['Cargos']['Crear']}
                 />
                 {
                   !updatingCargos ? 
@@ -644,11 +667,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
                 <InputGroup>
                   <InputAutocomplete
                     valueList={deptos} 
-                    value={values.idDepartamento}
-                    name={'idDepartamento'}
+                    value={values.departamentoId}
+                    name={'departamentoId'}
                     setValues={setValues}
                     setRefetch={setRefetchDeptos}
                     ModalCreate={CrearDepartamento}
+                    insert={user.userPermisos?.acciones['Departamentos']['Crear']}
                   />
                   {
                     !updatingDepto ? 
@@ -678,11 +702,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
                 <InputGroup>
                   <InputAutocomplete
                     valueList={municipios} 
-                    value={values.idMunicipio}
-                    name={'idMunicipio'}
+                    value={values.municipioId}
+                    name={'municipioId'}
                     setValues={setValues}
                     setRefetch={setRefetchMuni}
                     ModalCreate={CrearMunicipio}
+                    insert={deptos.length > 0 && user.userPermisos?.acciones['Municipios']['Crear']}
                   />
                   {
                     !updatingMunicipios ? 
@@ -712,11 +737,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
                 <InputGroup>
                   <InputAutocomplete
                     valueList={aldeas} 
-                    value={values.idAldea}
-                    name={'idAldea'}
+                    value={values.aldeaId}
+                    name={'aldeaId'}
                     setValues={setValues}
                     setRefetch={setRefetchAldeas}
                     ModalCreate={CrearAldea}
+                    insert={municipios.length > 0 && user.userPermisos?.acciones['Aldeas']['Crear']}
                   />
                   {
                     !updatingAldeas ? 
@@ -746,11 +772,12 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
                 <InputGroup>
                   <InputAutocomplete
                     valueList={caserios} 
-                    value={values.idCaserio}
-                    name={'idCaserio'}
+                    value={values.caserioId}
+                    name={'caserioId'}
                     setValues={setValues}
                     setRefetch={setRefetchCaserios}
                     ModalCreate={CrearCaserio}
+                    insert={aldeas.length > 0 && user.userPermisos?.acciones['Caserios']['Crear']}
                   />
                   {
                     !updatingCaserios ? 
@@ -773,13 +800,6 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             </Form.Group>
           </Card.Body>
         </Card>
-
-        {
-          false &&
-          <MapInput changeLocation={changeLocation}/>
-        }
-        
-
       </Form>
       <p style={{color: 'red'}}>{errorMessage}</p>
     </Card.Body>

@@ -40,8 +40,8 @@ export const ReviewsUsuarios = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50 },
-    { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'original', headerName: 'Original', width: 250,
+    { field: 'uuid', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
+    { field: 'original', headerName: 'Original', width: 80,
       renderCell: (params) => {
         return (
           <InfoLink
@@ -57,7 +57,7 @@ export const ReviewsUsuarios = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'Editado por', width: 170,
+    { field: 'editorId', headerName: 'Editado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -70,7 +70,7 @@ export const ReviewsUsuarios = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value)},
-    { field: 'revisor', headerName: 'Revisado por', width: 170,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -111,14 +111,14 @@ export const ReviewsUsuarios = () => {
     data.map((departamento, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        uuid: departamento._id, 
-        original: departamento.original, 
+        uuid: departamento.id, 
+        original: departamento.originalId, 
         nombre: departamento.nombre,
         version: departamento.version,
         fechaEdicion: departamento.fechaEdicion ? departamento.fechaEdicion : '',
-        editor: `${departamento.editor?.nombre || ''}-${departamento.editor?._id || ''}`,
+        editorId: `${departamento.editor?.nombre || ''}-${departamento.editor?.id || ''}`,
         fechaRevision: departamento.fechaRevision ? departamento.fechaRevision : '',
-        revisor: `${departamento.revisor?.nombre || ''}-${departamento.revisor?._id || ''}`,
+        revisorId: `${departamento.revisor?.nombre || ''}-${departamento.revisor?.id || ''}`,
         estado: departamento.estado
       }
     ))

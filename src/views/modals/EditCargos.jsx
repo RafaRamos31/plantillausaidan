@@ -6,10 +6,12 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearSectores } from "./CrearSectores.jsx";
 
 export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) => {
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext)
+  const { aprove } = useContext(AproveContext)
 
   //Departamento
   const findParams = {
@@ -17,7 +19,7 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
     filter: '{}'
   }
   const [sectores, setSectores] = useState([])
-  const { data: sectoresData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('list/sectores', findParams);
+  const { data: sectoresData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('sectores/list', findParams);
 
   useEffect(() => {
     if(sectoresData && !isLoadingSectores){
@@ -41,14 +43,9 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
   const { values, handleChange, setValues } = useForm({
     idCargo: cargo.id,
     nombre: cargo.nombre,
-    idSector: cargo.idSector || cargo.sector._id,
+    sectorId: cargo.sectorId,
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
 
   //Efecto al enviar el formulario
@@ -140,15 +137,15 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
           </Form.Label>
           <Col sm="8">
           <InputGroup>
-              <Form.Select id='idSector' name='idSector' value={values.idSector} onChange={handleChange}>
-                <option value="">Seleccionar Sector</option>
-                {
-                  sectores &&
-                  sectores.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+              <InputAutocomplete 
+                valueList={sectores} 
+                value={values.sectorId}
+                name={'sectorId'}
+                setValues={setValues}
+                setRefetch={setRefetchSectores}
+                ModalCreate={CrearSectores}
+                insert={user.userPermisos?.acciones['Sectores']['Crear']}
+              />
               {
                 !updating ? 
                 <Button variant="light" onClick={handleReload}>
@@ -173,12 +170,6 @@ export const EditCargo = ({handleClose, setRefetchData, cargo, fixing=false}) =>
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Cargos']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {/*Boton Guardar*/}

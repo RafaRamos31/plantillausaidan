@@ -26,17 +26,17 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
-    idTarea: '',
+    tareaId: '',
     nombre: '',
-    idAreaTematica: '',
+    areaTematicaId: '',
     fechaInicio: '',
     fechaFinal: '',
-    idDepartamento: '',
-    idMunicipio: '',
-    idAldea: '',
-    idCaserio: '',
+    departamentoId: '',
+    municipioId: '',
+    aldeaId: '',
+    caserioId: '',
     organizador: {},
-    componentes: [user.userComponente],
+    componentes: [user.userComponente.id],
     colaboradores: [],
     aprobarComponente: false
   });
@@ -51,17 +51,13 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
     }
   }
 
-  const handleToggleAprobarComponente = () => {
-    setValues({ ...values, aprobarComponente: !values.aprobarComponente });
-  }
-
   //Componentes
   const findParamsComponentes = {
     sort: '{}',
     filter: '{}'
   }
   const [componentes, setComponentes] = useState([])
-  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes} = useFetchGetBody('list/componentes', findParamsComponentes);
+  const { data: componentesData, isLoading: isLoadingComponentes, error: errorComponentes} = useFetchGetBody('componentes/list', findParamsComponentes);
 
   useEffect(() => {
     if(componentesData && !isLoadingComponentes){
@@ -76,13 +72,20 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [usuarios, setUsuarios] = useState([])
-  const { data: usuariosData, isLoading: isLoadingUsuarios, error: errorUsuarios} = useFetchGetBody('list/usuarioscomp', findParamsUsuarios);
+  const { data: usuariosData, isLoading: isLoadingUsuarios, error: errorUsuarios} = useFetchGetBody('usuarios/list', findParamsUsuarios);
 
   useEffect(() => {
-    if(usuariosData && !isLoadingUsuarios){
-      setUsuarios(usuariosData)
+    if(usuariosData && !isLoadingUsuarios && componentesData && !isLoadingComponentes){
+      const groupedUsuarios = []
+      for(let componente of componentesData){
+        groupedUsuarios.push({
+          id: componente.id,
+          usuarios: usuariosData.filter(u => u.componenteId === componente.id)
+        })
+      }
+      setUsuarios(groupedUsuarios)
     } 
-  }, [usuariosData, isLoadingUsuarios, errorUsuarios])
+  }, [usuariosData, isLoadingUsuarios, errorUsuarios, componentesData, isLoadingComponentes])
 
 
   //Tareas
@@ -100,15 +103,29 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'componente',
-          value: user.userComponente
+          field: 'componenteId',
+          value: user.userComponente.id
         })
       })
-      setQueryTareas('list/tareas');
+      setQueryTareas('tareas/list');
       setRefetchTareas(true);
     }
   // eslint-disable-next-line
   }, [setRefetchTareas, user])
+
+  //Fechas
+  const [minDate, setMinDate] = useState()
+  const [maxDate, setMaxDate] = useState()
+
+  useEffect(() => {
+    if(values.tareaId.length !== 0){
+      const quarter = tareas.find(t => t.id === values.tareaId)?.quarter
+      setMinDate(moment(quarter.fechaInicio).add(6, 'h'))
+      setMaxDate(moment(quarter.fechaFinal).add(6, 'h'))
+    }
+  
+  }, [values.tareaId, tareas])
+  
   
   //SubActividad y Areas Tematicas
   const [areas, setAreas] = useState([])
@@ -119,29 +136,29 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
   const { data: dataSubactividad, isLoading: isLoadingSubactividad, error: errorSubActividad, setRefetch: setRefetchSubactividad } = useFetchGet(querySubactividad);
 
   useEffect(() => {
-    if(dataTarea && !isLoadingTarea && values.idTarea){
-      setQuerySubactividad(`subactividad/${dataTarea?.subactividad?._id}`)
+    if(dataTarea && !isLoadingTarea && values.tareaId){
+      setQuerySubactividad(`subactividades/id/${dataTarea?.subactividad?.id}`)
       setRefetchSubactividad(true)
     } 
-  }, [dataTarea, isLoadingTarea, errorTarea, setRefetchSubactividad, values.idTarea])
+  }, [dataTarea, isLoadingTarea, errorTarea, setRefetchSubactividad, values.tareaId])
 
   useEffect(() => {
-    if(dataSubactividad && !isLoadingSubactividad && values.idTarea){
+    if(dataSubactividad && !isLoadingSubactividad && values.tareaId){
       setAreas(dataSubactividad?.areasTematicas)
     } 
-  }, [dataSubactividad, isLoadingSubactividad, errorSubActividad, values.idTarea])
+  }, [dataSubactividad, isLoadingSubactividad, errorSubActividad, values.tareaId])
 
    //Editar Lista de Areas Tematicas en Formulario
   useEffect(() => {
-    if(values.idTarea && values.idTarea.length > 0){
-      setQueryTarea(`tarea/${values.idTarea}`);
+    if(values.tareaId && values.tareaId.length !== 0){
+      setQueryTarea(`tareas/id/${values.tareaId}`);
       setRefetchTarea(true);
     }
     else{
       setAreas([])
     }
     // eslint-disable-next-line
-  }, [values.idTarea, setValues, setRefetchSubactividad])
+  }, [values.tareaId, setValues, setRefetchSubactividad])
 
   //Accion Update manual
   useEffect(() => {
@@ -157,7 +174,7 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParamsDepto);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParamsDepto);
   
   //Indicador actualizando con boton departamento
   const [updatingDepto, setUpdatingDepto] = useState(false);
@@ -194,32 +211,31 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
   }
   
   useEffect(() => {
-    if(muniData && !isLoadingMuni && values.idDepartamento){
+    if(muniData && !isLoadingMuni && values.departamentoId){
       setMunicipios(muniData)
       setUpdatingMunicipios(false)
     } 
-  }, [muniData, isLoadingMuni, errorMuni, values.idDepartamento])
+  }, [muniData, isLoadingMuni, errorMuni, values.departamentoId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
+    if(values.departamentoId && values.departamentoId.length !== 0){
       setFindParamsMunicipios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'departamento',
-          value: values.idDepartamento
+          field: 'departamentoId',
+          value: values.departamentoId
         })
       })
-      setQueryMunicipios('list/municipios');
+      setQueryMunicipios('municipios/list');
       setRefetchMuni(true)
-      setValues({ ...values, geocode: '' });
     }
     else{
       setMunicipios([])
     }
     // eslint-disable-next-line
-  }, [values.idDepartamento, setValues, setRefetchMuni])
+  }, [values.departamentoId, setValues, setRefetchMuni])
 
   //Aldea
   const [findParamsAldea, setFindParamsAldea] = useState({
@@ -231,32 +247,31 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
   const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
   
   useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.idMunicipio){
+    if(aldeasData && !isLoadingAldeas && values.municipioId){
       setAldeas(aldeasData)
       setUpdatingAldeas(false)
     } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.idMunicipio])
+  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
 
   //Editar Lista de Aldeas en Formulario
   useEffect(() => {
-    if(values.idMunicipio && values.idMunicipio.length > 0){
+    if(values.municipioId && values.municipioId.length !== 0){
       setFindParamsAldea({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'municipio',
-          value: values.idMunicipio
+          field: 'municipioId',
+          value: values.municipioId
         })
       })
-      setQueryAldeas('list/aldeas')
+      setQueryAldeas('aldeas/list')
       setRefetchAldeas(true)
-      setValues({ ...values, geocode: '' });
     }
     else{
       setAldeas([])
     }
     // eslint-disable-next-line
-  }, [values.idMunicipio, setValues, setRefetchAldeas])
+  }, [values.municipioId, setValues, setRefetchAldeas])
 
   //Indicador actualizando con boton departamento
   const [updatingAldeas, setUpdatingAldeas] = useState(false);
@@ -277,31 +292,31 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
   const { data: caseriosData, isLoading: isLoadingCaserios, error: errorCaserios, setRefetch: setRefetchCaserios } = useFetchGetBody(queryCaserios, findParamsCaserios);
   
   useEffect(() => {
-    if(caseriosData && !isLoadingCaserios && values.idAldea){
+    if(caseriosData && !isLoadingCaserios && values.aldeaId){
       setCaserios(caseriosData)
       setUpdatingCaserios(false)
     } 
-  }, [caseriosData, isLoadingCaserios, errorCaserios, values.idAldea])
+  }, [caseriosData, isLoadingCaserios, errorCaserios, values.aldeaId])
 
   //Editar Lista de Caserios en Formulario
   useEffect(() => {
-    if(values.idAldea && values.idAldea.length > 0){
+    if(values.aldeaId && values.aldeaId.length !== 0){
       setFindParamsCaserios({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'aldea',
-          value: values.idAldea
+          field: 'aldeaId',
+          value: values.aldeaId
         })
       })
-      setQueryCaserios('list/caserios')
+      setQueryCaserios('caserios/list')
       setRefetchCaserios(true)
     }
     else{
       setCaserios([])
     }
     // eslint-disable-next-line
-  }, [values.idAldea, setRefetchCaserios])
+  }, [values.aldeaId, setRefetchCaserios])
 
   //Indicador actualizando con boton departamento
   const [updatingCaserios, setUpdatingCaserios] = useState(false);
@@ -313,14 +328,13 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
   }
 
 
-
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('eventos/crear', {...values,
     fechaInicio: moment(values.fechaInicio).format('YYYY-MM-DD HH:mm'),
     fechaFinal: moment(values.fechaFinal).format('YYYY-MM-DD HH:mm'),
-    idOrganizador: values.organizador?._id,
+    organizadorId: values.organizador?.id,
     componentes: JSON.stringify({data: values.componentes}),
-    colaboradores: JSON.stringify({data: values.colaboradores.map(colaborador => colaborador._id)}),
+    colaboradores: JSON.stringify({data: values.colaboradores.map(colaborador => colaborador.id)}),
   }) 
 
   const handleCreate = (e) => {
@@ -337,8 +351,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
     handleClose()
     setRefetch()
     setShowToast(true)
-    actualizarTitulo('Tarea Creada')
-    setContent('Tarea guardada correctamente.')
+    actualizarTitulo('Evento Creado')
+    setContent('Evento guardado correctamente.')
     setVariant('success')
   }
 
@@ -373,14 +387,14 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idTarea"
-                  name="idTarea"
+                  id="tareaId"
+                  name="tareaId"
                   onChange={handleChange}
-                  value={values.idTarea}
+                  value={values.tareaId}
                 >
                   {tareas && tareas.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
-                      <Tooltip title={item.titulo} placement="right" arrow followCursor>
+                    <MenuItem key={item.id} value={item.id}>
+                      <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
                     </MenuItem>
@@ -408,13 +422,13 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idAreaTematica"
-                  name="idAreaTematica"
+                  id="areaTematicaId"
+                  name="areaTematicaId"
                   onChange={handleChange}
-                  value={values.idAreaTematica}
+                  value={values.areaTematicaId}
                 >
                   {areas && areas.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
@@ -437,6 +451,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
               format="DD/MM/YYYY - hh:mm a"
               id='fechaInicio'
               name='fechaInicio'
+              minDateTime={minDate}
+              maxDateTime={maxDate}
               value={moment(values.fechaInicio)}
               onChange={(value) => handleToggleDate(value, 'fechaInicio')}
               />
@@ -452,6 +468,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
               format="DD/MM/YYYY - hh:mm a"
               id='fechaFinal'
               name='fechaFinal'
+              minDateTime={minDate}
+              maxDateTime={maxDate}
               value={moment(values.fechaFinal)}
               onChange={(value) => handleToggleDate(value, 'fechaFinal')}
               />
@@ -473,8 +491,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                   <InputGroup>
                     <InputAutocomplete 
                       valueList={deptos} 
-                      value={values.idDepartamento}
-                      name={'idDepartamento'}
+                      value={values.departamentoId}
+                      name={'departamentoId'}
                       setValues={setValues}
                       setRefetch={setRefetchDeptos}
                       ModalCreate={CrearDepartamento}
@@ -507,8 +525,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                 <InputGroup>
                     <InputAutocomplete 
                       valueList={municipios} 
-                      value={values.idMunicipio}
-                      name={'idMunicipio'}
+                      value={values.municipioId}
+                      name={'municipioId'}
                       setValues={setValues}
                       setRefetch={setRefetchMuni}
                       ModalCreate={CrearMunicipio}
@@ -541,8 +559,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                 <InputGroup>
                     <InputAutocomplete 
                       valueList={aldeas} 
-                      value={values.idAldea}
-                      name={'idAldea'}
+                      value={values.aldeaId}
+                      name={'aldeaId'}
                       setValues={setValues}
                       setRefetch={setRefetchAldeas}
                       ModalCreate={CrearAldea}
@@ -575,8 +593,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                 <InputGroup>
                     <InputAutocomplete 
                       valueList={caserios} 
-                      value={values.idCaserio}
-                      name={'idCaserio'}
+                      value={values.caserioId}
+                      name={'caserioId'}
                       setValues={setValues}
                       setRefetch={setRefetchCaserios}
                       ModalCreate={CrearCaserio}
@@ -622,15 +640,16 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                   onChange={handleChange}
                   value={values.organizador}
                   renderValue={(value) => (
-                    <AvatarChip id={value?._id} name={value?.nombre} link={false}/>
+                    <AvatarChip id={value?.id} name={value?.nombre} link={false}/>
                   )}
                 >
-                  {usuarios && usuarios.filter(componente => componente._id === user.userComponente).map((componente, index) => (
+                  {usuarios && usuarios.filter(componente => componente.id === user.userComponente.id).map((componente, index) => (
                     [
-                      <ListSubheader key={index}>{componentes.find(c => c._id === componente._id)?.nombre}</ListSubheader>,
+                      // eslint-disable-next-line
+                      <ListSubheader key={index}>{componentes.find(c => c.id == componente.id)?.nombre}</ListSubheader>,
                       ...componente.usuarios?.map(usuario => (
-                        <MenuItem key={usuario._id} value={usuario}>
-                          <AvatarChip id={usuario._id} name={usuario.nombre} link={false}/>
+                        <MenuItem key={usuario.id} value={usuario}>
+                          <AvatarChip id={usuario.id} name={usuario.nombre} link={false}/>
                         </MenuItem>
                       ))
                     ]
@@ -657,13 +676,13 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                   renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {selected.map((value) => (
-                        <Chip key={value} label={componentes.find(componente => componente._id === value)?.nombre} />
+                        <Chip key={value} label={componentes.find(componente => componente.id === value)?.nombre} />
                       ))}
                     </Box>
                   )}
                 >
                   {componentes && componentes.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
@@ -692,18 +711,18 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                     <AvatarGroup max={6} style={{flexDirection: 'row-reverse', justifyContent: 'left'}}>
                       {
                         selected.map((usuario) => (
-                          <AvatarIcon id={usuario._id} name={usuario.nombre}/>
+                          <AvatarIcon id={usuario.id} name={usuario.nombre}/>
                         ))
                       }
                     </AvatarGroup>
                   )}
                 >
-                  {usuarios && usuarios.filter(componente => values.componentes.includes(componente._id)).map((componente, index) => (
+                  {usuarios && usuarios.filter(componente => values.componentes.includes(componente.id)).map((componente, index) => (
                     [
-                      <ListSubheader key={index}>{componentes.find(c => c._id === componente._id)?.nombre}</ListSubheader>,
+                      <ListSubheader key={index}>{componentes.find(c => c.id === componente.id)?.nombre}</ListSubheader>,
                       ...componente.usuarios?.map(usuario => (
-                        <MenuItem key={usuario._id} value={usuario}>
-                          <AvatarChip id={usuario._id} name={usuario.nombre} link={false}/>
+                        <MenuItem key={usuario.id} value={usuario}>
+                          <AvatarChip id={usuario.id} name={usuario.nombre} link={false}/>
                         </MenuItem>
                       ))
                     ]
@@ -723,12 +742,6 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Eventos']['Aprobar Crear']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar evento (Componente)" id='aprobarComponente' name='aprobarComponente' checked={values.aprobarComponente} onChange={handleToggleAprobarComponente}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

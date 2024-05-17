@@ -254,7 +254,7 @@ export const useFetchPostBody = (endpoint, args, register=false) => {
 
         let jsonData = await response.json();
 
-        if (response.status !== 200){
+        if (!(response.status === 200 || response.status === 201)){
           setError(response.status + ': ' + jsonData.error)
         }
         else{
@@ -312,7 +312,7 @@ export const useFetchPutBody = (endpoint, args) => {
 
         let jsonData = await response.json();
 
-        if (response.status !== 200){
+        if (!(response.status === 200 || response.status === 201)){
           setError(response.status + ': ' + jsonData.error)
         }
         else{

@@ -3,14 +3,12 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { Box, Chip, FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
 
 export const CrearAreaTematica = ({handleClose, setRefetch}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
   
   //Departamento
   const findParams = {
@@ -18,7 +16,7 @@ export const CrearAreaTematica = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos} = useFetchGetBody('list/indicadores', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos} = useFetchGetBody('indicadores/list', findParams);
 
   useEffect(() => {
     if(deptoData && !isLoadingDeptos){
@@ -30,19 +28,14 @@ export const CrearAreaTematica = ({handleClose, setRefetch}) => {
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange } = useForm({
     nombre: '',
     descripcion: '',
     indicadores: [],
     aprobar: aprove
   });
 
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
-  
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('areastematicas', {...values, indicadores: JSON.stringify({data: values.indicadores})}) 
 
@@ -92,7 +85,7 @@ export const CrearAreaTematica = ({handleClose, setRefetch}) => {
             Código:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre} autoComplete="off" maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -121,13 +114,13 @@ export const CrearAreaTematica = ({handleClose, setRefetch}) => {
                   renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {selected.map((value) => (
-                        <Chip key={value} label={deptos.find(depto => depto._id === value).nombre} />
+                        <Chip key={value} label={deptos.find(depto => depto.id === value).nombre} />
                       ))}
                     </Box>
                   )}
                 >
                   {deptos && deptos.map((depto) => (
-                    <MenuItem key={depto._id} value={depto._id}>
+                    <MenuItem key={depto.id} value={depto.id}>
                       <Tooltip title={depto.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={depto.nombre} />
                       </Tooltip>
@@ -143,12 +136,6 @@ export const CrearAreaTematica = ({handleClose, setRefetch}) => {
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Áreas Temáticas']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

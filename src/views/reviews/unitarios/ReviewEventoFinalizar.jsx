@@ -11,7 +11,7 @@ import { CompareValue } from '../../../components/CompareValue';
 import { UserContext } from '../../../contexts/UserContext';
 import { EventosNavBar } from '../../../components/navBars/EventosNavBar';
 import { Box, Chip, } from '@mui/material';
-import { CrearEventoTerminar } from '../../modals/CrearEventoTerminar';
+import { EditEventoTerminar } from '../../modals/EditEventoTerminar';
 
 export const ReviewEventoFinalizar = () => {
 
@@ -31,7 +31,7 @@ export const ReviewEventoFinalizar = () => {
 
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/finalizar/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`eventos/finalizar/${idRevision}`);
 
 
   //Formulario Componente
@@ -112,8 +112,8 @@ export const ReviewEventoFinalizar = () => {
     <Layout pagina={`Finalización ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`} SiteNavBar={EventosNavBar} breadcrumbs={[
         {link: '/', nombre: 'Inicio'},
         {link: '/eventos', nombre: 'Eventos'},
-        {link: '/eventos/terminar', nombre: 'Finalizacion'},
-        {link: `/reviews/eventos/finalizar/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
+        {link: '/eventos/tablero', nombre: 'Tablero'},
+        {link: `/reviews/eventos/finalizar/${idRevision}`, nombre: dataRevision?.numeroFormulario || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
         <Col md={8}>
@@ -129,7 +129,7 @@ export const ReviewEventoFinalizar = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Creado por:</p>
-                  <AvatarChip name={dataRevision.responsableCreacion?.nombre} id={dataRevision.responsableCreacion?._id}/>
+                  <AvatarChip name={dataRevision.responsableCreacion?.nombre} id={dataRevision.responsableCreacion?.id}/>
                 </div>
               </Col>
             </Row>
@@ -151,7 +151,7 @@ export const ReviewEventoFinalizar = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Finalizado por:</p>
                   {
                     dataRevision.responsableFinalizacion ?
-                    <AvatarChip name={dataRevision.responsableFinalizacion.nombre} id={dataRevision.responsableFinalizacion._id}/>
+                    <AvatarChip name={dataRevision.responsableFinalizacion.nombre} id={dataRevision.responsableFinalizacion.id}/>
                     :
                     <p>--</p>
                   }
@@ -176,7 +176,7 @@ export const ReviewEventoFinalizar = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisorFinalizacion ?
-                    <AvatarChip name={dataRevision.revisorFinalizacion.nombre} id={dataRevision.revisorFinalizacion._id}/>
+                    <AvatarChip name={dataRevision.revisorFinalizacion.nombre} id={dataRevision.revisorFinalizacion.id}/>
                     :
                     <p>--</p>
                   }
@@ -208,7 +208,7 @@ export const ReviewEventoFinalizar = () => {
                     </InputGroup>
                   </Col>
                 </Form.Group>
-                <CompareValue  title={'Tipo de Evento:'} value={dataRevision.tipoEvento[0]?.nombre} original={dataRevision.tipoEvento[0]?.nombre} compare={compare}/>
+                <CompareValue  title={'Tipo de Evento:'} value={dataRevision.tipoEvento?.nombre} original={dataRevision.tipoEvento?.nombre} compare={compare}/>
                 <h6 className='mt-2'>Sectores:</h6>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }} className='mb-3'>
                   {dataRevision.sectores.map((sector, index) => (
@@ -218,7 +218,7 @@ export const ReviewEventoFinalizar = () => {
                 <h6 className='mt-2'>Niveles:</h6>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }} className='mb-3'>
                   {dataRevision.niveles.map((nivel, index) => (
-                    <Chip key={index} label={nivel}/>
+                    <Chip key={index} label={nivel.nombre}/>
                   ))}
                 </Box>
                 <CompareValue  title={'Logros:'} value={dataRevision.logros} original={dataRevision?.logros} compare={compare}/>
@@ -271,8 +271,11 @@ export const ReviewEventoFinalizar = () => {
 
                 <h5 className='mt-3'>Medios de Verificación</h5>
                 <hr />
-                <Button className="mt-2 p-2" href={dataRevision.enlaceFormulario} target="_blank" style={{fontWeight: 'bold'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
-                <Button className="mt-2 p-2" href={dataRevision.enlaceFotografias} target="_blank" style={{fontWeight: 'bold'}}>Evidencias Fotográficas <i className="bi bi-box-arrow-up-right"></i></Button>
+                <Button variant='info' className="mt-2 p-2" href={dataRevision.enlaceFormulario} style={{fontWeight: 'bold'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
+                {
+                  dataRevision.enlaceFotografias &&
+                  <Button variant='info' className="mt-2 p-2" href={dataRevision.enlaceFotografias} style={{fontWeight: 'bold'}}>Evidencias Fotográficas <i className="bi bi-box-arrow-up-right"></i></Button>
+                }
             </Row>
             
           </Container>
@@ -283,7 +286,7 @@ export const ReviewEventoFinalizar = () => {
             <Form.Label>Dictámen</Form.Label>
             <Form.Select className="mb-3" id='aprobado' name='aprobado' value={values.aprobado} onChange={handleChange} disabled={!boolReview}>
               <option>Pendiente</option>
-              <option value="Aprobado">Aprobado</option>
+              <option value="Validado">Validado</option>
               <option value="Rechazado">Rechazado</option>
             </Form.Select>
             <Form.Group className="mb-3">
@@ -323,7 +326,7 @@ export const ReviewEventoFinalizar = () => {
       </Row>
     </Layout>
     <Modal show={showEdit} onHide={handleCloseEdit} backdrop="static">
-      <CrearEventoTerminar handleClose={handleCloseEdit} setRefetch={setRefetch} eventValues={{id: dataRevision?._id, nombre: dataRevision?.nombre}} initialValues={dataRevision}/>
+      <EditEventoTerminar handleClose={handleCloseEdit} setRefetch={setRefetch} evento={dataRevision}/>
     </Modal>
     </>
   )

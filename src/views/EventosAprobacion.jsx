@@ -52,7 +52,7 @@ export const EventosAprobacion = () => {
   const columns = [
     { field: 'id', headerName: '#', width: 50 },
     { field: 'uuid', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.' },
-    { field: 'nombre', headerName: 'Nombre', width: 400 },
+    { field: 'nombre', headerName: 'Nombre', width: 400,  },
     { field: 'fechaInicio', headerName: 'Fecha del evento', width: 170, 
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },

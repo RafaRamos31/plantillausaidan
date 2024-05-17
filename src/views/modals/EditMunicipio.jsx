@@ -4,12 +4,15 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { CrearDepartamento } from "./CrearDepartamento.jsx";
+import { UserContext } from "../../contexts/UserContext.js";
 
 export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=false}) => {
+
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Departamento
   const findParams = {
@@ -17,7 +20,7 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
     filter: '{}'
   }
   const [deptos, setDeptos] = useState([])
-  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('list/departamentos', findParams);
+  const { data: deptoData, isLoading: isLoadingDeptos, error: errorDeptos, setRefetch: setRefetchDeptos } = useFetchGetBody('departamentos/list', findParams);
 
   useEffect(() => {
     if(deptoData && !isLoadingDeptos){
@@ -41,22 +44,19 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
   const { values, handleChange, setValues } = useForm({
     idMunicipio: municipio.id,
     nombre: municipio.nombre,
-    idDepartamento: municipio.idDepartamento || municipio.departamento._id,
+    departamentoId: municipio.departamentoId,
     geocode: municipio.geocode.substring(2),
     aprobar: aprove
   });
 
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Editar Departamento en Formulario
   const [deptoGeo, setDeptoGeo] = useState('00')
 
   useEffect(() => {
-    if(values.idDepartamento && values.idDepartamento.length > 0){
-      setDeptoGeo(deptos.find(depto => depto._id === values.idDepartamento)?.geocode)
+    if(values.departamentoId && values.departamentoId.length !== 0){
+      // eslint-disable-next-line
+      setDeptoGeo(deptos.find(depto => depto.id == values.departamentoId)?.geocode)
     }
     else{
       setDeptoGeo('00')
@@ -149,25 +149,25 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
             Municipio:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={40} onChange={handleChange}/>
+            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
         <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="4">
+          <Form.Label column sm="4" className="my-auto">
             Departamento:
           </Form.Label>
           <Col sm="8">
-          <InputGroup>
-              <Form.Select id='idDepartamento' name='idDepartamento' value={values.idDepartamento} onChange={handleChange}>
-                <option value="">Seleccionar Departamento</option>
-                {
-                  deptos &&
-                  deptos.map((depto) => (
-                    <option key={depto._id} value={depto._id}>{depto.nombre}</option>
-                  ))
-                }
-              </Form.Select>
+            <InputGroup>
+              <InputAutocomplete 
+                valueList={deptos} 
+                value={values.departamentoId}
+                name={'departamentoId'}
+                setValues={setValues}
+                setRefetch={setRefetchDeptos}
+                ModalCreate={CrearDepartamento}
+                insert={user.userPermisos?.acciones['Departamentos']['Crear']}
+              />
               {
                 !updating ? 
                 <Button variant="light" onClick={handleReload}>
@@ -204,12 +204,6 @@ export const EditMunicipio = ({handleClose, setRefetchData, municipio, fixing=fa
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Municipios']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {/*Boton Guardar*/}

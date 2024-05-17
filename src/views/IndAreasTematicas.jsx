@@ -2,7 +2,6 @@ import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
 import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { InfoLink } from "../components/InfoLink.jsx";
-import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
 import { FormattedGrid } from "../components/FormattedGrid.jsx";
 import { UserContext } from "../contexts/UserContext.js";
@@ -48,13 +47,6 @@ export const IndAreasTematicas = () => {
       setUpdating(false)
     }
   }, [refetchData, setUpdating])
-  
-
-  //Boton Cambios
-  const navigate = useNavigate();
-  const handleReview = () => {
-    navigate(`/reviews/areastematicas`)
-  }
 
   //Modal crear
   const [showCreate, setShowCreate] = useState(false);
@@ -71,7 +63,7 @@ export const IndAreasTematicas = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false},
-    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.',
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.',
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
@@ -93,8 +85,8 @@ export const IndAreasTematicas = () => {
     { field: 'indicadores', headerName: 'Indicadores', width: 400, filterable: false,
       renderCell: (params) => (
         JSON.parse(params.formattedValue).map(indicador => (
-          <MuiTooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
-            <Chip key={indicador._id} className="mx-1" label={indicador.nombre} style={{cursor: 'help'}}/>
+          <MuiTooltip key={indicador.id} title={indicador.descripcion} placement="top" arrow followCursor>
+            <Chip key={indicador.id} className="mx-1" label={indicador.nombre} style={{cursor: 'help'}}/>
           </MuiTooltip>
         ))
     )},
@@ -102,11 +94,7 @@ export const IndAreasTematicas = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'editor', headerName: 'uuid Editor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
+    { field: 'editorId', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -119,11 +107,7 @@ export const IndAreasTematicas = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -136,24 +120,13 @@ export const IndAreasTematicas = () => {
     { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
+    { field: 'eliminadorId', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
             id={params.formattedValue.split('-')[1]}
             name={params.formattedValue.split('-')[0]} 
           />
-        );
-      } 
-    },
-    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
-      renderCell: (params) => {
-        return (
-          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
@@ -210,17 +183,6 @@ export const IndAreasTematicas = () => {
               }
               </>
             }
-            {
-              user.userPermisos?.acciones['Áreas Temáticas']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/areastematicas/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
-            }
           </>
         );
       },
@@ -232,18 +194,14 @@ export const IndAreasTematicas = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        _id: item._id, 
+        _id: item.id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor?._id || '',
-        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
+        editorId: `${item.editor?.nombre || ''}-${item.editor?.id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor?._id || '',
-        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
+        revisorId: `${item.revisor?.nombre || ''}-${item.revisor?.id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: item.eliminador?._id || '',
-        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
-        editing: item.pendientes.includes(user.userId),
+        eliminadorId: `${item.eliminador?.nombre || ''}-${item.eliminador?.id || ''}`,
         estado: item.estado,
         nombre: item.nombre,
         descripcion: item.descripcion,
@@ -256,15 +214,11 @@ export const IndAreasTematicas = () => {
     _id: false,
     version: false,
     fechaEdicion: false,
-    editor: false,
-    editorName: false,
+    editorId: false,
     fechaRevision: false,
-    revisor: false,
-    revisorName: false,
+    revisorId: false,
     fechaEliminacion: false,
-    eliminador: false,
-    eliminadorName: false,
-    editing: false,
+    eliminadorId: false,
     estado: false
   }
 
@@ -303,16 +257,6 @@ export const IndAreasTematicas = () => {
         <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate}>
           <i className="bi bi-file-earmark-plus"></i>{' '}
           {`Agregar Área Temática`}
-        </Button>
-      }
-
-      {/*Boton Cambios*/}
-      {
-        user.userPermisos?.acciones['Áreas Temáticas']['Revisar']
-        &&
-        <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleReview}>
-          <i className="bi bi-pencil-square"></i>{' '}
-          Gestión de Cambios
         </Button>
       }
       

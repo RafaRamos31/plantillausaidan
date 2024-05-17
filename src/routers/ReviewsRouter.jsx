@@ -49,6 +49,8 @@ import { ReviewEventoDigitalizar } from '../views/reviews/unitarios/ReviewEvento
 import { ReviewsTiposEventos } from '../views/reviews/ReviewsTiposEventos'
 import { ReviewTipoEvento } from '../views/reviews/unitarios/ReviewTipoEvento'
 import { ReviewEventoPresupuesto } from '../views/reviews/unitarios/ReviewEventoPresupuestar'
+import { ReviewNivel } from '../views/reviews/unitarios/ReviewNivel'
+import { EventosConsolidarReview } from '../views/EventoConsolidarReview'
 
 export const ReviewsRouter = () => {
 
@@ -143,7 +145,11 @@ export const ReviewsRouter = () => {
         &&
         <Route path="/tiposEventos/:idRevision" element={<ReviewTipoEvento />}></Route>
       } 
-
+      {
+        user.userPermisos?.vistas['Configuración']['Tipos de Eventos']
+        &&
+        <Route path="/niveles/:idRevision" element={<ReviewNivel />}></Route>
+      } 
       {
         user.userPermisos?.acciones['Sectores']['Revisar']
         &&
@@ -302,6 +308,7 @@ export const ReviewsRouter = () => {
       <Route path="/eventos/finalizar/:idRevision" element={<ReviewEventoFinalizar />}></Route>
       <Route path="/eventos/digitalizar/:idRevision" element={<ReviewEventoDigitalizar />}></Route>
       <Route path="/eventos/presupuestar/:idRevision" element={<ReviewEventoPresupuesto />}></Route>
+      <Route path="/eventos/consolidar/:idRevision" element={<EventosConsolidarReview />}></Route>
       
       <Route path="/*" element={<Navigate to="/" />} />
     </Routes>

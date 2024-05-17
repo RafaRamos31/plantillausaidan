@@ -20,17 +20,17 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
-    idComponente: '',
-    idSubActividad: '',
+    componenteId: '',
+    subactividadId: '',
     nombre: '',
     titulo: '',
     descripcion: '',
-    idYear: '',
-    idQuarter: '',
+    yearId: '',
+    quarterId: '',
     lugar: '',
-    unidadMedida: '',
+    tipoEventoId: '',
     gastosEstimados: 0,
-    cantidadProgramada: 0,
+    eventosEstimados: 0,
     aprobar: aprove
   });
 
@@ -45,7 +45,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [years, setYears] = useState([])
-  const { data: yearsData, isLoading: isLoadingYears, error: errorYears} = useFetchGetBody('list/years', findParamsYears);
+  const { data: yearsData, isLoading: isLoadingYears, error: errorYears} = useFetchGetBody('years/list', findParamsYears);
 
   useEffect(() => {
     if(yearsData && !isLoadingYears){
@@ -60,7 +60,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
     filter: '{}'
   }
   const [tiposEventos, setTiposEventos] = useState([])
-  const { data: tiposEventosData, isLoading: isLoadingTiposEventos, error: errorTiposEventos, setRefetch: setRefetchTiposEventos } = useFetchGetBody('list/tiposEventos', findParamsTipos);
+  const { data: tiposEventosData, isLoading: isLoadingTiposEventos, error: errorTiposEventos, setRefetch: setRefetchTiposEventos } = useFetchGetBody('tiposEventos/list', findParamsTipos);
 
   useEffect(() => {
     if(tiposEventosData && !isLoadingTiposEventos){
@@ -89,31 +89,30 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
 
   //Accion Update manual
   useEffect(() => {
-    if(quartersData && !isLoadingQuarters && values.idYear){
+    if(quartersData && !isLoadingQuarters && values.yearId){
       setQuarters(quartersData)
     } 
-  }, [quartersData, isLoadingQuarters, values.idYear])
+  }, [quartersData, isLoadingQuarters, values.yearId])
 
   //Editar Lista de Municipios en Formulario
   useEffect(() => {
-    if(values.idYear && values.idYear.length > 0){
+    if(values.yearId && values.yearId.length !== 0){
       setFindParamsQuarters({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'year',
-          value: values.idYear
+          field: 'yearId',
+          value: values.yearId
         })
       })
-      setQueryQuarters('list/quarters');
+      setQueryQuarters('quarters/list');
       setRefetchQuarters(true);
-      setValues({ ...values });
     }
     else{
       setQuarters([])
     }
     // eslint-disable-next-line
-  }, [values.idYear, setValues, setRefetchQuarters])
+  }, [values.yearId, setValues, setRefetchQuarters])
 
 
   //General config
@@ -134,13 +133,18 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
-          field: 'componentes',
+          field: 'componenteId',
           value: user.userComponente
         })
       })
-      setQuerySubActividades('list/subactividades');
+      setQuerySubActividades(`subactividades/componente/${user.userComponente.id}`);
       setRefetchSubActividades(true);
-      setValues({...values, idComponente: user.userComponente, idYear: dataConfig.currentYear})
+      setValues({
+        ...values, 
+        componenteId: user.userComponente.id, 
+        yearId: dataConfig.find(el => el.attributeKey === 'idCurrentYear')?.attributeValue,
+        quarterId: dataConfig.find(el => el.attributeKey === 'idCurrentQuarter')?.attributeValue
+      })
     }
   // eslint-disable-next-line
   }, [dataConfig, isLoadingConfig, errorConfig, setRefetchSubActividades, user])
@@ -151,8 +155,8 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
 
   useEffect(() => {
 
-    if(values.idSubActividad && values.idSubActividad.length > 0){
-      setCodigo(`${subActividades.find(actividad => actividad._id === values.idSubActividad)?.nombre || '--.--.-- X'} `)
+    if(values.subactividadId && values.subactividadId.length !== 0){
+      setCodigo(`${subActividades.find(actividad => actividad.id === values.subactividadId)?.nombre || '--.--.-- X'} `)
     }
     else{
       setCodigo('--.--.-- X')
@@ -169,7 +173,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
   
 
   //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPostBody('tareas', {...values, nombre: `${codigo} ${values.nombre}`}) 
+  const { setSend, send, data, isLoading, error } = useFetchPostBody('tareas', {...values, nombre: `${codigo}-${values.nombre}`}) 
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -221,13 +225,13 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idSubActividad"
-                  name="idSubActividad"
+                  id="subactividadId"
+                  name="subactividadId"
                   onChange={handleChange}
-                  value={values.idSubActividad}
+                  value={values.subactividadId}
                 >
                   {subActividades && subActividades.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
@@ -277,14 +281,14 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idYear"
-                  name="idYear"
+                  id="yearId"
+                  name="yearId"
                   onChange={handleChange}
-                  value={values.idYear}
+                  value={values.yearId}
                   disabled
                 >
                   {years && years.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <ListItemText primary={item.nombre} />
                     </MenuItem>
                   ))}
@@ -302,13 +306,14 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idQuarter"
-                  name="idQuarter"
+                  id="quarterId"
+                  name="quarterId"
                   onChange={handleChange}
-                  value={values.idQuarter}
+                  value={values.quarterId}
+                  disabled
                 >
                   {quarters && quarters.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <ListItemText primary={item.nombre} />
                     </MenuItem>
                   ))}
@@ -335,8 +340,8 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
               <InputGroup>
                 <InputAutocomplete 
                   valueList={tiposEventos} 
-                  value={values.unidadMedida}
-                  name={'unidadMedida'}
+                  value={values.tipoEventoId}
+                  name={'tipoEventoId'}
                   setValues={setValues}
                   setRefetch={setRefetchTiposEventos}
                   ModalCreate={CrearTipoEvento}
@@ -366,7 +371,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
             Eventos Estimados:
           </Form.Label>
           <Col sm="8">
-            <Form.Control id='cantidadProgramada' name='cantidadProgramada' type="number" min={0} value={values.cantidadProgramada} onChange={handleChange}/>
+            <Form.Control id='eventosEstimados' name='eventosEstimados' type="number" min={0} value={values.eventosEstimados} onChange={handleChange}/>
           </Col>
         </Form.Group>
 

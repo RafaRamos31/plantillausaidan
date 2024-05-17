@@ -23,7 +23,7 @@ export const ReviewUsuario = () => {
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`${endpoint}s/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -71,7 +71,7 @@ export const ReviewUsuario = () => {
   
 
    //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/usuarios', values) 
+  const { setSend, send, data, isLoading, error } = useFetchPutBody('usuarios/revisar', values) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -156,7 +156,7 @@ export const ReviewUsuario = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
                   {
                     dataRevision.editor ?
-                    <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                    <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
                     :
                     <p>--</p>
                   }
@@ -181,7 +181,7 @@ export const ReviewUsuario = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -208,7 +208,7 @@ export const ReviewUsuario = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }
@@ -238,7 +238,7 @@ export const ReviewUsuario = () => {
                 }
                 <CompareValue  title={'Nombre:'} value={dataRevision.nombre} original={original?.nombre} compare={compare}/>
                 <CompareValue  title={'DNI:'} value={dataRevision.dni} original={original?.dni} compare={compare}/>
-                <CompareValue  title={'Componente:'} value={dataRevision.componente?.nombre} original={original?.componente?.nombre} compare={compare}/>
+                <CompareValue  title={'Componente:'} value={dataRevision.componente?.descripcion} original={original?.componente?.descripcion} compare={compare}/>
                 {
                   dataRevision.rol &&
                   <CompareValue  title={'Rol:'} value={dataRevision.rol?.nombre} original={original?.rol?.nombre} compare={compare}/>

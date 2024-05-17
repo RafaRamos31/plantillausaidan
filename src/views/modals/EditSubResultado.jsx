@@ -3,32 +3,25 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPutBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { FormControl, ListItemText, MenuItem, Select, Tooltip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export const EditSubResultado = ({handleClose, setRefetchData, subresultado, fixing=false}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
   //Formulario
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange } = useForm({
     idSubresultado: subresultado.id,
     nombre: subresultado.nombre.split('.')[1],
     descripcion: subresultado.descripcion,
-    idResultado: subresultado.idResultado,
+    resultadoId: subresultado.resultadoId,
     aprobar: aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Resultados
   const findParams = {
@@ -36,7 +29,7 @@ export const EditSubResultado = ({handleClose, setRefetchData, subresultado, fix
     filter: '{}'
   }
   const [resultados, setResultados] = useState([])
-  const { data: resultadosData, isLoading: isLoadingResultados} = useFetchGetBody('list/resultados', findParams);
+  const { data: resultadosData, isLoading: isLoadingResultados} = useFetchGetBody('resultados/list', findParams);
 
   useEffect(() => {
     if(resultadosData && !isLoadingResultados){
@@ -48,8 +41,8 @@ export const EditSubResultado = ({handleClose, setRefetchData, subresultado, fix
   const [codigo, setCodigo] = useState('Sub IR --.')
 
   useEffect(() => {
-    if(values.idResultado && values.idResultado.length > 0){
-      setCodigo(`Sub ${resultados.find(resultado => resultado._id === values.idResultado)?.nombre}.`)
+    if(values.resultadoId && values.resultadoId.length !== 0){
+      setCodigo(`Sub ${resultados.find(resultado => resultado.id === values.resultadoId)?.nombre}.`)
     }
     else{
       setCodigo('Sub IR --.')
@@ -118,13 +111,13 @@ export const EditSubResultado = ({handleClose, setRefetchData, subresultado, fix
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idResultado"
-                  name="idResultado"
+                  id="resultadoId"
+                  name="resultadoId"
                   onChange={handleChange}
-                  value={isLoadingResultados ? '' : values.idResultado}
+                  value={isLoadingResultados ? '' : values.resultadoId}
                 >
                   {resultados && resultados.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <Tooltip title={item.descripcion} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
@@ -162,12 +155,6 @@ export const EditSubResultado = ({handleClose, setRefetchData, subresultado, fix
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Sub Resultados']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

@@ -10,7 +10,7 @@ import { CrearSectores } from "./CrearSectores.jsx";
 
 export const CrearCargo = ({handleClose, setRefetch, modalRefetch, modal=false}) => {
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
   
   //Sectores
   const findParams = {
@@ -18,7 +18,7 @@ export const CrearCargo = ({handleClose, setRefetch, modalRefetch, modal=false})
     filter: '{}'
   }
   const [sectores, setSectores] = useState([])
-  const { data: sectorData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('list/sectores', findParams);
+  const { data: sectorData, isLoading: isLoadingSectores, error: errorSectores, setRefetch: setRefetchSectores } = useFetchGetBody('sectores/list', findParams);
   
   //Indicador actualizando con boton
   const [updating, setUpdating] = useState(false);
@@ -45,12 +45,6 @@ export const CrearCargo = ({handleClose, setRefetch, modalRefetch, modal=false})
     idSector: '',
     aprobar: modal ? true : aprove
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
-
   
   //Envio asincrono de formulario
   const { setSend, send, data, isLoading, error } = useFetchPostBody('cargos', values) 
@@ -118,11 +112,12 @@ export const CrearCargo = ({handleClose, setRefetch, modalRefetch, modal=false})
             <InputGroup>
               <InputAutocomplete 
                 valueList={sectores} 
-                value={values.idSector}
-                name={'idSector'}
+                value={values.sectorId}
+                name={'sectorId'}
                 setValues={setValues}
                 setRefetch={setRefetchSectores}
                 ModalCreate={CrearSectores}
+                insert={user.userPermisos?.acciones['Sectores']['Crear']}
               />
               {
                 !updating ? 
@@ -149,12 +144,6 @@ export const CrearCargo = ({handleClose, setRefetch, modalRefetch, modal=false})
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Cargos']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

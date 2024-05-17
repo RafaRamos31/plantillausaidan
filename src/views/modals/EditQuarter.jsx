@@ -3,7 +3,6 @@ import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Col, Form, InputGroup, Row, Spinner } from 'react-bootstrap';
 import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPutBody } from "../../hooks/useFetch.js";
-import { UserContext } from "../../contexts/UserContext.js";
 import { AproveContext } from "../../contexts/AproveContext.js";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -13,30 +12,25 @@ import { useNavigate } from "react-router-dom";
 
 export const EditQuarter = ({handleClose, setRefetchData, quarter, fixing=false}) => {
 
-  const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
+  const { aprove } = useContext(AproveContext);
 
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
-  const [minDate, setMinDate] = useState(moment())
-  const [maxDate, setMaxDate] = useState(moment())
+  const [minDate, setMinDate] = useState()
+  const [maxDate, setMaxDate] = useState()
 
   //Formulario
   const { values, handleChange, setValues } = useForm({
     idQuarter: quarter.id,
     nombre: quarter.nombre.split('-T')[1],
-    idYear: quarter.idYear,
-    fechaInicio: moment(quarter.fechaInicio),
+    yearId: quarter.yearId,
+    fechaInicio: moment(quarter.fechaInicio).add(6, 'h'),
     fechaFinal: moment(quarter.fechaFinal),
     timezone: '',
     aprobar: aprove
   });
 
-  const handleToggleAprobar = () => {
-    setAprove(!aprove)
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   const handleToggleDate = (value, param) => {
     const timezone = moment(values.fechaInicio).format('Z');
@@ -54,7 +48,7 @@ export const EditQuarter = ({handleClose, setRefetchData, quarter, fixing=false}
     filter: '{}'
   }
   const [years, setYears] = useState([])
-  const { data: yearsData, isLoading: isLoadingYears} = useFetchGetBody('list/years', findParams);
+  const { data: yearsData, isLoading: isLoadingYears} = useFetchGetBody('years/list', findParams);
 
   useEffect(() => {
     if(yearsData && !isLoadingYears){
@@ -66,11 +60,12 @@ export const EditQuarter = ({handleClose, setRefetchData, quarter, fixing=false}
   const [codigo, setCodigo] = useState('AF00-T')
 
   useEffect(() => {
-    if(values.idYear && values.idYear.length > 0){
-      const year = years.find(year => year._id === values.idYear);
-      setCodigo(`${year?.nombre}-T`);
-      setMinDate(moment(year?.fechaInicio));
-      setMaxDate(moment(year?.fechaFinal));
+    if(values.yearId && values.yearId.length !== 0){
+      // eslint-disable-next-line
+      const year = years.find(year => year.id == values.yearId);
+      setCodigo(`${year?.nombre || 'AF00'}-T`);
+      setMinDate(moment(year?.fechaInicio).add(6, 'h'));
+      setMaxDate(moment.utc(year?.fechaFinal));
     }
     else{
       setCodigo('AF00-T')
@@ -129,7 +124,7 @@ export const EditQuarter = ({handleClose, setRefetchData, quarter, fixing=false}
   return (
     <Card style={{border: 'none'}}>
     <Card.Header className="d-flex justify-content-between align-items-center" style={{backgroundColor: 'var(--main-green)', color: 'white'}}>
-      <h4 className="my-1">Crear Trimestre</h4>
+      <h4 className="my-1">Editar Trimestre</h4>
       <CloseButton onClick={handleClose}/>
     </Card.Header>
     <Card.Body>
@@ -142,13 +137,13 @@ export const EditQuarter = ({handleClose, setRefetchData, quarter, fixing=false}
             <InputGroup>
               <FormControl className="w-100">
                 <Select
-                  id="idYear"
-                  name="idYear"
+                  id="yearId"
+                  name="yearId"
                   onChange={handleChange}
-                  value={values.idYear}
+                  value={values.yearId}
                 >
                   {years && years.map((item) => (
-                    <MenuItem key={item._id} value={item._id}>
+                    <MenuItem key={item.id} value={item.id}>
                       <ListItemText primary={item.nombre} />
                     </MenuItem>
                   ))}
@@ -213,12 +208,6 @@ export const EditQuarter = ({handleClose, setRefetchData, quarter, fixing=false}
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        user.userPermisos?.acciones['Años Fiscales']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

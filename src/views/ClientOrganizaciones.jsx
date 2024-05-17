@@ -68,22 +68,30 @@ export const ClientOrganizaciones = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false },
-    { field: '_id', headerName: 'uuid', width: 250, description: 'Identificador unico del registro en la Base de Datos.', 
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.', 
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
-    { field: 'nombre', headerName: 'Nombre', width: 250,
+      { field: 'nombre', headerName: 'Nombre de la Organización', width: 330,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       ),
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'organizaciones'} 
+            id={params.row._id}
+            nombre={params.formattedValue}
+          />
+        );
+      } 
     },
     { field: 'codigoOrganizacion', headerName: 'Código', width: 150,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       )
     },
-    { field: 'sector', headerName: 'uuid Sector', width: 150},
-    { field: 'sectorName', headerName: 'Sector', width: 200, filterable: false,
+    { field: 'sectorId', headerName: 'Sector', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -94,8 +102,7 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'tipoOrganizacion', headerName: 'uuid Tipo Organización', width: 250},
-    { field: 'tipoOrganizacionName', headerName: 'Tipo de Organización', width: 240, filterable: false,
+    { field: 'tipoOrganizacionId', headerName: 'Tipo de Organización', width: 240, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -106,9 +113,19 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'nivelOrganizacion', headerName: 'Nivel', width: 150, filterable: false },
-    { field: 'departamento', headerName: 'uuid Departamento', width: 250},
-    { field: 'departamentoName', headerName: 'Departamento', width: 200, filterable: false,
+    { field: 'nivelId', headerName: 'Nivel', width: 240, filterable: false,
+      renderCell: (params) => {
+        return (
+          <InfoLink 
+            type={'niveles'} 
+            id={params.value.split('-')[1]}
+            nombre={params.value.split('-')[0]}
+          />
+        );
+      }
+    },
+    { field: 'telefonoOrganizacion', headerName: 'Teléfono', width: 150, filterable: false },
+    { field: 'departamentoId', headerName: 'Departamento', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -119,8 +136,7 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'municipio', headerName: 'uuid Municipio', width: 250},
-    { field: 'municipioName', headerName: 'Municipio', width: 200, filterable: false,
+    { field: 'municipioId', headerName: 'Municipio', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -131,8 +147,7 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'aldea', headerName: 'uuid Aldea', width: 250},
-    { field: 'aldeaName', headerName: 'Aldea', width: 200, filterable: false,
+    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -143,8 +158,7 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'caserio', headerName: 'uuid Caserio', width: 250},
-    { field: 'caserioName', headerName: 'Caserio', width: 200, filterable: false,
+    { field: 'caserioId', headerName: 'Caserio', width: 200, filterable: false,
       renderCell: (params) => {
         return (
           <InfoLink 
@@ -155,8 +169,6 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'geolocacion', headerName: 'Geolocacion', width: 300},
-    { field: 'telefonoOrganizacion', headerName: 'Teléfono', width: 150, filterable: false },
     { field: 'nombreContacto', headerName: 'Nombre Contacto', width: 200, filterable: false },
     { field: 'telefonoContacto', headerName: 'Teléfono Contacto', width: 150, filterable: false },
     { field: 'correoContacto', headerName: 'Correo Contacto', width: 250, filterable: false },
@@ -164,11 +176,7 @@ export const ClientOrganizaciones = () => {
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-      { field: 'editor', headerName: 'uuid Editor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'editorName', headerName: 'Editado por', width: 170, filterable: false,
+    { field: 'editorId', headerName: 'Editado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -181,11 +189,7 @@ export const ClientOrganizaciones = () => {
     { field: 'fechaRevision', headerName: 'Fecha de Revisión', width: 170,  filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'revisor', headerName: 'uuid Revisor', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'revisorName', headerName: 'Revisado por', width: 170, filterable: false,
+    { field: 'revisorId', headerName: 'Revisado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
@@ -198,24 +202,13 @@ export const ClientOrganizaciones = () => {
     { field: 'fechaEliminacion', headerName: 'Fecha de Eliminación', width: 170, filterable: false,
       type: 'dateTime',
       valueGetter: ({ value }) => value && new Date(value) },
-    { field: 'eliminador', headerName: 'uuid Eliminador', width: 250, 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-    { field: 'eliminadorName', headerName: 'Eliminado por', width: 170, filterable: false,
+    { field: 'eliminadorId', headerName: 'Eliminado por', width: 170, filterable: false,
       renderCell: (params) => {
         return (
           <AvatarChip
             id={params.formattedValue.split('-')[1]}
             name={params.formattedValue.split('-')[0]} 
           />
-        );
-      } 
-    },
-    { field: 'editing', headerName: 'Editando', width: 100, filterable: false,
-      renderCell: (params) => {
-        return (
-          params.formattedValue ? <i className="bi bi-check-lg"></i> : ''
         );
       } 
     },
@@ -261,16 +254,15 @@ export const ClientOrganizaciones = () => {
                     setCurrentData({
                       id: params.row._id,
                       nombre: params.row.nombre,
-                      codigoOrganizacion: params.row.codigoOrganizacion,
-                      idSector: params.row.sector,
-                      idTipoOrganizacion: params.row.tipoOrganizacion,
-                      nivelOrganizacion: params.row.nivelOrganizacion,
-                      idDepartamento: params.row.departamento,
-                      idMunicipio: params.row.municipio,
-                      idAldea: params.row.aldea,
-                      idCaserio: params.row.caserio,
-                      geolocacion: params.row.geolocacion,
-                      telefonoOrganizacion: params.row.telefonoOrganizacion,
+                      codigo: params.row.codigoOrganizacion,
+                      sectorId: params.row.sectorId.split('-')[1],
+                      tipoOrganizacionId: params.row.tipoOrganizacionId.split('-')[1],
+                      nivelId: params.row.nivelId.split('-')[1],
+                      departamentoId: params.row.departamentoId.split('-')[1],
+                      municipioId: params.row.municipioId.split('-')[1],
+                      aldeaId: params.row.aldeaId.split('-')[1],
+                      caserioId: params.row.caserioId.split('-')[1],
+                      telefono: params.row.telefonoOrganizacion,
                       nombreContacto: params.row.nombreContacto,
                       telefonoContacto: params.row.telefonoContacto,
                       correoContacto: params.row.correoContacto,
@@ -305,36 +297,25 @@ export const ClientOrganizaciones = () => {
     data.map((item, index) => (
       { 
         id: (page * pageSize) + index + 1, 
-        _id: item._id, 
+        _id: item.id, 
         version: item.version,
         fechaEdicion: item.fechaEdicion,
-        editor: item.editor?._id || '',
-        editorName: `${item.editor?.nombre || ''}-${item.editor?._id || ''}`,
+        editorId: `${item.editor?.nombre || ''}-${item.editor?.id || ''}`,
         fechaRevision: item.fechaRevision,
-        revisor: item.revisor?._id || '',
-        revisorName: `${item.revisor?.nombre || ''}-${item.revisor?._id || ''}`,
+        revisorId: `${item.revisor?.nombre || ''}-${item.revisor?.id || ''}`,
         fechaEliminacion: item.fechaEliminacion ? item.fechaEliminacion : '',
-        eliminador: item.eliminador?._id || '',
-        eliminadorName: `${item.eliminador?.nombre || ''}-${item.eliminador?._id || ''}`,
-        editing: item.pendientes.includes(user.userId),
+        eliminadorId: `${item.eliminador?.nombre || ''}-${item.eliminador?.id || ''}`,
         estado: item.estado,
         nombre: item.nombre,
-        codigoOrganizacion: item.codigoOrganizacion,
-        nivelOrganizacion: item.nivelOrganizacion,
-        sector: item.sector._id,
-        sectorName: `${item.sector.nombre}-${item.sector._id}`,
-        tipoOrganizacion: item.tipoOrganizacion._id,
-        tipoOrganizacionName: `${item.tipoOrganizacion.nombre}-${item.tipoOrganizacion._id}`,
-        departamento: item.departamento._id,
-        departamentoName: `${item.departamento.nombre}-${item.departamento._id}`,
-        municipio: item.municipio._id,
-        municipioName: `${item.municipio.nombre}-${item.municipio._id}`,
-        aldea: item.aldea._id,
-        aldeaName: `${item.aldea.nombre}-${item.aldea._id}`,
-        caserio: item.caserio._id,
-        caserioName: `${item.caserio.nombre}-${item.caserio._id}`,
-        geolocacion: item.geolocacion,
-        telefonoOrganizacion: item.telefonoOrganizacion,
+        codigoOrganizacion: item.codigo,
+        nivelId: `${item.nivel?.nombre || ''}-${item.nivel?.id || ''}`,
+        sectorId: `${item.sector?.nombre || ''}-${item.sector?.id || ''}`,
+        tipoOrganizacionId: `${item.tipoOrganizacion?.nombre || ''}-${item.tipoOrganizacion?.id || ''}`,
+        departamentoId: `${item.departamento?.nombre || ''}-${item.departamento?.id || ''}`,
+        municipioId: `${item.municipio?.nombre || ''}-${item.municipio?.id || ''}`,
+        aldeaId: `${item.aldea?.nombre || ''}-${item.aldea?.id || ''}`,
+        caserioId: `${item.caserio?.nombre || ''}-${item.caserio?.id || ''}`,
+        telefonoOrganizacion: item.telefono,
         nombreContacto: item.nombreContacto,
         telefonoContacto: item.telefonoContacto,
         correoContacto: item.correoContacto,
@@ -344,24 +325,13 @@ export const ClientOrganizaciones = () => {
 
   const hiddenColumns = {
     _id: false,
-    sector: false,
-    tipoOrganizacion: false,
-    departamento: false,
-    municipio: false,
-    aldea: false,
-    caserio: false,
-    geolocacion: false,
     version: false,
     fechaEdicion: false,
-    editor: false,
-    editorName: false,
+    editorId: false,
     fechaRevision: false,
-    revisor: false,
-    revisorName: false,
+    revisorId: false,
     fechaEliminacion: false,
-    eliminador: false,
-    eliminadorName: false,
-    editing: false,
+    eliminadorId: false,
     estado: false
   }
 

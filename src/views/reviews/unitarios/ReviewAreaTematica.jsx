@@ -21,7 +21,7 @@ export const ReviewAreaTematica = () => {
   const { user } = useContext(UserContext);
 
   //Peticio de datos a la API
-  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`areatematica/${idRevision}`);
+  const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`areastematicas/id/${idRevision}`);
 
   //Original
   const [original, setOriginal] = useState(null)
@@ -37,7 +37,7 @@ export const ReviewAreaTematica = () => {
   //Obtener datos de Original
   useEffect(() => {
     if(dataRevision && dataRevision.original){
-      setQueryOriginal(`areatematica/${dataRevision.original}`)
+      setQueryOriginal(`areastematicas/id/${dataRevision.original}`)
       setRefetchOriginal(true)
     }
     else{
@@ -129,7 +129,6 @@ export const ReviewAreaTematica = () => {
         {link: '/', nombre: 'Inicio'},
         {link: '/indicadores', nombre: 'Indicadores'},
         {link: '/indicadores/areas', nombre: 'Áreas Temáticas'},
-        {link: '/reviews/areastematicas', nombre: 'Revisiones'},
         {link: `/reviews/areastematicas/${idRevision}`, nombre: dataRevision?.nombre || 'Revisión'}
     ]}>
       <Row className='mx-0 my-0'>
@@ -151,7 +150,7 @@ export const ReviewAreaTematica = () => {
               <Col>
                 <div className='d-flex align-items-center'>
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Editado por:</p>
-                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor._id}/>
+                  <AvatarChip name={dataRevision.editor.nombre} id={dataRevision.editor.id}/>
                 </div>
               </Col>
             </Row>
@@ -173,7 +172,7 @@ export const ReviewAreaTematica = () => {
                 <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Revisado por:</p>
                   {
                     dataRevision.revisor ?
-                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor._id}/>
+                    <AvatarChip name={dataRevision.revisor.nombre} id={dataRevision.revisor.id}/>
                     :
                     <p>--</p>
                   }
@@ -200,7 +199,7 @@ export const ReviewAreaTematica = () => {
                   <p style={{fontWeight: 'bold', marginRight: '0.6rem'}}>Eliminado por:</p>
                     {
                       dataRevision.eliminador ?
-                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador._id}/>
+                      <AvatarChip name={dataRevision.eliminador.nombre} id={dataRevision.eliminador.id}/>
                       :
                       <p>--</p>
                     }
@@ -233,7 +232,7 @@ export const ReviewAreaTematica = () => {
                 <p  className='mb-1' style={{fontWeight: 'bold'}}>{'Indicadores:'}</p>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {dataRevision.indicadores.map((indicador) => (
-                    <Tooltip key={indicador._id} title={indicador.descripcion} placement="top" arrow followCursor>
+                    <Tooltip key={indicador.id} title={indicador.descripcion} placement="top" arrow followCursor>
                       <Chip label={indicador.nombre} style={{cursor: 'help'}}/>
                     </Tooltip>
                   ))}
