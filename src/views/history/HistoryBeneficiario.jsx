@@ -165,12 +165,8 @@ export const HistoryBeneficiario = () => {
                           <CompareValue  title={'Municipio:'} value={rev.municipio?.nombre} original={original?.municipio?.nombre} compare={false}/>
                         }
                         {
-                          rev.aldea &&
-                          <CompareValue  title={'Aldea:'} value={rev.aldea?.nombre} original={original?.aldea?.nombre} compare={false}/>
-                        }
-                        {
-                          rev.caserio &&
-                          <CompareValue  title={'Caserio:'} value={rev.caserio?.nombre} original={original?.caserio?.nombre} compare={false}/>
+                          rev.procedencia &&
+                          <CompareValue  title={'Procedencia:'} value={rev.procedencia} original={original?.procedencia} compare={false}/>
                         }
                         </Col>
                       </Row>
@@ -328,12 +324,8 @@ export const HistoryBeneficiario = () => {
                         <CompareValue  title={'Municipio:'} value={original.municipio?.nombre} original={original?.municipio?.nombre}  compare={false}/>
                       }
                       {
-                        original?.aldea &&
-                        <CompareValue  title={'Aldea:'} value={original.aldea?.nombre} original={original?.aldea?.nombre}  compare={false}/>
-                      }
-                      {
-                        original?.caserio &&
-                        <CompareValue  title={'Caserio:'} value={original.caserio?.nombre} original={original?.caserio?.nombre}  compare={false}/>
+                        original?.procedencia &&
+                        <CompareValue  title={'Procedencia:'} value={original.procedencia} original={original?.procedencia}  compare={false}/>
                       }
                     </Container>
                   </Accordion.Body>

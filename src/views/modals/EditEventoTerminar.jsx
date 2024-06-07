@@ -23,6 +23,8 @@ import { CrearTipoEvento } from "./CrearTipoEvento.jsx";
 
 export const EditEventoTerminar = ({ handleClose, setRefetch, evento }) => {
 
+  const aws = false;
+
   const { user } = useContext(UserContext)
 
   //Toast
@@ -418,11 +420,50 @@ export const EditEventoTerminar = ({ handleClose, setRefetch, evento }) => {
                 <h5>Medios de Verificación</h5>
               </Card.Header>
               <Card.Body className="p-4">
-                <InputFile label={'Formulario de participantes (un solo archivo jpg o pdf)'} idEvento={values.idEvento} prefix={'Formulario'} setValues={(url) => setValues({...values, enlaceFormulario: url})} edit={evento} enlace={evento?.enlaceFormulario}/>
-                <div className="my-5"></div>
-                <InputFile label={'Evidencias fotográficas (un solo archivo jpg, rar o pdf)'} idEvento={values.idEvento} prefix={'Fotografias'} setValues={(url) => setValues({...values, enlaceFotografias: url})} edit={evento} enlace={evento?.enlaceFotografias}/>
-              </Card.Body>
+                {
+                  aws ?
+                  <InputFile label={'Formulario de participantes (un solo archivo jpg o pdf)'} idEvento={values.idEvento} prefix={'Formulario'} setValues={(url) => setValues({...values, enlaceFormulario: url})} edit={evento} enlace={evento?.enlaceFormulario}/>
+                  :
+                  <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm="4" className="my-auto">
+                      Enlace Formulario:
+                    </Form.Label>
+                    <Col sm="8" className="my-auto">
+                      <Form.Control
+                        id="enlaceFormulario"
+                        name="enlaceFormulario"
+                        value={values.enlaceFormulario}
+                        autoComplete="off"
+                        onChange={handleChange}
+                      />
+                    </Col>
+                  </Form.Group>
+                }
+                {
+                  aws &&
+                  <>
+                    <div className="my-5"></div>
+                    <InputFile label={'Evidencias fotográficas (un solo archivo jpg, rar o pdf)'} idEvento={values.idEvento} prefix={'Fotografias'} setValues={(url) => setValues({...values, enlaceFotografias: url})} edit={evento} enlace={evento?.enlaceFotografias}/>
+                  </>
+                }
+                </Card.Body>
             </Card>
+
+            <Card className="">
+          <Card.Header>
+            <h5>Anotaciones</h5>
+            </Card.Header>
+            <Card.Body className='p-4'>
+              <Form.Group as={Row} className="mb-3">
+                <Col>
+                    <Form.Control id='anotaciones' name='anotaciones'  as="textarea" 
+                    rows={4} maxLength={500} value={values.anotaciones} 
+                    placeholder="Detalles sobre cualquier dato importante del formulario, niños, facilitadores, miembros de JSI registrados, etc."
+                    onChange={handleChange}/>
+                </Col>
+              </Form.Group>
+            </Card.Body>
+          </Card>
           <p style={{color: 'red'}}>{errorMessage}</p>
       </Card.Body>
       <Card.Footer className="d-flex justify-content-between align-items-center">

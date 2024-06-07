@@ -121,8 +121,15 @@ export const FormattedGrid = ({
   const { data, isLoading, setRefetch } = useFetchGetPaged(`${model}/paged`+append, tableState);
 
   useEffect(() => {
+    setTableState(t => ({
+      ...t,
+      componenteId: componenteId
+    }))
+  }, [componenteId])
+
+  useEffect(() => {
     setRefetch(true);
-  }, [paginationModel, deleteds, setRefetch])
+  }, [paginationModel, deleteds, componenteId, setRefetch])
   
 
   //Enviar datos a las filas

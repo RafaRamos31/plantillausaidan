@@ -70,7 +70,7 @@ export const EventosConsolidado = () => {
     },
     { field: 'estadoConsolidado', headerName: 'Estado Consolidado', width: 150,  
       type: 'singleSelect',
-      valueOptions: ['Pendiente', 'Finalizado', 'Rechazado'],
+      valueOptions: ['Pendiente', 'Finalizado'],
       renderCell: (params) => {
         return (
           <StatusBadge status={params.formattedValue} />

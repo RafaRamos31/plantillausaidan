@@ -134,7 +134,7 @@ export const EventosDigitar = () => {
         return (
           <>
           {
-            (user && user.userPermisos?.acciones['Eventos']['Digitalizar'] && params.row.estadoDigitacion !== 'Finalizado' ) &&
+            (user && user.userPermisos?.acciones['Eventos']['Digitalizar'] && (params.row.estadoDigitacion === 'En Curso' || params.row.estadoDigitacion === 'Pendiente') ) &&
             <a href={`/eventos/digitar/${params.row.uuid}`} target="_blank" rel="noreferrer">
             <Button style={buttonStyle}>
               <i className="bi bi-pencil-fill"></i>{' '}
@@ -189,7 +189,7 @@ export const EventosDigitar = () => {
     fechaDigitacion: false,
     organizadorId: false,
     responsableDigitacionId: false,
-    fechaRevisionDigitacionId: false,
+    fechaRevisionDigitacion: false,
     revisorDigitacionId: false
   }
 

@@ -14,8 +14,6 @@ import { CrearOrganizacion } from "./CrearOrganizacion.jsx";
 import { CrearCargo } from "./CrearCargos.jsx";
 import { CrearDepartamento } from "./CrearDepartamento.jsx";
 import { CrearMunicipio } from "./CrearMunicipio.jsx";
-import { CrearAldea } from "./CrearAldea.jsx";
-import { CrearCaserio } from "./CrearCaserio.jsx";
 
 export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, setParticipantes, setRegistrados, refreshDNI, modal=false}) => {
   const { user } = useContext(UserContext);
@@ -35,8 +33,8 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     cargoId: '',
     departamentoId: '',
     municipioId: '',
-    aldeaId: '',
-    caserioId: '',
+    procedencia: '',
+    anotaciones: '',
     aprobar: modal ? true: aprove
   });
 
@@ -280,96 +278,6 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     // eslint-disable-next-line
   }, [values.departamentoId, setValues, setRefetchMuni])
 
-  //Aldea
-  const [findParamsAldea, setFindParamsAldea] = useState({
-    sort: '{}',
-    filter: '{}'
-  })
-  const [aldeas, setAldeas] = useState([])
-  const [queryAldeas, setQueryAldeas] = useState('')
-  const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
-  
-  useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.municipioId){
-      setAldeas(aldeasData)
-      setUpdatingAldeas(false)
-    } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
-
-  //Editar Lista de Aldeas en Formulario
-  useEffect(() => {
-    if(values.municipioId && values.municipioId.length !== 0){
-      setFindParamsAldea({
-        sort: '{}',
-        filter: JSON.stringify({
-          operator: 'is',
-          field: 'municipioId',
-          value: values.municipioId
-        })
-      })
-      setQueryAldeas('aldeas/list')
-      setRefetchAldeas(true)
-    }
-    else{
-      setAldeas([])
-    }
-    // eslint-disable-next-line
-  }, [values.municipioId, setValues, setRefetchAldeas])
-
-  //Indicador actualizando con boton departamento
-  const [updatingAldeas, setUpdatingAldeas] = useState(false);
-
-  //Accion Update manual
-  const handleUpdateAldeas = () => {
-    setUpdatingAldeas(true);
-    setRefetchAldeas(true);
-  }
-
-  //Caserios
-  const [findParamsCaserios, setFindParamsCaserios] = useState({
-    sort: '{}',
-    filter: '{}'
-  })
-  const [caserios, setCaserios] = useState([])
-  const [queryCaserios, setQueryCaserios] = useState('')
-  const { data: caseriosData, isLoading: isLoadingCaserios, error: errorCaserios, setRefetch: setRefetchCaserios } = useFetchGetBody(queryCaserios, findParamsCaserios);
-  
-  useEffect(() => {
-    if(caseriosData && !isLoadingCaserios && values.aldeaId){
-      setCaserios(caseriosData)
-      setUpdatingCaserios(false)
-    } 
-  }, [caseriosData, isLoadingCaserios, errorCaserios, values.aldeaId])
-
-  //Editar Lista de Caserios en Formulario
-  useEffect(() => {
-    if(values.aldeaId && values.aldeaId.length !== 0){
-      setFindParamsCaserios({
-        sort: '{}',
-        filter: JSON.stringify({
-          operator: 'is',
-          field: 'aldeaId',
-          value: values.aldeaId
-        })
-      })
-      setQueryCaserios('caserios/list')
-      setRefetchCaserios(true)
-    }
-    else{
-      setCaserios([])
-    }
-    // eslint-disable-next-line
-  }, [values.aldeaId, setRefetchCaserios])
-
-  //Indicador actualizando con boton departamento
-  const [updatingCaserios, setUpdatingCaserios] = useState(false);
-
-  //Accion Update manual
-  const handleUpdateCaserios = () => {
-    setUpdatingCaserios(true);
-    setRefetchCaserios(true);
-  }
-
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
@@ -488,7 +396,13 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
           </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className="mb-3">
+ 
+        <Card className="mb-4">
+          <Card.Header>
+            <h5>Categoría</h5>
+          </Card.Header>
+          <Card.Body>
+          <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
             Tipo de Beneficiario:
           </Form.Label>
@@ -507,11 +421,6 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
           </Col>
         </Form.Group>
 
-        <Card className="mb-4">
-          <Card.Header>
-            <h5>Organización</h5>
-          </Card.Header>
-          <Card.Body>
             <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4" className="my-auto">
               Sector:
@@ -547,6 +456,49 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             </Col>
           </Form.Group>
 
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm="4" className="my-auto">
+              Categoria de Beneficiario:
+            </Form.Label>
+            <Col sm="8" className="my-auto">
+              <InputGroup>
+                  <InputAutocomplete
+                    valueList={orgtypes} 
+                    value={values.tipoOrganizacionId}
+                    name={'tipoOrganizacionId'}
+                    setValues={setValues}
+                    setRefetch={setRefetchOrgtypes}
+                    ModalCreate={CrearOrgtype}
+                    insert={sectores.length > 0 && user.userPermisos?.acciones['Tipos de Organizaciones']['Crear']}
+                  />
+                {
+                  !updatingOrgtypes ? 
+                  <Button variant="light" onClick={handleUpdateOrgtypes}>
+                    <i className="bi bi-arrow-clockwise"></i>
+                  </Button>
+                  : <Button variant="light">
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                    <span className="visually-hidden">Cargando...</span>
+                  </Button>
+                }
+              </InputGroup>
+            </Col>
+          </Form.Group>
+          </Card.Body>
+        </Card>
+
+
+        <Card className="mb-4">
+          <Card.Header>
+            <h5>Organización</h5>
+          </Card.Header>
+          <Card.Body>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4" className="my-auto">
               Tipo de Organización:
@@ -654,7 +606,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
           </Card.Body>
         </Card>
         
-        <Card>
+        <Card className="mb-4">
           <Card.Header>
             <h5>Ubicación</h5>
           </Card.Header>
@@ -731,71 +683,23 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
 
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="4" className="my-auto">
-                Aldea:
+                Procedencia:
               </Form.Label>
-              <Col sm="8">
-                <InputGroup>
-                  <InputAutocomplete
-                    valueList={aldeas} 
-                    value={values.aldeaId}
-                    name={'aldeaId'}
-                    setValues={setValues}
-                    setRefetch={setRefetchAldeas}
-                    ModalCreate={CrearAldea}
-                    insert={municipios.length > 0 && user.userPermisos?.acciones['Aldeas']['Crear']}
-                  />
-                  {
-                    !updatingAldeas ? 
-                    <Button variant="light" onClick={handleUpdateAldeas}>
-                      <i className="bi bi-arrow-clockwise"></i>
-                    </Button>
-                    : <Button variant="light">
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      <span className="visually-hidden">Cargando...</span>
-                    </Button>
-                  }
-                </InputGroup>
+              <Col sm="8" className="my-auto">
+                <Form.Control style={{height: '3.5rem'}} id='procedencia' name='procedencia' value={values.procedencia} maxLength={40} onChange={handleChange}/>
               </Col>
             </Form.Group>
+          </Card.Body>
+        </Card>
 
+        <Card className="">
+          <Card.Header>
+            <h5>Anotaciones</h5>
+          </Card.Header>
+          <Card.Body className='p-4'>
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4">
-                Caserio:
-              </Form.Label>
-              <Col sm="8">
-                <InputGroup>
-                  <InputAutocomplete
-                    valueList={caserios} 
-                    value={values.caserioId}
-                    name={'caserioId'}
-                    setValues={setValues}
-                    setRefetch={setRefetchCaserios}
-                    ModalCreate={CrearCaserio}
-                    insert={aldeas.length > 0 && user.userPermisos?.acciones['Caserios']['Crear']}
-                  />
-                  {
-                    !updatingCaserios ? 
-                    <Button variant="light" onClick={handleUpdateCaserios}>
-                      <i className="bi bi-arrow-clockwise"></i>
-                    </Button>
-                    : <Button variant="light">
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      <span className="visually-hidden">Cargando...</span>
-                    </Button>
-                  }
-                </InputGroup>
+              <Col>
+                <Form.Control id='anotaciones' name='anotaciones'  as="textarea" rows={4} maxLength={500} value={values.anotaciones} onChange={handleChange}/>
               </Col>
             </Form.Group>
           </Card.Body>

@@ -171,28 +171,7 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
         );
       }
     },
-    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'aldeas'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
-    { field: 'caserioId', headerName: 'Caserio', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'caserios'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
+    { field: 'procedencia', headerName: 'Procedencia', width: 250, filterable: false},
   ];
   
   const [rows, setRows] = useState([])
@@ -213,8 +192,7 @@ export const ParticipantesGridIndicadores = ({participantes, indicadores=[], han
       cargoId: `${participante.cargo?.nombre || ''}-${participante.cargo?.id || ''}`,
       departamentoId: `${participante.departamento?.nombre || ''}-${participante.departamento?.id || ''}`,
       municipioId: `${participante.municipio?.nombre || ''}-${participante.municipio?.id || ''}`,
-      aldeaId: `${participante.aldea?.nombre || ''}-${participante.aldea?.id || ''}`,
-      caserioId: `${participante.caserio?.nombre || ''}-${participante.caserio?.id || ''}`,
+      procedencia: participante.procedencia,
       indicadores: JSON.stringify(participante.indicadores),
       valueIndicador: participante.valueIndicador,
       estadoIndicador: participante.estadoIndicador,

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useFetchPutBody } from "../../hooks/useFetch.js";
 import useForm from "../../hooks/useForm.js";
 import { Button, Card, CloseButton, Form, Spinner } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
 
 export const ReportModal = ({handleClose, id}) => {
 
@@ -25,12 +24,10 @@ export const ReportModal = ({handleClose, id}) => {
     setSend(true)
   }
 
-  //Accion al completar correctamente Eliminacion
-  const navigate = useNavigate()
-
   const handleSuccessDelete = () => {
     handleClose()
-    navigate(0)
+    alert('Se pospone la digitación de este evento. Esperando correcciones.')
+    window.close()
   }
 
   useEffect(() => {

@@ -250,7 +250,7 @@ export const CrearTarea = ({handleClose, setRefetch}) => {
           <Col sm="4">
             <InputGroup>
               <InputGroup.Text placeholder="--.--.-- X">{codigo}</InputGroup.Text>
-              <Form.Control id='nombre' name='nombre' value={values.nombre} type="number"  autoComplete='off' onChange={handleChange}/>
+              <Form.Control id='nombre' name='nombre' value={values.nombre} type="number" min={0}  autoComplete='off' onChange={handleChange}/>
             </InputGroup>
           </Col>
         </Form.Group>

@@ -214,7 +214,7 @@ export const ConfigMunicipios = () => {
   )
 
   const hiddenColumns = {
-    _id: false,
+    _id: true,
     departamento: false,
     version: false,
     fechaEdicion: false,

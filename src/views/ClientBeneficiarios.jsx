@@ -1,3 +1,4 @@
+import moment from "moment";
 import { ClientesNavBar } from "../components/navBars/ClientesNavBar.jsx";
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
@@ -11,8 +12,8 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { CrearBeneficiario } from "./modals/CrearBeneficiario.jsx";
 import { EditBeneficiario } from "./modals/EditBeneficiario.jsx";
-import moment from "moment";
 import { CreateButton } from "../components/CreateButton.jsx";
+import { AnotacionesIcon } from "../components/AnotacionesIcon.jsx";
 
 export const ClientBeneficiarios = () => {
   const endpoint = 'beneficiario'
@@ -72,6 +73,13 @@ export const ClientBeneficiarios = () => {
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'equals',
       )},
+    { field: 'anotaciones', headerName: '', width: 50, filterable: false,
+      renderCell: (params) => {
+        return (
+          <AnotacionesIcon status={params.row.estadoAnotaciones} tooltip={params.row.valueAnotaciones}/>
+        );
+      },
+    }, 
     { field: 'nombre', headerName: 'Nombre', width: 250,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -176,28 +184,9 @@ export const ClientBeneficiarios = () => {
         );
       }
     },
-    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'aldeas'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
-    { field: 'caserioId', headerName: 'Caserio', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'caserios'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
+    { field: 'procedencia', headerName: 'Procedencia', width: 250, filterable: false},
+    { field: 'valueAnotaciones', headerName: 'Anotaciones', width: 250, filterable: false},
+    { field: 'estadoAnotaciones', headerName: '', width: 50, filterable: false},
     { field: 'version', headerName: 'Versión', width: 100, filterable: false },
     { field: 'fechaEdicion', headerName: 'Fecha de Edición', width: 170, filterable: false,
       type: 'dateTime',
@@ -291,8 +280,8 @@ export const ClientBeneficiarios = () => {
                       cargoId: params.row.cargoId.split('-')[1],
                       departamentoId: params.row.departamentoId.split('-')[1],
                       municipioId: params.row.municipioId.split('-')[1],
-                      aldeaId: params.row.aldeaId.split('-')[1],
-                      caserioId: params.row.caserioId.split('-')[1],
+                      procedencia: params.row.procedencia,
+                      anotaciones: params.row.valueAnotaciones,
                     })
                     handleShowEdit()
                   }}>
@@ -345,8 +334,9 @@ export const ClientBeneficiarios = () => {
         cargoId: `${item.cargo?.nombre || ''}-${item.cargo?.id || ''}`,
         departamentoId: `${item.departamento?.nombre || ''}-${item.departamento?.id || ''}`,
         municipioId: `${item.municipio?.nombre || ''}-${item.municipio?.id || ''}`,
-        aldeaId: `${item.aldea?.nombre || ''}-${item.aldea?.id || ''}`,
-        caserioId: `${item.caserio?.nombre || ''}-${item.caserio?.id || ''}`,
+        procedencia: item.procedencia,
+        valueAnotaciones: item.anotaciones,
+        estadoAnotaciones: item.anotaciones ? 'Warning' : 'Valid'
       }
     ))
   )
@@ -360,7 +350,9 @@ export const ClientBeneficiarios = () => {
     revisorId: false,
     fechaEliminacion: false,
     eliminadorId: false,
-    estado: false
+    estado: false,
+    valueAnotaciones: false,
+    estadoAnotaciones: false
   }
 
   return(

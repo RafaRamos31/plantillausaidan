@@ -212,8 +212,11 @@ export const useFetchGetBody = (endpoint, args, register=false) => {
     };
 
     if(refetch && endpoint.length > 0){
-      fetchData();
+      setData(null)
+      setError(null)
+      setIsLoading(false)
       setRefetch(false)
+      fetchData();
     }
 
   // eslint-disable-next-line  
@@ -225,7 +228,7 @@ export const useFetchGetBody = (endpoint, args, register=false) => {
 
 export const useFetchPostBody = (endpoint, args, register=false) => {
   const [send, setSend] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -271,7 +274,8 @@ export const useFetchPostBody = (endpoint, args, register=false) => {
       }
     };
 
-    if(send===true){
+    if(send===true && isLoading === false){
+      setIsLoading(true)
       fetchData();
     }
   // eslint-disable-next-line  
@@ -283,7 +287,7 @@ export const useFetchPostBody = (endpoint, args, register=false) => {
 //Peticion Put Asincrona
 export const useFetchPutBody = (endpoint, args) => {
   const [send, setSend] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -329,7 +333,8 @@ export const useFetchPutBody = (endpoint, args) => {
       }
     };
 
-    if(send===true){
+    if(send===true && isLoading === false){
+      setIsLoading(true)
       fetchData();
     }
   // eslint-disable-next-line  

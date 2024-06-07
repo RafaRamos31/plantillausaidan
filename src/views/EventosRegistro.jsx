@@ -26,6 +26,18 @@ export const EventosTablero = () => {
   const { user } = useContext(UserContext)
   const { refetch: refetchGlobal, setRefetch: setRefetchGlobal } = useContext(RefetchContext)
 
+  const handleRefetchGlobal = () => {
+    setRefetchGlobal(true)
+  }
+
+  useEffect(() => {
+    if(refetchGlobal){
+      console.log('refetch global')
+      setRefetchGlobal(false)
+    }
+  }, [refetchGlobal, setRefetchGlobal])
+  
+
   //Formulario
   const { values, setValues } = useForm({
     componenteId: '',
@@ -112,22 +124,9 @@ export const EventosTablero = () => {
         quarterId: dataConfig.find(el => el.attributeKey === 'idCurrentQuarter')?.attributeValue
       }) 
       setQueryEventos('eventos/tablero')
-      setRefetchGlobal(true)
-    }
-  }, [user, dataConfig, setRefetchGlobal, setValues])
-
-
-  //Accion Update manual
-  const handleUpdate = () => {
-    setRefetchGlobal(true)
-  }
-
-  useEffect(() => {
-    if(refetchGlobal){
       setRefetch(true)
     }
-  }, [refetchGlobal, setRefetch])
-
+  }, [user, dataConfig, setRefetch, setValues])
 
   //Refetch inicial
   useEffect(() => {
@@ -141,9 +140,9 @@ export const EventosTablero = () => {
   useEffect(() => {
     if(!isLoading && data){   
       setEventos(data)
-      setRefetchGlobal(false)
+      setRefetch(false)
     }
-  }, [data, isLoading, setRefetchGlobal])
+  }, [data, isLoading, setRefetch])
 
 
   //Valor para Modal Modificar
@@ -235,7 +234,7 @@ export const EventosTablero = () => {
       {/*Boton Actualizar*/}
       {
         !isLoading ? 
-        <Button className='mx-2' variant="light" onClick={handleUpdate}>
+        <Button className='mx-2' variant="light" onClick={handleRefetchGlobal}>
           <i className="bi bi-arrow-clockwise"></i>
         </Button>
         : <Button className='my-2 mx-3' variant="light">
@@ -315,7 +314,7 @@ export const EventosTablero = () => {
             <hr />
             <Droppable key={'Pendiente'} id={'Pendiente'} Element={EventColumn}>
               {
-                (user && user.userPermisos?.acciones['Eventos']['Crear'] ) &&
+                (user && user.userPermisos?.acciones['Eventos']['Crear'] && user.userComponente.id === values.componenteId ) &&
                 <CreateButton 
                   title={'Evento'} 
                   ModalForm={CrearEvento} 
@@ -329,7 +328,7 @@ export const EventosTablero = () => {
               >
                 {eventos?.filter(e => e.estadoRealizacion === 'Pendiente').map((e) => (
                   <Draggable key={e.id} id={e.id}>
-                    <EventoCard values={e} key={e.id} setRefetch={() => setRefetch(true)}/>
+                    <EventoCard values={e} key={e.id} setRefetch={() => setRefetch(true)} edit={user && user.userComponente.id === values.componenteId}/>
                   </Draggable>
                 ))}
               </SortableContext>

@@ -13,7 +13,7 @@ import { EditEvento } from '../views/modals/EditEvento'
 import { HourChip } from './HourChip'
 import { LugarChip } from './LugarChip'
 
-export const EventoCard = ({values, setRefetch}) => {
+export const EventoCard = ({values, setRefetch, edit=false}) => {
 
   const [ status, setStatus ] = useState(values.estadoRealizacion);
 
@@ -62,9 +62,8 @@ export const EventoCard = ({values, setRefetch}) => {
         <LugarChip municipio={values.municipio}/>
         <TareaChip tarea={values.tarea}/>
         <ResponsablesChip colaboradores={values.colaboradores}/>
-        <Button variant="outlined" onClick={() => console.log(values)}>Ver Detalles</Button>
         {
-          status !== 'Finalizado' &&
+          (status !== 'Finalizado' && edit) &&
           <Button variant="outlined" className='mx-2' onClick={handleShowEdit}>Editar</Button>
         }
         

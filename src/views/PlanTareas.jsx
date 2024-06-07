@@ -1,6 +1,6 @@
 import { Layout } from "./Layout.jsx";
 import { useContext, useEffect, useState } from "react";
-import { Button, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { Button, Form, InputGroup, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { UserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
 import { AvatarChip } from "../components/AvatarChip.jsx";
@@ -9,10 +9,13 @@ import { StatusBadge } from "../components/StatusBadge.jsx";
 import { getGridStringOperators } from "@mui/x-data-grid";
 import { PlanNavBar } from "../components/navBars/PlanNavBar.jsx";
 import { CrearTarea } from "./modals/CrearTarea.jsx";
-import { useFetchGet } from "../hooks/useFetch.js";
+import { useFetchGet, useFetchGetBody } from "../hooks/useFetch.js";
 import { Tooltip as MuiTooltip } from "@mui/material";
 import { InfoLink } from "../components/InfoLink.jsx";
 import { EditTarea } from "./modals/EditTarea.jsx";
+import { InputAutocomplete } from "../components/InputAutocomplete.jsx";
+import useForm from "../hooks/useForm.js";
+import { LoadingScreen } from "./LoadingScreen.jsx";
 
 export const PlanTareas = () => {
   const endpoint = 'tarea'
@@ -34,6 +37,25 @@ export const PlanTareas = () => {
 
   //General config
   const { data: dataConfig } = useFetchGet('config');
+
+  //Formulario
+  const { values, setValues } = useForm({
+    componenteId: 'none',
+  });
+
+  //Componentes
+  const findParamsComponentes = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [componentes, setComponentes] = useState([])
+  const { data: dataComponentes, isLoading: isLoadingComponentes, error: errorComponentes } = useFetchGetBody('componentes/list', findParamsComponentes);
+
+  useEffect(() => {
+    if(dataComponentes && !isLoadingComponentes){
+      setComponentes(dataComponentes)
+    } 
+  }, [dataComponentes, isLoadingComponentes, errorComponentes])
 
   const [enableEdit, setEnableEdit] = useState(false);
 
@@ -69,6 +91,14 @@ export const PlanTareas = () => {
       setUpdating(false)
     }
   }, [refetchData, setUpdating])
+
+  useEffect(() => {
+    if(dataConfig && user && user.userComponente){  
+      setValues({
+        componenteId: user.userComponente.id,
+      }) 
+    }
+  }, [user, dataConfig, setValues])
   
 
   //Boton Cambios
@@ -343,7 +373,7 @@ export const PlanTareas = () => {
   const hiddenColumns = {
     _id: false,
     descripcion: false,
-    componenteId: false,
+    componenteId: values.componenteId ? false : true,
     yearId: false,
     actividadId: false,
     subresultadoId: false,
@@ -356,6 +386,12 @@ export const PlanTareas = () => {
     fechaEliminacion: false,
     eliminadorId: false,
     estado: false
+  }
+
+  if(values.componenteId === 'none'){
+    return(
+      <LoadingScreen />
+    )
   }
 
   return(
@@ -385,14 +421,15 @@ export const PlanTareas = () => {
           </Button>
         }
       </div>
-
+      
+      <div className="mb-2 d-flex gap-2 align-items-center">
       {/*Boton Agregar*/}
       {
         user.userPermisos?.acciones['Tareas']['Crear']
         &&
         <MuiTooltip title={enableEdit ?  '' : 'La opción de modificar la planificación esta actualmente deshabilidada' } placement="top" arrow followCursor>
           <div style={{display: 'inline'}}>
-            <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-2' onClick={handleShowCreate} disabled={!enableEdit}>
+            <Button style={{...buttonStyle, marginRight:'0.4rem'}} className='my-auto' onClick={handleShowCreate} disabled={!enableEdit}>
               <i className="bi bi-file-earmark-plus"></i>{' '}
               {`Agregar ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}`}
             </Button>
@@ -429,6 +466,24 @@ export const PlanTareas = () => {
         }
         </>
       }
+
+      {/*Select Componente*/}
+      <Form.Group className="my-2 d-flex align-items-center">
+        <Form.Label className="my-0" style={{marginRight: '1rem'}}>
+          Componente:
+        </Form.Label>
+        <InputGroup style={{minWidth: '120px', maxWidth: '120px'}}>
+          <InputAutocomplete 
+            valueList={componentes} 
+            value={values.componenteId}
+            name={'componenteId'}
+            setValues={setValues}
+            disabled={user && !user.userPermisos?.acciones['Eventos']['Ver Global']}
+          />
+        </InputGroup>
+      </Form.Group>
+
+      </div>
       
       {/*Table Container*/}
       <FormattedGrid 
@@ -441,7 +496,7 @@ export const PlanTareas = () => {
         refetchData={refetchData}
         setRefetchData={setRefetchData} 
         deleteds={deleteds}
-        componenteId={user.userComponente.id}
+        componenteId={values.componenteId}
       />
 
     </Layout>

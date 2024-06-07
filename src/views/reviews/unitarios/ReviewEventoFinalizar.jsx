@@ -1,10 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Layout } from '../../Layout'
 import { useParams } from 'react-router-dom';
-import { Row, Col, Form, Button, Container, Modal, Spinner, InputGroup } from 'react-bootstrap';
+import { Row, Col, Form, Button, Container, Modal, InputGroup } from 'react-bootstrap';
 import useForm from '../../../hooks/useForm';
-import { ToastContext } from '../../../contexts/ToastContext';
-import { useFetchGet, useFetchPutBody } from '../../../hooks/useFetch';
+import { useFetchGet } from '../../../hooks/useFetch';
 import { Loading } from '../../Loading';
 import { AvatarChip } from '../../../components/AvatarChip';
 import { CompareValue } from '../../../components/CompareValue';
@@ -15,20 +14,9 @@ import { EditEventoTerminar } from '../../modals/EditEventoTerminar';
 
 export const ReviewEventoFinalizar = () => {
 
-  //Estilo de boton
-  const buttonStyle = {
-    backgroundColor: "var(--main-green)", 
-    border: 'none',
-    borderRadius: '3px'
-  };
-
   const { idRevision } = useParams();
   const endpoint = 'evento';
   const { user } = useContext(UserContext);
-
-  //Toast
-  const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
-
 
   //Peticio de datos a la API
   const { data: dataRevision, isLoading: isLoadingRevision, error: errorRevision, setRefetch } = useFetchGet(`eventos/finalizar/${idRevision}`);
@@ -40,46 +28,6 @@ export const ReviewEventoFinalizar = () => {
     aprobado: '',
     observaciones: ''
   });
-  
-  //Envio asincrono de formulario
-  const { setSend, send, data, isLoading, error } = useFetchPutBody('revisiones/eventos/finalizar', values) 
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSend(true)
-    setCharging(true)
-  }
-
-  //Boton de carga
-  const [charging, setCharging] = useState(false);
-
-  const handleRefetch = () => {
-    setRefetch(true);
-  }
-
-  //Accion al completar correctamente
-  const handleSuccess = () => {
-    handleRefetch()
-    setCharging(false)
-    setShowToast(true)
-    actualizarTitulo(`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} Revisado`)
-    setContent(`${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)} revisado correctamente.`)
-    setVariant('success')
-  }
-
-  //Efecto al enviar el formulario
-  const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    if(error){
-      setErrorMessage(error)
-      setCharging(false)
-    }
-    if(data){
-      handleSuccess();
-    }
-  // eslint-disable-next-line
-  }, [send, data, isLoading, error])
 
 
   //Carga de datos del evento
@@ -100,8 +48,6 @@ export const ReviewEventoFinalizar = () => {
 
   //Activar comparacion
   const [compare] = useState(false)
-
-  const boolReview = (dataRevision && dataRevision.estadoRevisionFinalizacion === 'Pendiente' && user?.userPermisos.acciones['Eventos']['Aprobar Finalizar'])
 
   if(isLoadingRevision){
     return <Loading />
@@ -271,7 +217,7 @@ export const ReviewEventoFinalizar = () => {
 
                 <h5 className='mt-3'>Medios de Verificación</h5>
                 <hr />
-                <Button variant='info' className="mt-2 p-2" href={dataRevision.enlaceFormulario} style={{fontWeight: 'bold'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
+                <Button variant='info' className="mt-2 p-2" href={dataRevision.enlaceFormulario} target='_blank' rel='noopener noreferrer'  style={{fontWeight: 'bold'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
                 {
                   dataRevision.enlaceFotografias &&
                   <Button variant='info' className="mt-2 p-2" href={dataRevision.enlaceFotografias} style={{fontWeight: 'bold'}}>Evidencias Fotográficas <i className="bi bi-box-arrow-up-right"></i></Button>
@@ -282,16 +228,16 @@ export const ReviewEventoFinalizar = () => {
         </Col>
 
         <Col md={4}>
-          <Form onSubmit={handleSubmit}>
+          <Form>
             <Form.Label>Dictámen</Form.Label>
-            <Form.Select className="mb-3" id='aprobado' name='aprobado' value={values.aprobado} onChange={handleChange} disabled={!boolReview}>
+            <Form.Select className="mb-3" id='aprobado' name='aprobado' value={values.aprobado} onChange={handleChange} disabled={true}>
               <option>Pendiente</option>
               <option value="Validado">Validado</option>
               <option value="Rechazado">Rechazado</option>
             </Form.Select>
             <Form.Group className="mb-3">
               <Form.Label>Observaciones</Form.Label>
-              <Form.Control as="textarea" rows={5} id='observaciones' name='observaciones' value={values.observaciones} onChange={handleChange} disabled={!boolReview}/>
+              <Form.Control as="textarea" rows={5} id='observaciones' name='observaciones' value={values.observaciones} onChange={handleChange} disabled={true}/>
             </Form.Group>
             {
               (dataRevision && dataRevision.estadoRevisionFinalizacion === 'Rechazado' && user?.userPermisos.acciones['Eventos']['Finalizar']) &&
@@ -299,28 +245,6 @@ export const ReviewEventoFinalizar = () => {
                 <Button variant="primary" onClick={handleShowEdit}><i className="bi bi-tools"></i>{' '}Corregir</Button>
               </div>
             }
-            {
-              (boolReview) &&
-              <div className="d-grid w-100">
-                {/**Boton para guardar revision */}
-                {
-                  !charging ?
-                  <Button style={buttonStyle} onClick={handleSubmit}><i className="bi bi-check2-square"></i>{' '}Guardar revisión</Button>
-                  :
-                  <Button style={buttonStyle}>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                    <span className="visually-hidden">Cargando...</span>
-                  </Button>
-                }
-              </div>
-            }
-            <p style={{color: 'red'}}>{errorMessage}</p>
           </Form>
         </Col>
       </Row>

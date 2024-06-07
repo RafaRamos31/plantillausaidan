@@ -289,12 +289,8 @@ export const ReviewBeneficiario = () => {
                   <CompareValue  title={'Municipio:'} value={dataRevision.municipio?.nombre} original={original?.municipio?.nombre} compare={compare}/>
                 }
                 {
-                  dataRevision.aldea &&
-                  <CompareValue  title={'Aldea:'} value={dataRevision.aldea?.nombre} original={original?.aldea?.nombre} compare={compare}/>
-                }
-                {
-                  dataRevision.caserio &&
-                  <CompareValue  title={'Caserio:'} value={dataRevision.caserio?.nombre} original={original?.caserio?.nombre} compare={compare}/>
+                  dataRevision.procedencia &&
+                  <CompareValue  title={'Procedencia:'} value={dataRevision.procedencia} original={original?.procedencia} compare={compare}/>
                 }
                 </Col>
               {
@@ -354,12 +350,8 @@ export const ReviewBeneficiario = () => {
                   <CompareValue  title={'Municipio:'} value={dataRevision.municipio?.nombre} original={original?.municipio?.nombre}  hidden/>
                 }
                 {
-                  original?.aldea &&
-                  <CompareValue  title={'Aldea:'} value={dataRevision.aldea?.nombre} original={original?.aldea?.nombre}  hidden/>
-                }
-                {
-                  original?.caserio &&
-                  <CompareValue  title={'Caserio:'} value={dataRevision.caserio?.nombre} original={original?.caserio?.nombre}  hidden/>
+                  original.procedencia &&
+                  <CompareValue  title={'Procedencia:'} value={dataRevision.procedencia} original={original?.procedencia} compare={compare}/>
                 }
               </Col>
               }

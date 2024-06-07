@@ -79,6 +79,7 @@ export const CrearEventoParticipantes = () => {
       setValues({
         idEvento: dataEvento.id,
         nombre: dataEvento.nombre,
+        anotaciones: dataEvento.anotaciones,
         numeroFormulario: dataEvento.numeroFormulario,
         participantesHombres: dataEvento.participantesHombres,
         participantesMujeres: dataEvento.participantesMujeres,
@@ -162,7 +163,6 @@ export const CrearEventoParticipantes = () => {
                 name="nombre"
                 as="textarea"
                 rows={2}
-                maxLength={200}
                 value={values.nombre}
                 autoComplete="off"
                 readOnly
@@ -217,8 +217,24 @@ export const CrearEventoParticipantes = () => {
               </Col>
             </Form.Group>
 
+            <Form.Group className="mb-3">
+            <h5>Anotaciones</h5>
+            <Col sm="12">
+              <Form.Control
+                id="anotaciones"
+                name="anotaciones"
+                as="textarea"
+                rows={2}
+                value={values.anotaciones}
+                autoComplete="off"
+                readOnly
+                disabled
+              />
+            </Col>
+            </Form.Group>
+
             <div className="d-flex justify-content-between">
-              <Button variant="info" className="p-3" href={values.enlaceFormulario} style={{fontWeight: 'bold', marginRight: '1rem'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
+              <Button variant="info" className="p-3" href={values.enlaceFormulario} target='_blank' rel='noopener noreferrer' style={{fontWeight: 'bold', marginRight: '1rem'}}>Formulario de Participantes <i className="bi bi-box-arrow-up-right"></i></Button>
               <MUIButton variant='contained' color='warning' onClick={handleShowEliminar}><WarningAmberIcon /> Solicitar Corrección</MUIButton>
             </div>
           </Col>

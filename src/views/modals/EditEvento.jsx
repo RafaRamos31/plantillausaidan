@@ -121,7 +121,6 @@ export const EditEvento = ({handleClose, setRefetch, evento}) => {
 
   useEffect(() => {
     if(values.tareaId.length !== 0 && tareas.length > 0){
-      console.log(tareas)
       const quarter = tareas.find(t => t.id === values.tareaId)?.quarter
       setMinDate(moment(quarter.fechaInicio).add(6, 'h'))
       setMaxDate(moment(quarter.fechaFinal).add(6, 'h'))

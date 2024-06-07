@@ -5,6 +5,7 @@ import { darken, lighten, styled} from '@mui/material';
 import moment from 'moment';
 import { EditBeneficiario } from '../views/modals/EditBeneficiario';
 import { InfoLink } from './InfoLink';
+import { AnotacionesIcon } from './AnotacionesIcon';
 
 export const ParticipantesGrid = ({participantes, removeParticipante, editParticipante}) => {
 
@@ -65,8 +66,8 @@ export const ParticipantesGrid = ({participantes, removeParticipante, editPartic
                 cargoId: params.row.cargoId.split('-')[1],
                 departamentoId: params.row.departamentoId.split('-')[1],
                 municipioId: params.row.municipioId.split('-')[1],
-                aldeaId: params.row.aldeaId.split('-')[1],
-                caserioId: params.row.caserioId.split('-')[1],
+                procedencia: params.row.procedencia,
+                anotaciones: params.row.valueAnotaciones,
               })
               handleShowEdit()
             }}>
@@ -80,6 +81,13 @@ export const ParticipantesGrid = ({participantes, removeParticipante, editPartic
       },
     },
     { field: '_id', headerName: 'id', width: 50, filterable: false},
+    { field: 'anotaciones', headerName: '', width: 50, filterable: false,
+      renderCell: (params) => {
+        return (
+          <AnotacionesIcon status={params.row.estadoAnotaciones} tooltip={params.row.valueAnotaciones}/>
+        );
+      },
+    }, 
     { field: 'nombre', headerName: 'Nombre', width: 250,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -184,28 +192,9 @@ export const ParticipantesGrid = ({participantes, removeParticipante, editPartic
         );
       }
     },
-    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'aldeas'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
-    { field: 'caserioId', headerName: 'Caserio', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'caserios'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
+    { field: 'procedencia', headerName: 'Procedencia', width: 250, filterable: false},
+    { field: 'valueAnotaciones', headerName: 'Anotaciones', width: 250, filterable: false},
+    { field: 'estadoAnotaciones', headerName: '', width: 50, filterable: false},
   ];
   
   const [rows, setRows] = useState([])
@@ -229,6 +218,9 @@ export const ParticipantesGrid = ({participantes, removeParticipante, editPartic
       aldeaId: `${participante.aldea?.nombre || ''}-${participante.aldea?.id || ''}`,
       caserioId: `${participante.caserio?.nombre || ''}-${participante.caserio?.id || ''}`,
       indicadores: participante.indicadores,
+      procedencia: participante.procedencia,
+      valueAnotaciones: participante.anotaciones,
+      estadoAnotaciones: participante.anotaciones ? 'Warning' : 'Valid'
     })))
   }, [participantes])
   
@@ -238,6 +230,8 @@ export const ParticipantesGrid = ({participantes, removeParticipante, editPartic
     indicadores: false,
     sectorId: false,
     tipoOrganizacionId: false,
+    valueAnotaciones: false,
+    estadoAnotaciones: false
   }
 
   const [paginationModel, setPaginationModel] = useState({

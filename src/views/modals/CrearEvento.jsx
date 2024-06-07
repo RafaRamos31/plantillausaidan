@@ -87,6 +87,8 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
     } 
   }, [usuariosData, isLoadingUsuarios, errorUsuarios, componentesData, isLoadingComponentes])
 
+  //General config
+  const { data: dataConfig } = useFetchGet('config');
 
   //Tareas
   const [findParamsTareas, setFindParamsTareas] = useState({
@@ -98,20 +100,21 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
   const { data: tareasData, isLoading: isLoadingTareas, setRefetch: setRefetchTareas } = useFetchGetBody(queryTareas, findParamsTareas);
 
   useEffect(() => {
-    if(user && user.userComponente){
+    if(user && user.userComponente && dataConfig){
       setFindParamsTareas({
         sort: '{}',
         filter: JSON.stringify({
           operator: 'is',
           field: 'componenteId',
           value: user.userComponente.id
-        })
+        }),
+        quarterId: dataConfig.find(el => el.attributeKey === 'idCurrentQuarter')?.attributeValue
       })
       setQueryTareas('tareas/list');
       setRefetchTareas(true);
     }
   // eslint-disable-next-line
-  }, [setRefetchTareas, user])
+  }, [setRefetchTareas, user, dataConfig])
 
   //Fechas
   const [minDate, setMinDate] = useState()
@@ -394,7 +397,7 @@ export const CrearEvento = ({handleClose, setRefetch}) => {
                 >
                   {tareas && tareas.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
-                      <Tooltip title={item.descripcion} placement="right" arrow followCursor>
+                      <Tooltip title={`${item.titulo} (${item.eventosRealizados}/${item.eventosEstimados})`} placement="right" arrow followCursor>
                         <ListItemText primary={item.nombre} />
                       </Tooltip>
                     </MenuItem>

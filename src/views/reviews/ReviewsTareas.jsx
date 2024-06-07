@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Spinner, Button } from "react-bootstrap";
+import { Spinner, Button, Form, InputGroup } from "react-bootstrap";
 import { Layout } from "../Layout.jsx";
 import { StatusBadge } from "../../components/StatusBadge.jsx";
 import { AvatarChip } from "../../components/AvatarChip.jsx";
@@ -7,6 +7,10 @@ import { FormattedGrid } from "../../components/FormattedGrid.jsx";
 import { InfoLink } from "../../components/InfoLink.jsx";
 import { PlanNavBar } from "../../components/navBars/PlanNavBar.jsx";
 import { UserContext } from "../../contexts/UserContext.js";
+import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
+import { useFetchGetBody } from "../../hooks/useFetch.js";
+import useForm from "../../hooks/useForm.js";
+import { LoadingScreen } from "../LoadingScreen.jsx";
 
 export const ReviewsTareas = () => {
   const endpoint = 'tarea'
@@ -21,6 +25,34 @@ export const ReviewsTareas = () => {
     fontSize: '0.9rem',
     padding: '0.2rem 0.5rem'
   };
+
+  //Formulario
+  const { values, setValues } = useForm({
+    componenteId: 'none',
+  });
+
+  //Componentes
+  const findParamsComponentes = {
+    sort: '{}',
+    filter: '{}'
+  }
+  const [componentes, setComponentes] = useState([])
+  const { data: dataComponentes, isLoading: isLoadingComponentes, error: errorComponentes } = useFetchGetBody('componentes/list', findParamsComponentes);
+
+  useEffect(() => {
+    if(dataComponentes && !isLoadingComponentes){
+      setComponentes(dataComponentes)
+    } 
+  }, [dataComponentes, isLoadingComponentes, errorComponentes])
+
+  useEffect(() => {
+    if(user && user.userComponente){  
+      setValues({
+        componenteId: user.userComponente.id,
+      }) 
+    }
+  }, [user, setValues])
+  
 
   ///Indicador solicitud de recarga de datos en la vista
   const [refetchData, setRefetchData] = useState(false);
@@ -152,6 +184,12 @@ export const ReviewsTareas = () => {
     revisor: false
   }
 
+  if(values.componenteId === 'none'){
+    return(
+      <LoadingScreen/>
+    )
+  }
+
   return(
     <>
     <Layout pagina={`Revisión ${endpoint.charAt(0).toUpperCase() + endpoint.slice(1)}s`} SiteNavBar={PlanNavBar} breadcrumbs={[
@@ -179,6 +217,22 @@ export const ReviewsTareas = () => {
             <span className="visually-hidden">Cargando...</span>
           </Button>
         }
+
+        {/*Select Componente*/}
+        <Form.Group className="my-2 d-flex align-items-center">
+          <Form.Label className="my-0" style={{marginRight: '1rem'}}>
+            Componente:
+          </Form.Label>
+          <InputGroup style={{minWidth: '120px', maxWidth: '120px'}}>
+            <InputAutocomplete 
+              valueList={componentes} 
+              value={values.componenteId}
+              name={'componenteId'}
+              setValues={setValues}
+              disabled={user && !user.userPermisos?.acciones['Eventos']['Ver Global']}
+            />
+          </InputGroup>
+        </Form.Group>
       </div>
 
       {/*Table Container*/}
@@ -192,7 +246,7 @@ export const ReviewsTareas = () => {
         refetchData={refetchData}
         setRefetchData={setRefetchData} 
         reviews
-        componenteId={user.userComponente.id}
+        componenteId={values.componenteId}
       />
 
     </Layout>
