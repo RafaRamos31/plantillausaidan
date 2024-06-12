@@ -123,8 +123,8 @@ export const HistoryOrganizacion = () => {
                             <CompareValue  title={'Tipo de Organización:'} value={rev.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={false}/>
                           }
                           {
-                            rev.nivel &&
-                            <CompareValue  title={'Nivel de la Organización:'} value={rev.nivel?.nombre} original={original?.nivel?.nombre} compare={false}/>
+                            rev.tipoSector &&
+                            <CompareValue  title={'Tipo de Sector:'} value={rev.tipoSector} original={original?.tipoSector} compare={false}/>
                           }
                           <hr />
                           {
@@ -280,8 +280,8 @@ export const HistoryOrganizacion = () => {
                         <CompareValue  title={'Tipo de Organización:'} value={original.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={false}/>
                       }
                       {
-                        original.nivel &&
-                        <CompareValue  title={'Nivel de la Organización:'} value={original.nivel?.nombre} original={original?.nivelOrganizacion?.nombre} compare={false}/>
+                        original.tipoSector &&
+                        <CompareValue  title={'Tipo de Sector:'} value={original.tipoSector} original={original?.tipoSector} compare={false}/>
                       }
                       <hr />
                       {

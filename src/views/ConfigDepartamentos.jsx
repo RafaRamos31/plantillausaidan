@@ -63,10 +63,6 @@ export const ConfigDepartamentos = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false},
-    { field: '_id', headerName: 'uuid', width: 100, description: 'Identificador unico del registro en la Base de Datos.',
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
     { field: 'nombre', headerName: 'Nombre', width: 250,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -132,6 +128,10 @@ export const ConfigDepartamentos = () => {
         );
       }
     },
+    { field: '_id', headerName: 'uuid', width: 100, description: 'Identificador unico del registro en la Base de Datos.',
+      filterOperators: getGridStringOperators().filter(
+        (operator) => operator.value === 'equals',
+      )},
     {
       field: " ",
       headerName: " ",

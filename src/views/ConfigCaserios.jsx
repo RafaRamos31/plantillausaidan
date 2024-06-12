@@ -60,7 +60,6 @@ export const ConfigCaserios = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false},
-    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
     { field: 'nombre', headerName: 'Nombre del Caserio', width: 250,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -159,6 +158,7 @@ export const ConfigCaserios = () => {
         );
       }
     },
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
     {
       field: " ",
       headerName: " ",

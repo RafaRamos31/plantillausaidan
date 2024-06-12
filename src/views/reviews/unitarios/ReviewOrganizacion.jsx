@@ -258,8 +258,8 @@ export const ReviewOrganizacion = () => {
                   <CompareValue  title={'Tipo de Organización:'} value={dataRevision.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={compare}/>
                 }
                 {
-                  dataRevision.nivel &&
-                  <CompareValue  title={'Nivel de la Organización:'} value={dataRevision.nivel?.nombre} original={original?.nivel?.nombre} compare={compare}/>
+                  dataRevision.tipoSector &&
+                  <CompareValue  title={'Tipo de Sector:'} value={dataRevision.tipoSector} original={original?.tipoSector} compare={compare}/>
                 }
                 <hr />
                 {
@@ -317,8 +317,8 @@ export const ReviewOrganizacion = () => {
                   <CompareValue  title={'Tipo de Organización:'} value={dataRevision.tipoOrganizacion?.nombre} original={original?.tipoOrganizacion?.nombre} compare={compare} hidden/>
                 }
                 {
-                  original?.nivel &&
-                  <CompareValue  title={'Nivel de la Organización:'} value={dataRevision.nivel?.nombre} original={original?.nivel?.nombre} compare={compare} hidden/>
+                  original?.tipoSector &&
+                  <CompareValue  title={'Tipo de Sector:'} value={dataRevision.tipoSector} original={original?.tipoSector} compare={compare} hidden/>
                 }
                 <hr />
                 {

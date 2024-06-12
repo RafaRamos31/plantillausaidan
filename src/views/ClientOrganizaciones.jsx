@@ -68,11 +68,76 @@ export const ClientOrganizaciones = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false },
-    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.', 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
-      { field: 'nombre', headerName: 'Nombre de la Organización', width: 330,
+    {
+      field: " ",
+      headerName: " ",
+      width: 200,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        return (
+          <>
+            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
+              <a href={`/reviews/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-eye-fill"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+            {
+              user.userPermisos?.acciones['Organizaciones']['Modificar'] 
+              &&
+              <>
+              {
+                params.row.editing ?
+                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                  <div>
+                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                      <i className="bi bi-pencil-fill"></i>
+                    </Button>
+                  </div>
+                </OverlayTrigger>
+                :
+                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                    setCurrentData({
+                      id: params.row._id,
+                      nombre: params.row.nombre,
+                      codigo: params.row.codigo,
+                      sectorId: params.row.sectorId.split('-')[1],
+                      tipoOrganizacionId: params.row.tipoOrganizacionId.split('-')[1],
+                      tipoSector: params.row.tipoSector,
+                      departamentoId: params.row.departamentoId.split('-')[1],
+                      municipioId: params.row.municipioId.split('-')[1],
+                      telefono: params.row.telefono,
+                      nombreContacto: params.row.nombreContacto,
+                      telefonoContacto: params.row.telefonoContacto,
+                      correoContacto: params.row.correoContacto,
+                    })
+                    handleShowEdit()
+                  }}>
+                    <i className="bi bi-pencil-fill"></i>
+                  </Button>
+                </OverlayTrigger>
+              }
+              </>
+            }
+            {
+              user.userPermisos?.acciones['Organizaciones']['Ver Historial'] 
+              &&
+              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+                <a href={`/historial/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
+                  <Button  className='py-1' style={buttonStyle}>
+                    <i className="bi bi-clock-history"></i>{' '}
+                  </Button>
+                </a>
+              </OverlayTrigger>
+            }
+          </>
+        );
+      },
+    },
+    { field: 'nombre', headerName: 'Nombre de la Organización', width: 330,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       ),
@@ -86,11 +151,7 @@ export const ClientOrganizaciones = () => {
         );
       } 
     },
-    { field: 'codigoOrganizacion', headerName: 'Código', width: 150,
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'contains',
-      )
-    },
+    { field: 'codigo', headerName: 'Código', width: 150, filterable: false },
     { field: 'sectorId', headerName: 'Sector', width: 200, filterable: false,
       renderCell: (params) => {
         return (
@@ -113,18 +174,8 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    { field: 'nivelId', headerName: 'Nivel', width: 240, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'niveles'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
-    { field: 'telefonoOrganizacion', headerName: 'Teléfono', width: 150, filterable: false },
+    { field: 'tipoSector', headerName: 'Tipo de Sector', width: 150, filterable: false },
+    { field: 'telefono', headerName: 'Teléfono', width: 150, filterable: false },
     { field: 'departamentoId', headerName: 'Departamento', width: 200, filterable: false,
       renderCell: (params) => {
         return (
@@ -141,28 +192,6 @@ export const ClientOrganizaciones = () => {
         return (
           <InfoLink 
             type={'municipios'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
-    { field: 'aldeaId', headerName: 'Aldea', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'aldeas'} 
-            id={params.value.split('-')[1]}
-            nombre={params.value.split('-')[0]}
-          />
-        );
-      }
-    },
-    { field: 'caserioId', headerName: 'Caserio', width: 200, filterable: false,
-      renderCell: (params) => {
-        return (
-          <InfoLink 
-            type={'caserios'} 
             id={params.value.split('-')[1]}
             nombre={params.value.split('-')[0]}
           />
@@ -219,77 +248,7 @@ export const ClientOrganizaciones = () => {
         );
       }
     },
-    {
-      field: " ",
-      headerName: " ",
-      width: 200,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
-              <a href={`/reviews/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
-                <Button  className='py-1' style={buttonStyle}>
-                  <i className="bi bi-eye-fill"></i>{' '}
-                </Button>
-              </a>
-            </OverlayTrigger>
-            {
-              user.userPermisos?.acciones['Organizaciones']['Modificar'] 
-              &&
-              <>
-              {
-                params.row.editing ?
-                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
-                  <div>
-                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
-                      <i className="bi bi-pencil-fill"></i>
-                    </Button>
-                  </div>
-                </OverlayTrigger>
-                :
-                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
-                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
-                    setCurrentData({
-                      id: params.row._id,
-                      nombre: params.row.nombre,
-                      codigo: params.row.codigoOrganizacion,
-                      sectorId: params.row.sectorId.split('-')[1],
-                      tipoOrganizacionId: params.row.tipoOrganizacionId.split('-')[1],
-                      nivelId: params.row.nivelId.split('-')[1],
-                      departamentoId: params.row.departamentoId.split('-')[1],
-                      municipioId: params.row.municipioId.split('-')[1],
-                      aldeaId: params.row.aldeaId.split('-')[1],
-                      caserioId: params.row.caserioId.split('-')[1],
-                      telefono: params.row.telefonoOrganizacion,
-                      nombreContacto: params.row.nombreContacto,
-                      telefonoContacto: params.row.telefonoContacto,
-                      correoContacto: params.row.correoContacto,
-                    })
-                    handleShowEdit()
-                  }}>
-                    <i className="bi bi-pencil-fill"></i>
-                  </Button>
-                </OverlayTrigger>
-              }
-              </>
-            }
-            {
-              user.userPermisos?.acciones['Organizaciones']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}es/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
-            }
-          </>
-        );
-      },
-    }
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.', filterable: false },
   ];
   
 
@@ -307,15 +266,13 @@ export const ClientOrganizaciones = () => {
         eliminadorId: `${item.eliminador?.nombre || ''}-${item.eliminador?.id || ''}`,
         estado: item.estado,
         nombre: item.nombre,
-        codigoOrganizacion: item.codigo,
-        nivelId: `${item.nivel?.nombre || ''}-${item.nivel?.id || ''}`,
+        codigo: item.codigo,
+        tipoSector: item.tipoSector,
         sectorId: `${item.sector?.nombre || ''}-${item.sector?.id || ''}`,
         tipoOrganizacionId: `${item.tipoOrganizacion?.nombre || ''}-${item.tipoOrganizacion?.id || ''}`,
         departamentoId: `${item.departamento?.nombre || ''}-${item.departamento?.id || ''}`,
         municipioId: `${item.municipio?.nombre || ''}-${item.municipio?.id || ''}`,
-        aldeaId: `${item.aldea?.nombre || ''}-${item.aldea?.id || ''}`,
-        caserioId: `${item.caserio?.nombre || ''}-${item.caserio?.id || ''}`,
-        telefonoOrganizacion: item.telefono,
+        telefono: item.telefono,
         nombreContacto: item.nombreContacto,
         telefonoContacto: item.telefonoContacto,
         correoContacto: item.correoContacto,
@@ -403,8 +360,8 @@ export const ClientOrganizaciones = () => {
       {/*Table Container*/}
       <FormattedGrid 
         model={`${endpoint}es`} 
-        pageSize={10} 
-        pageSizeOptions={[10,20]}
+        pageSize={15} 
+        pageSizeOptions={[15,25,50]}
         columns={columns} 
         hiddenColumns={hiddenColumns}
         populateRows={populateRows} 

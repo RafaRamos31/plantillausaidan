@@ -5,19 +5,15 @@ import { ToastContext } from "../../contexts/ToastContext.js";
 import { useFetchGetBody, useFetchPutBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
-import { AproveContext } from "../../contexts/AproveContext.js";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearSectores } from "./CrearSectores.jsx";
 import { CrearOrgtype } from "./CrearOrgtype.jsx";
 import { CrearDepartamento } from "./CrearDepartamento.jsx";
 import { CrearMunicipio } from "./CrearMunicipio.jsx";
-import { CrearAldea } from "./CrearAldea.jsx";
-import { CrearCaserio } from "./CrearCaserio.jsx";
-import { CrearNivel } from "./CrearNivel.jsx";
+import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fixing=false}) => {
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
   const navigate = useNavigate();
 
   //Formulario
@@ -27,22 +23,15 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
     codigo: organizacion.codigo || '',
     sectorId: organizacion.sectorId || '',
     tipoOrganizacionId: organizacion.tipoOrganizacionId || '',
-    nivelId: organizacion.nivelId || '',
+    tipoSector: organizacion.tipoSector || '',
     departamentoId: organizacion.departamentoId || '',
     municipioId: organizacion.municipioId || '',
-    aldeaId: organizacion.aldeaId || '',
-    caserioId: organizacion.caserioId || '',
     telefono: organizacion.telefono || '',
     nombreContacto: organizacion.nombreContacto || '',
     telefonoContacto: organizacion.telefonoContacto || '',
     correoContacto: organizacion.correoContacto || '',
-    aprobar: aprove
+    aprobar: user.userPermisos?.acciones['Organizaciones']['Revisar']
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Sectores
   const findParams = {
@@ -67,31 +56,6 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
       setUpdatingSectores(false)
     } 
   }, [sectorData, isLoadingSectores, errorSectores])
-
-
-  //Niveles
-  const findParamsNiveles = {
-    sort: '{}',
-    filter: '{}'
-  }
-  const [niveles, setNiveles] = useState([])
-  const { data: nivelesData, isLoading: isLoadingNiveles, error: errorNiveles, setRefetch: setRefetchNiveles } = useFetchGetBody('niveles/list', findParamsNiveles);
-  
-  //Indicador actualizando con boton
-  const [updatingNiveles, setUpdatingNiveles] = useState(false);
-
-  //Accion Update manual sectores
-  const handleUpdateNiveles = () => {
-    setUpdatingNiveles(true);
-    setRefetchNiveles(true);
-  }
-  
-  useEffect(() => {
-    if(nivelesData && !isLoadingNiveles){
-      setNiveles(nivelesData)
-      setUpdatingNiveles(false)
-    } 
-  }, [nivelesData, isLoadingNiveles, errorNiveles])
 
 
   //Tipo Organizacion
@@ -209,96 +173,6 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
     // eslint-disable-next-line
   }, [values.departamentoId, setValues, setRefetchMuni])
 
-  //Aldea
-  const [findParamsAldea, setFindParamsAldea] = useState({
-    sort: '{}',
-    filter: '{}'
-  })
-  const [aldeas, setAldeas] = useState([])
-  const [queryAldeas, setQueryAldeas] = useState('')
-  const { data: aldeasData, isLoading: isLoadingAldeas, error: errorAldeas, setRefetch: setRefetchAldeas } = useFetchGetBody(queryAldeas, findParamsAldea);
-  
-  useEffect(() => {
-    if(aldeasData && !isLoadingAldeas && values.municipioId){
-      setAldeas(aldeasData)
-      setUpdatingAldeas(false)
-    } 
-  }, [aldeasData, isLoadingAldeas, errorAldeas, values.municipioId])
-
-  //Editar Lista de Aldeas en Formulario
-  useEffect(() => {
-    if(values.municipioId && values.municipioId.length !== 0){
-      setFindParamsAldea({
-        sort: '{}',
-        filter: JSON.stringify({
-          operator: 'is',
-          field: 'municipioId',
-          value: values.municipioId
-        })
-      })
-      setQueryAldeas('aldeas/list')
-      setRefetchAldeas(true)
-    }
-    else{
-      setAldeas([])
-    }
-    // eslint-disable-next-line
-  }, [values.municipioId, setValues, setRefetchAldeas])
-
-  //Indicador actualizando con boton departamento
-  const [updatingAldeas, setUpdatingAldeas] = useState(false);
-
-  //Accion Update manual
-  const handleUpdateAldeas = () => {
-    setUpdatingAldeas(true);
-    setRefetchAldeas(true);
-  }
-
-  //Caserios
-  const [findParamsCaserios, setFindParamsCaserios] = useState({
-    sort: '{}',
-    filter: '{}'
-  })
-  const [caserios, setCaserios] = useState([])
-  const [queryCaserios, setQueryCaserios] = useState('')
-  const { data: caseriosData, isLoading: isLoadingCaserios, error: errorCaserios, setRefetch: setRefetchCaserios } = useFetchGetBody(queryCaserios, findParamsCaserios);
-  
-  useEffect(() => {
-    if(caseriosData && !isLoadingCaserios && values.aldeaId){
-      setCaserios(caseriosData)
-      setUpdatingCaserios(false)
-    } 
-  }, [caseriosData, isLoadingCaserios, errorCaserios, values.aldeaId])
-
-  //Editar Lista de Caserios en Formulario
-  useEffect(() => {
-    if(values.aldeaId && values.aldeaId.length !== 0){
-      setFindParamsCaserios({
-        sort: '{}',
-        filter: JSON.stringify({
-          operator: 'is',
-          field: 'aldeaId',
-          value: values.aldeaId
-        })
-      })
-      setQueryCaserios('caserios/list')
-      setRefetchCaserios(true)
-    }
-    else{
-      setCaserios([])
-    }
-    // eslint-disable-next-line
-  }, [values.aldeaId, setRefetchCaserios])
-
-  //Indicador actualizando con boton departamento
-  const [updatingCaserios, setUpdatingCaserios] = useState(false);
-
-  //Accion Update manual
-  const handleUpdateCaserios = () => {
-    setUpdatingCaserios(true);
-    setRefetchCaserios(true);
-  }
-
   //Toast
   const {setShowToast, actualizarTitulo, setContent, setVariant} = useContext(ToastContext)
 
@@ -358,7 +232,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Nombre de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre} maxLength={70} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='nombre' name='nombre' value={values.nombre} maxLength={70} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -367,7 +241,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Código de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='codigo' name='codigo' value={values.codigo} maxLength={30} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='codigo' name='codigo' value={values.codigo} maxLength={30} autoComplete="off"  onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -443,35 +317,20 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
 
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
-            Nivel:
+            Tipo de Sector:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <InputGroup>
-              <InputAutocomplete 
-                valueList={niveles} 
-                value={values.nivelId}
-                name={'nivelId'}
-                setValues={setValues}
-                setRefetch={setRefetchNiveles}
-                ModalCreate={CrearNivel}
-              />
-              {
-                !updatingNiveles ? 
-                <Button variant="light" onClick={handleUpdateNiveles}>
-                  <i className="bi bi-arrow-clockwise"></i>
-                </Button>
-                : <Button variant="light">
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
-                  <span className="visually-hidden">Cargando...</span>
-                </Button>
-              }
-            </InputGroup>
+            <Form.Group>
+              <RadioGroup
+                row
+                name="tipoSector"
+                value={values.tipoSector}
+                onChange={handleChange}
+              >
+                <FormControlLabel value="Público" control={<Radio />} label="Público" />
+                <FormControlLabel value="Privado" control={<Radio />} label="Privado" />
+              </RadioGroup>
+            </Form.Group>
           </Col>
         </Form.Group>
 
@@ -480,7 +339,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Teléfono de la Organización:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefono' name='telefono' value={values.telefono} autoComplete="none"  maxLength={20} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='telefono' name='telefono' value={values.telefono} autoComplete="none"  maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
         
@@ -557,73 +416,6 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4" className="my-auto">
-                Aldea:
-              </Form.Label>
-              <Col sm="8">
-                <InputGroup>
-                  <InputAutocomplete 
-                    valueList={aldeas} 
-                    value={values.aldeaId}
-                    name={'aldeaId'}
-                    setValues={setValues}
-                    setRefetch={setRefetchAldeas}
-                    ModalCreate={CrearAldea}
-                  />
-                  {
-                    !updatingAldeas ? 
-                    <Button variant="light" onClick={handleUpdateAldeas}>
-                      <i className="bi bi-arrow-clockwise"></i>
-                    </Button>
-                    : <Button variant="light">
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      <span className="visually-hidden">Cargando...</span>
-                    </Button>
-                  }
-                </InputGroup>
-              </Col>
-            </Form.Group>
-
-            <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="4" className="my-auto">
-                Caserio:
-              </Form.Label>
-              <Col sm="8">
-                <InputGroup>
-                  <InputAutocomplete 
-                    valueList={caserios} 
-                    value={values.caserioId}
-                    name={'caserioId'}
-                    setValues={setValues}
-                    setRefetch={setRefetchCaserios}
-                    ModalCreate={CrearCaserio}
-                  />
-                  {
-                    !updatingCaserios ? 
-                    <Button variant="light" onClick={handleUpdateCaserios}>
-                      <i className="bi bi-arrow-clockwise"></i>
-                    </Button>
-                    : <Button variant="light">
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      <span className="visually-hidden">Cargando...</span>
-                    </Button>
-                  }
-                </InputGroup>
-              </Col>
-            </Form.Group>
           </Card.Body>
         </Card>
 
@@ -638,7 +430,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Nombre de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombreContacto' name='nombreContacto' value={values.nombreContacto} maxLength={50} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='nombreContacto' name='nombreContacto' value={values.nombreContacto} maxLength={50} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -647,7 +439,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Teléfono de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} maxLength={20} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='telefonoContacto' name='telefonoContacto' value={values.telefonoContacto} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -656,7 +448,7 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
             Correo de Contacto:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} maxLength={40} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} type='email' id='correoContacto' name='correoContacto' value={values.correoContacto} maxLength={40} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -667,12 +459,6 @@ export const EditOrganizacion = ({handleClose, setRefetchData, organizacion, fix
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
     {
-        user.userPermisos?.acciones['Organizaciones']['Revisar']
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

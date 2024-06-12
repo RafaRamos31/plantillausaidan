@@ -6,7 +6,6 @@ import { useFetchGetBody, useFetchPutBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { AproveContext } from "../../contexts/AproveContext.js";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearSectores } from "./CrearSectores.jsx";
 import { CrearOrgtype } from "./CrearOrgtype.jsx";
@@ -18,7 +17,6 @@ import { useNavigate } from "react-router-dom";
 
 export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=false, editParticipante=false}) => {
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
 
   //Formulario
   const { values, setValues, handleChange } = useForm({
@@ -37,13 +35,8 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
     municipioId: beneficiario.municipioId || '',
     procedencia: beneficiario.procedencia || '',
     anotaciones: beneficiario.anotaciones || '',
-    aprobar: editParticipante ? true : aprove
+    aprobar: user.userPermisos?.acciones['Beneficiarios']['Revisar']
   });
-
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Sectores
   const findParams = {
@@ -140,7 +133,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
       setCargos([])
     }
     // eslint-disable-next-line
-  }, [values.idSector, setValues, setRefetchCargos])
+  }, [values.sectorId, setValues, setRefetchCargos])
   
 
 
@@ -162,7 +155,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
       setOrgtypes([])
     }
     // eslint-disable-next-line
-  }, [values.idSector, setValues, setRefetchOrgtypes])
+  }, [values.sectorId, setValues, setRefetchOrgtypes])
 
 
   //Organizaciones
@@ -208,7 +201,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
       setOrganizaciones([])
     }
     // eslint-disable-next-line
-  }, [values.idTipoOrganizacion, setValues, setRefetchOrganizaciones])
+  }, [values.tipoOrganizacionId, setValues, setRefetchOrganizaciones])
 
 
   //Departamento
@@ -348,7 +341,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
             Nombre del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} autoComplete="off" onChange={handleChange}/>
+            <Form.Control style={{height: '3.5rem'}} id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -376,7 +369,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
             Fecha de Nacimiento:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control type='date' id='fechaNacimiento' name='fechaNacimiento' value={values.fechaNacimiento} onChange={handleChange}/>
+            <Form.Control style={{height: '3.5rem'}} type='date' id='fechaNacimiento' name='fechaNacimiento' value={values.fechaNacimiento} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -385,7 +378,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
             Teléfono del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefono' name='telefono' value={values.telefono} maxLength={20} onChange={handleChange}/>
+            <Form.Control style={{height: '3.5rem'}} id='telefono' name='telefono' value={values.telefono} maxLength={20} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -518,7 +511,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
             </Col>
           </Form.Group>
 
-          <Form.Group as={Row} className="my-4">
+          <Form.Group as={Row} className="mt-4">
             <Form.Label column sm="4" className="my-auto">
               Cargo:
             </Form.Label>
@@ -630,7 +623,7 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} className="mb-3">
+            <Form.Group as={Row} className="mb-1">
               <Form.Label column sm="4" className="my-auto">
                 Procedencia:
               </Form.Label>
@@ -659,12 +652,6 @@ export const EditBeneficiario = ({handleClose, setRefetch, beneficiario, fixing=
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!editParticipante && user.userPermisos?.acciones['Beneficiarios']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

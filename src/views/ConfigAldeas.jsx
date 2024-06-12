@@ -60,7 +60,6 @@ export const ConfigAldeas = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false},
-    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
     { field: 'nombre', headerName: 'Nombre de la Aldea', width: 250,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
@@ -148,6 +147,7 @@ export const ConfigAldeas = () => {
         );
       }
     },
+    { field: '_id', headerName: 'uuid', width: 80, description: 'Identificador unico del registro en la Base de Datos.' },
     {
       field: " ",
       headerName: " ",

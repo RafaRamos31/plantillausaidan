@@ -6,7 +6,6 @@ import { useFetchGetBody, useFetchPostBody } from "../../hooks/useFetch.js";
 import { UserContext } from "../../contexts/UserContext.js";
 import { InputDNI } from "../../components/InputDNI.jsx";
 import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { AproveContext } from "../../contexts/AproveContext.js";
 import { InputAutocomplete } from "../../components/InputAutocomplete.jsx";
 import { CrearSectores } from "./CrearSectores.jsx";
 import { CrearOrgtype } from "./CrearOrgtype.jsx";
@@ -17,7 +16,6 @@ import { CrearMunicipio } from "./CrearMunicipio.jsx";
 
 export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, setParticipantes, setRegistrados, refreshDNI, modal=false}) => {
   const { user } = useContext(UserContext);
-  const { aprove, setAprove } = useContext(AproveContext);
 
   //Formulario
   const { values, setValues, handleChange } = useForm({
@@ -35,13 +33,9 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     municipioId: '',
     procedencia: '',
     anotaciones: '',
-    aprobar: modal ? true: aprove
+    aprobar: user.userPermisos?.acciones['Beneficiarios']['Revisar']
   });
 
-  const handleToggleAprobar = () => {
-    setAprove(!aprove);
-    setValues({ ...values, aprobar: !values.aprobar });
-  }
 
   //Sectores
   const findParams = {
@@ -355,7 +349,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             Nombre del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} autoComplete="off" onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='nombre' name='nombre' value={values.nombre.toUpperCase()} maxLength={50} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -383,7 +377,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             Fecha de Nacimiento:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control type='date' id='fechaNacimiento' name='fechaNacimiento' value={values.fechaNacimiento} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} type='date' id='fechaNacimiento' name='fechaNacimiento' value={values.fechaNacimiento} onChange={handleChange}/>
           </Col>
         </Form.Group>
 
@@ -392,17 +386,11 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             Teléfono del Beneficiario:
           </Form.Label>
           <Col sm="8" className="my-auto">
-            <Form.Control id='telefono' name='telefono' value={values.telefono} maxLength={20} onChange={handleChange}/>
+            <Form.Control style={{height: '3rem'}} id='telefono' name='telefono' value={values.telefono} maxLength={20} autoComplete="off" onChange={handleChange}/>
           </Col>
         </Form.Group>
 
- 
-        <Card className="mb-4">
-          <Card.Header>
-            <h5>Categoría</h5>
-          </Card.Header>
-          <Card.Body>
-          <Form.Group as={Row} className="mb-3">
+        <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="4">
             Tipo de Beneficiario:
           </Form.Label>
@@ -421,7 +409,13 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
           </Col>
         </Form.Group>
 
-            <Form.Group as={Row} className="mb-3">
+        <Card className="mb-4">
+          <Card.Header>
+            <h5>Organización</h5>
+          </Card.Header>
+          <Card.Body>
+
+          <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4" className="my-auto">
               Sector:
             </Form.Label>
@@ -455,50 +449,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
               </InputGroup>
             </Col>
           </Form.Group>
-
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm="4" className="my-auto">
-              Categoria de Beneficiario:
-            </Form.Label>
-            <Col sm="8" className="my-auto">
-              <InputGroup>
-                  <InputAutocomplete
-                    valueList={orgtypes} 
-                    value={values.tipoOrganizacionId}
-                    name={'tipoOrganizacionId'}
-                    setValues={setValues}
-                    setRefetch={setRefetchOrgtypes}
-                    ModalCreate={CrearOrgtype}
-                    insert={sectores.length > 0 && user.userPermisos?.acciones['Tipos de Organizaciones']['Crear']}
-                  />
-                {
-                  !updatingOrgtypes ? 
-                  <Button variant="light" onClick={handleUpdateOrgtypes}>
-                    <i className="bi bi-arrow-clockwise"></i>
-                  </Button>
-                  : <Button variant="light">
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                    <span className="visually-hidden">Cargando...</span>
-                  </Button>
-                }
-              </InputGroup>
-            </Col>
-          </Form.Group>
-          </Card.Body>
-        </Card>
-
-
-        <Card className="mb-4">
-          <Card.Header>
-            <h5>Organización</h5>
-          </Card.Header>
-          <Card.Body>
+          
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm="4" className="my-auto">
               Tipo de Organización:
@@ -569,7 +520,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
             </Col>
           </Form.Group>
 
-          <Form.Group as={Row} className="my-4">
+          <Form.Group as={Row} className="mt-4">
             <Form.Label column sm="4" className="my-auto">
               Cargo:
             </Form.Label>
@@ -681,7 +632,7 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} className="mb-3">
+            <Form.Group as={Row} className="mb-1">
               <Form.Label column sm="4" className="my-auto">
                 Procedencia:
               </Form.Label>
@@ -709,12 +660,6 @@ export const CrearBeneficiario = ({handleClose, setRefetch, initialDNI=null, set
     </Card.Body>
     <Card.Footer className="d-flex justify-content-between align-items-center">
       {
-        (!modal && user.userPermisos?.acciones['Beneficiarios']['Revisar'])
-        ?
-        <Form.Group>
-          <Form.Check type="checkbox" label="Aprobar al enviar" id='aprobar' name='aprobar' checked={values.aprobar} onChange={handleToggleAprobar}/>
-        </Form.Group>
-        :
         <div></div>
       }
       {

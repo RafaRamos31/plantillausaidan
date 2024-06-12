@@ -69,10 +69,78 @@ export const ClientBeneficiarios = () => {
 
   const columns = [
     { field: 'id', headerName: '#', width: 50, filterable: false },
-    { field: '_id', headerName: 'uuid', width: 100, description: 'Identificador unico del registro en la Base de Datos.', 
-      filterOperators: getGridStringOperators().filter(
-        (operator) => operator.value === 'equals',
-      )},
+    {
+      field: " ",
+      headerName: " ",
+      width: 160,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        return (
+          <>
+            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
+              <a href={`/reviews/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                <Button  className='py-1' style={buttonStyle}>
+                  <i className="bi bi-eye-fill"></i>{' '}
+                </Button>
+              </a>
+            </OverlayTrigger>
+            {
+              user.userPermisos?.acciones['Beneficiarios']['Modificar'] 
+              &&
+              <>
+              {
+                params.row.editing ?
+                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
+                  <div>
+                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
+                      <i className="bi bi-pencil-fill"></i>
+                    </Button>
+                  </div>
+                </OverlayTrigger>
+                :
+                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
+                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
+                    setCurrentData({
+                      id: params.row._id,
+                      nombre: params.row.nombre,
+                      dni: params.row.dni,
+                      sexo: params.row.sexo,
+                      fechaNacimiento: moment.utc(params.row.fechaNacimiento ).format("YYYY-MM-DD"),
+                      telefono: params.row.telefono,
+                      tipoBeneficiario: params.row.tipoBeneficiario,
+                      sectorId: params.row.sectorId.split('-')[1],
+                      tipoOrganizacionId: params.row.tipoOrganizacionId.split('-')[1],
+                      organizacionId: params.row.organizacionId.split('-')[1],
+                      cargoId: params.row.cargoId.split('-')[1],
+                      departamentoId: params.row.departamentoId.split('-')[1],
+                      municipioId: params.row.municipioId.split('-')[1],
+                      procedencia: params.row.procedencia,
+                      anotaciones: params.row.valueAnotaciones,
+                    })
+                    handleShowEdit()
+                  }}>
+                    <i className="bi bi-pencil-fill"></i>
+                  </Button>
+                </OverlayTrigger>
+              }
+              </>
+            }
+            {
+              user.userPermisos?.acciones['Beneficiarios']['Ver Historial'] 
+              &&
+              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
+                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
+                  <Button  className='py-1' style={buttonStyle}>
+                    <i className="bi bi-clock-history"></i>{' '}
+                  </Button>
+                </a>
+              </OverlayTrigger>
+            }
+          </>
+        );
+      },
+    },
     { field: 'anotaciones', headerName: '', width: 50, filterable: false,
       renderCell: (params) => {
         return (
@@ -80,7 +148,7 @@ export const ClientBeneficiarios = () => {
         );
       },
     }, 
-    { field: 'nombre', headerName: 'Nombre', width: 250,
+    { field: 'nombre', headerName: 'Nombre', width: 300,
       filterOperators: getGridStringOperators().filter(
         (operator) => operator.value === 'contains',
       ),
@@ -234,78 +302,7 @@ export const ClientBeneficiarios = () => {
         );
       }
     },
-    {
-      field: " ",
-      headerName: " ",
-      width: 200,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <OverlayTrigger overlay={<Tooltip>{'Ver'}</Tooltip>}>
-              <a href={`/reviews/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
-                <Button  className='py-1' style={buttonStyle}>
-                  <i className="bi bi-eye-fill"></i>{' '}
-                </Button>
-              </a>
-            </OverlayTrigger>
-            {
-              user.userPermisos?.acciones['Beneficiarios']['Modificar'] 
-              &&
-              <>
-              {
-                params.row.editing ?
-                <OverlayTrigger overlay={<Tooltip>{'En revisión'}</Tooltip>}>
-                  <div>
-                    <Button className='py-1 mx-1' style={{...buttonStyle, backgroundColor: 'gray'}} disabled>
-                      <i className="bi bi-pencil-fill"></i>
-                    </Button>
-                  </div>
-                </OverlayTrigger>
-                :
-                <OverlayTrigger overlay={<Tooltip>{'Editar'}</Tooltip>}>
-                  <Button  className='py-1 mx-1' style={buttonStyle} onClick={() => {
-                    setCurrentData({
-                      id: params.row._id,
-                      nombre: params.row.nombre,
-                      dni: params.row.dni,
-                      sexo: params.row.sexo,
-                      fechaNacimiento: moment.utc(params.row.fechaNacimiento ).format("YYYY-MM-DD"),
-                      telefono: params.row.telefono,
-                      tipoBeneficiario: params.row.tipoBeneficiario,
-                      sectorId: params.row.sectorId.split('-')[1],
-                      tipoOrganizacionId: params.row.tipoOrganizacionId.split('-')[1],
-                      organizacionId: params.row.organizacionId.split('-')[1],
-                      cargoId: params.row.cargoId.split('-')[1],
-                      departamentoId: params.row.departamentoId.split('-')[1],
-                      municipioId: params.row.municipioId.split('-')[1],
-                      procedencia: params.row.procedencia,
-                      anotaciones: params.row.valueAnotaciones,
-                    })
-                    handleShowEdit()
-                  }}>
-                    <i className="bi bi-pencil-fill"></i>
-                  </Button>
-                </OverlayTrigger>
-              }
-              </>
-            }
-            {
-              user.userPermisos?.acciones['Beneficiarios']['Ver Historial'] 
-              &&
-              <OverlayTrigger overlay={<Tooltip>{'Historial de Cambios'}</Tooltip>}>
-                <a href={`/historial/${endpoint}s/${params.row._id}`} target="_blank" rel="noreferrer">
-                  <Button  className='py-1' style={buttonStyle}>
-                    <i className="bi bi-clock-history"></i>{' '}
-                  </Button>
-                </a>
-              </OverlayTrigger>
-            }
-          </>
-        );
-      },
-    }
+    { field: '_id', headerName: 'uuid', width: 100, description: 'Identificador unico del registro en la Base de Datos.', filterable: false},
   ];
   
 
@@ -343,6 +340,8 @@ export const ClientBeneficiarios = () => {
 
   const hiddenColumns = {
     _id: false,
+    sectorId: false,
+    tipoOrganizacionId: false,
     version: false,
     fechaEdicion: false,
     editorId: false,
@@ -424,8 +423,8 @@ export const ClientBeneficiarios = () => {
       {/*Table Container*/}
       <FormattedGrid 
         model={`${endpoint}s`} 
-        pageSize={10} 
-        pageSizeOptions={[10,30,50]}
+        pageSize={15} 
+        pageSizeOptions={[15,30,50]}
         columns={columns} 
         hiddenColumns={hiddenColumns}
         populateRows={populateRows} 
